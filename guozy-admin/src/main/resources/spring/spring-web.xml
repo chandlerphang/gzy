@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<mvc:resources order="-10" location="bootstrap/" mapping="bootstrap/**"></mvc:resources>
+	<mvc:resources order="-10" location="dist/" mapping="dist/**"></mvc:resources>
+	<mvc:resources order="-10" location="plugins/" mapping="plugins/**"></mvc:resources>
+    
+    <mvc:annotation-driven>
+    </mvc:annotation-driven>
+    
+    <bean id="runtimeEnvConfigLoader" class="com.cactus.guozy.common.config.supports.RuntimeEnvConfigLoader" />
+
+    <!--配置velocity-->
+	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="/WEB-INF/tpls/" />
+		<property name="velocityProperties">
+			<props>
+				<prop key="input.encoding">utf-8</prop>
+				<prop key="output.encoding">utf-8</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".html" />
+		<property name="contentType" value="text/html;charset=utf-8"/> 
+        <property name="layoutUrl" value="layout/fullPage.html" />
+        <property name="dateToolAttribute" value="dateTool" />  
+	</bean>
+
+    <!--扫描web相关的controller-->
+    <context:component-scan base-package="com.cactus.guozy.admin.web"/>
+
+	<!--全局异常捕捉 -->
+	<bean class="com.cactus.guozy.admin.exception.GlobalExceptionResolver" />
+
+</beans>

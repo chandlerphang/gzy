@@ -1,0 +1,110 @@
+== 用户注册模块
+
+=== 1. 短信验证码
+
+|===
+|url|method|参数
+
+|register/vcode
+|POST
+|phone={手机号}
+
+|===
+  
+[caption="",cols="3d,7a"] 
+.返回值
+|===
+|status |data
+  
+| 200
+| "ok"
+
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===
+  
+=== 2. 注册
+|===
+|url|method|参数
+
+|register[/]
+|POST
+|phone={手机号} +
+ passwd={密码} +
+ vcode={验证码}
+
+|===
+
+[caption="",cols="3d,7a"] 
+.返回值
+|===
+|status |data
+  
+|200
+|"ok"
+
+| 010204
+| [source, javascript]  
+----
+{"key": "vcodeError", "msg": "验证码错误"}
+----
+
+| 010203
+| [source, javascript]  
+----
+{"key": "phoneExisted", "msg": "用户已存在"}
+----
+
+| 010299
+| [source, javascript]  
+----
+{"key": "", "msg": "该手机号被限制注册"}
+----
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===

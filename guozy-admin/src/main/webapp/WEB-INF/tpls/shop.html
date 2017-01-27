@@ -1,0 +1,32 @@
+<div class="row">
+#foreach( $shop in $shops)
+	<div class="col-md-3">
+		<div class="box box-primary" width="">
+		 	<div class="box-body box-profile">
+		    <img class="profile-user-img img-responsive img-circle" src="dist/img/user4-128x128.jpg" alt="User profile picture">
+		    <h3 class="profile-username text-center">$shop.name</h3>
+		    <ul class="list-group list-group-unbordered">
+		      <li class="list-group-item">
+		        	地址 <a class="pull-right">$shop.address</a>
+		      </li>
+		      <li class="list-group-item">
+		        	登录名
+		      </li>
+		      <li class="list-group-item">
+		           	营业时间 <a class="pull-right">$dateTool.format("HH:mm",$shop.openTime) - $dateTool.format("HH:mm",$shop.closeTime)</a>
+		      </li>
+		      <li class="list-group-item">
+		          	配送距离 <a class="pull-right">$shop.shipDistance 公里</a>
+		      </li>
+		      <li class="list-group-item">
+		        	配送费 <a class="pull-right">$shop.shipPrice 元</a>
+		      </li>
+		    </ul>
+		
+		    <a href="#" class="btn btn-info btn-block"><b>修改</b></a>
+		    <a href="#" class="btn btn-danger btn-block"><b>删除</b></a>
+		  </div>
+		</div>
+	</div>
+#end
+</div>

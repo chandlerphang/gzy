@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+        classpath 'org.hidetake:gradle-ssh-plugin:0.1.7'
+    }
+}
+
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'ssh'
+
+remotes {
+    web01 {
+    	//host = '202.202.68.101'
+        //user = 'dev'
+        
+        host='101.200.134.112'
+        user='dev'
+        identity = file('C:/cygwin64/home/Hui/.ssh/id_rsa')
+    }
+}
+
+ssh {   
+    config(StrictHostKeyChecking: 'no') // needed for deploying to EC2
+}
+
+task toserver(type: SshTask, dependsOn: 'asciidoctor') {
+    def serverPath = '/home/dev/tomcat8/webapps/ROOT'
+    def fileName = "api.html"
+    session(remotes.web01) {
+        println "Uploading new API doc"
+        put("${buildDir}/asciidoc/html5/${fileName}","${serverPath}/${fileName}.new")
+        
+        println "removing old API doc"
+        execute("rm ${serverPath}/${fileName}")
+        
+        println "activating new API doc"
+        execute("mv ${serverPath}/${fileName}{.new,}")
+    }
+}

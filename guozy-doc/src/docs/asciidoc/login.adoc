@@ -1,0 +1,293 @@
+== 用户登录模块
+
+=== 1. 登录
+
+|===
+|url|method|参数
+
+|login
+|POST
+|phone={手机号} +
+ passwd={密码} +
+
+|===
+
+[caption="",cols="3d,7a"]
+.返回值
+|===
+|status |data
+  
+| 200
+| [source, javascript]
+----
+{
+  "status": "200",
+  "data": {
+    "id": 1000,
+    "nickname": null,
+    "isSaler": false,
+    "canLineToSaler": true,
+    "deactivated": false,
+    "avatar": "/cmsasset/profile/1000/F6a5OsmVC0IbvOGA.jpg",
+    "token": "" 	//"TOKEN" 客户端需存储token作为授权凭证
+  }
+}
+----
+
+| 010303
+| [source, javascript] 
+----
+{"key": "userNotFound", "msg": "账号错误"}
+----
+
+| 010304
+| [source, javascript] 
+----
+{"key": "passwdError", "msg": "密码错误"}
+----
+
+| 010399
+| [source, javascript] 
+----
+{"key": "", "msg": "该手机号被限制登录"}
+----
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===
+  
+=== 2. 重置密码
+  
+|===
+|url|method|参数
+
+| resetpwd
+| POST
+| vcode={验证码} +
+  passwd={新密码} +
+  HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="",cols="3d,7a"] 
+.返回值
+|===
+|status |data
+  
+| 200
+| "ok"
+
+| 010404
+| [source, javascript]  
+----
+{"key": "vcodeError", "msg": "验证码错误"}
+----
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===
+  
+=== 3. 重置密码验证	
+  
+|===
+|url|method|参数
+
+| resetpwd/vcode
+| POST
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="",cols="3d,7a"] 
+.返回值
+|===
+|status |data
+  
+| 200
+| "ok"
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===
+
+=== 4. 忘记密码 验证码
+
+|===
+|url|method|参数
+
+|/nopwdlogin/vcode
+|POST
+|phone={手机号}
+
+|===
+
+[caption="",cols="3d,7a"]
+.返回值
+|===
+|status |data
+  
+| 200
+| "ok"
+
+| 010303
+| [source, javascript] 
+----
+{"key": "userNotFound", "msg": "账号错误"}
+----
+
+| 010399
+| [source, javascript] 
+----
+{"key": "", "msg": "该手机号被限制登录"}
+----
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===
+
+=== 5. 忘记密码登录
+
+|===
+|url|method|参数
+
+|/nopwdlogin
+|POST
+|phone={手机号} +
+ passwd={新密码} +
+ vcode={验证码}
+
+|===
+
+[caption="",cols="3d,7a"]
+.返回值
+|===
+|status |data
+  
+| 200
+| "TOKEN" 客户端需存储token作为授权凭证
+
+| 010303
+| [source, javascript] 
+----
+{"key": "userNotFound", "msg": "账号错误"}
+----
+
+| 010399
+| [source, javascript] 
+----
+{"key": "", "msg": "该手机号被限制登录"}
+----
+  
+| 000101
+| [source, javascript]  
+----
+{"key": "paramsError", "msg": "参数错误"}
+----
+  
+| 000102
+| [source, javascript]  
+----
+{"key": "reqveryoften", "msg": "请求过频"}
+---- 
+
+| 000103
+| [source, javascript]  
+----
+{"key": "", "msg": "请求被限制"}
+----  
+  
+| 000104
+| [source, javascript]  
+----
+{"key": "serverError", "msg": "内部错误"}
+---- 
+  
+|===

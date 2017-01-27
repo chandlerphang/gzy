@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.core.dao.OrderDao">
+  <resultMap id="order" type="com.cactus.guozy.core.domain.Order">
+    <id column="odr_id" property="id" />
+    <result column="odr_num" property="orderNumber" />
+    <result column="status" property="status" />
+    <result column="total" property="total" />
+    <result column="subtotal" property="subTotal" />
+    <result column="ship_price" property="shipPrice" />
+    <result column="sale_price" property="salePrice" />
+    <result column="sale_price_override" property="salePriceOverride"/>
+    <result column="is_saler_odr" property="isSalerOrder" />
+    <result column="date_created" property="dateCreated" />
+    <result column="date_updated" property="dateUpdated" />
+    <result column="created_by" property="createdBy" />
+    <result column="updated_by" property="updatedBy" />
+    <result column="date_submited" property="dateSubmited" />
+  </resultMap>
+  
+  <resultMap id="orderItem" type="com.cactus.guozy.core.domain.OrderItem">
+    <id column="id" property="id" />
+    <result column="price" property="price" />
+    <result column="quantity" property="quantity" />
+    <association property="goods" resultMap="com.cactus.guozy.core.dao.GoodsDao.goods"/>
+  </resultMap>
+  
+  <resultMap id="orderWithRel" extends="order" type="com.cactus.guozy.core.domain.Order">
+  	<association property="shop" resultMap="com.cactus.guozy.core.dao.ShopDao.shop" />
+  	<collection property="orderItems" resultMap="orderItem"/>
+  </resultMap>
+  
+  <resultMap type="com.cactus.guozy.core.domain.OrderAdjustment" id="orderAdjustment">
+  	<id column="adj_id" property="id" />
+    <result column="adj_reason" property="reason" />
+    <result column="adj_value" property="value" />
+    <association property="order" resultMap="order"/>
+    <association property="userOffer" resultMap="com.cactus.guozy.core.dao.OfferDao.useroffer"/>
+  </resultMap>
+  
+  <select id="readUserForOrder" resultMap="com.cactus.guozy.profile.dao.UserDao.userResult" parameterType="java.lang.Long" >
+  	SELECT `user`.* FROM `order` LEFT JOIN `user` ON `order`.`uid` = `user`.`id` WHERE `order`.`odr_id`=#{orderId} 
+  </select>
+  
+  <insert id="insertOrderItemBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">  
+    insert into order_item (odr_id,price,quantity,goods_id)   
+    values  
+    <foreach collection="list" item="item" index="index" separator="," >  
+        (#{item.order.id},#{item.price},#{item.quantity},#{item.goods.id})  
+    </foreach>  
+  </insert>  
+  
+  <insert id="insertOrder" parameterType="com.cactus.guozy.core.domain.Order" useGeneratedKeys="true" keyProperty="id">
+    insert into `order`(`sid`, `status`,`sale_price_override`,`is_saler_odr`,
+    	`date_created`,`created_by`,`date_updated`,`updated_by`
+    <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="orderNumber != null">
+        `odr_num`,
+      </if>
+      <if test="shipPrice != null">
+        `ship_price`,
+      </if>
+      <if test="shipAddr!=null and shipAddr.id!=null">
+        `ship_addr`,
+      </if>
+      <if test="user!=null and user.id!=null">
+        `uid`,
+      </if>
+    </trim>
+    values (#{shop.id},#{status},#{salePriceOverride},#{isSalerOrder},
+    	#{dateCreated},#{createdBy},#{dateUpdated},#{updatedBy}
+   <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="orderNumber != null">
+        #{orderNumber},
+      </if>
+      <if test="shipPrice != null">
+        #{shipPrice},
+      </if>
+      <if test="shipAddr!=null and shipAddr.id!=null">
+        #{shipAddr.id},
+      </if>
+      <if test="user!=null and user.id!=null">
+        #{user.id},
+      </if>
+    </trim>
+  </insert>
+
+  <delete id="deleteItem" parameterType="java.lang.Long">
+  	DELETE FROM `order_item` WHERE `id`=#{itemId}
+  </delete>
+  
+  <insert id="insertOfferToOrder">
+  	INSERT INTO `order_adjustment` (`odr_id`, `usroffer_id`) VALUES(#{param1},#{param2})
+  </insert>
+  
+  <delete id="deleteOrderAdjustment">
+  	DELETE FROM `order_adjustment` WHERE `odr_id`=#{param1} AND `usroffer_id`=#{param2}
+  </delete>
+  
+  <delete id="deleteAllOrderAdjustments">
+  	DELETE FROM `order_adjustment` WHERE `odr_id`=#{param1}
+  </delete>
+  
+  <update id="updateItem">
+  	UPDATE `order_item` SET `quantity`=#{2} WHERE `id`=#{1}
+  </update>
+  
+  <update id="updateAddress">
+  	UPDATE `order` SET `ship_addr`=#{param2} WHERE `odr_id`=#{param1}
+  </update>
+  
+  <update id="updateStatus">
+  	UPDATE `order` SET `status`=#{param2} WHERE `odr_id`=#{param1}
+  </update>
+  
+  <select id="readOrdersUnpay" parameterType="java.lang.Long" resultMap="order">
+  	SELECT * FROM `order` WHERE `uid`=#{userId} AND `status`='SUBMITTED'
+  </select>
+  
+  <select id="readOrdersCompleted" parameterType="java.lang.Long" resultMap="order">
+  	SELECT * FROM `order` WHERE `uid`=#{userId} AND `status`='COMPLETED'
+  </select>
+  
+  <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="order">
+  	SELECT * FROM `order` WHERE `created_by`=#{salerId} AND `is_saler_odr`=b'1'
+  </select>
+  
+  <update id="updateTotal" parameterType="com.cactus.guozy.core.domain.Order" >
+  	UPDATE `order` SET `total`=#{total}, `subtotal`=#{subTotal} WHERE `odr_id`=#{id}
+  </update>
+  
+  <select id="readAllAdjustments" parameterType="java.lang.Long" resultMap="orderAdjustment">
+  	SELECT id as adj_id, value as adj_value, reason as adj_reason FROM `order_adjustment` WHERE `odr_id`=#{orderId}
+  </select>
+  
+  <select id="readOrderById" parameterType="java.lang.Long" resultMap="orderWithRel">
+  	SELECT * FROM `order` odr 
+  		LEFT JOIN `order_item` item ON odr.odr_id=item.odr_id
+  	WHERE odr.`odr_id`=#{orderId}
+  </select>
+</mapper>

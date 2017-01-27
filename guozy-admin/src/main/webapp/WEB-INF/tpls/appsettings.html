@@ -1,0 +1,155 @@
+<div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#aboutus" data-toggle="tab" aria-expanded="true">关于我们</a></li>
+              <li><a href="#fruitcs" data-toggle="tab" aria-expanded="true">水果常识</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="aboutus">
+              
+              <div class="row">
+	             	<div class="col-md-3"></div>
+	              	<div class="form-group col-md-5">
+	              		<div class="input-group">
+	                	<input class="form-control" type="text" id="aboutus_src" value="$aboutus">
+	                    <span class="input-group-btn">
+	                      <button type="button" id="abtbtn" class="btn btn-info btn-flat">保存</button>
+	                    </span>
+	              		</div>
+              		</div>
+	           </div>
+	           <script type="text/javascript">
+	           function loadPage($frame, url) {
+	        		if (url.substr(0, 7) != 'http://') {
+	        			url = 'http://' + url;
+	        		}
+	        		//$('#abtframes iframe').not($frame).data('loaded', false);
+	        		$('#abtframes iframe').not($frame).attr('src', url);
+	        	}
+	           
+	           $(document).ready(
+	   				function() {
+	   					var url = $('#aboutus_src').val();
+   						if (url != '') {
+   							loadPage('', url);
+   						} 
+	   					
+	   					$('#abtbtn').click(function(){
+	   						var url = $('#aboutus_src').val();
+	   						if (url != '') {
+								$.post('appsettings/aboutus', 'url='+url, function(data){
+									if(data.status != '200') {
+										alert("错误: " + data.status);	
+									}
+								});
+	   							loadPage('', url);
+	   						} 
+	   					});
+	   				}
+	   			);
+	           </script>
+              	
+              	<div id="abtframes" class="row">
+              		<div class="col-md-4"></div>
+					<div id="f2" class="col-md-4">
+						<h2>320<span> x 480</span> <span class="small">(iPhone)</span> <img src="http://mattkersley.com/responsive/loader_large.gif" style="display: none;"></h2>
+						<iframe style="border: solid 1px #ccc;" width="335" height="480" src=""></iframe>
+					</div>
+              	</div>
+              	
+			 </div>
+              <!-- /.tab-pane -->
+              <div class="tab-pane" id="fruitcs">
+              
+              <div class="row">
+              	<div class="col-md-7" style="overflow:auto">
+              	  <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+		          
+		          <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+		          
+		          <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+		          
+		          <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+		          
+		          <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+		          
+		          <div class="info-box" style="cursor:pointer;">
+		            <span class="info-box-icon"><img src="http://placehold.it/150x100" alt="..."></span>
+		            <div class="info-box-content">
+			          <span class="pull-right">
+			            <button type="button" class="btn btn-box-tool" data-widget="add"><i class="fa fa-plus"></i></button>
+		                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+		              </span>
+		              <span class="info-box-text margin">苹果苹果苹果</span>
+		              <span class="info-box-text margin" style="margin-top:0px;font-size:12px;text-transform:none">http://placehold.it/150x100</span>
+		            </div>
+		            <!-- /.info-box-content -->
+		          </div>
+              	</div>
+              	
+              	<div class="col-md-5">
+              		<div id="f2">
+						<iframe style="border: solid 1px #ccc;" width="335" height="480" src=""></iframe>
+					</div>
+              	</div>
+              </div>
+   
+              </div>
+              <!-- /.tab-pane -->
+            </div>
+            <!-- /.tab-content -->
+</div>

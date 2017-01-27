@@ -1,0 +1,7 @@
+package com.cactus.guozy.core.service.exception;
+
+public class ServiceException extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;
+
+}

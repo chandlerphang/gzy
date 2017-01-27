@@ -1,0 +1,15 @@
+include 'guozy-admin'
+include 'guozy-doc'
+include 'guozy-common'
+include 'guozy-core'
+include 'guozy-api'
+
+
+rootProject.name = "guozy"
+
+renameChildBuildFiles(rootProject)
+void renameChildBuildFiles(parentProject) {
+    for (p in parentProject.children) {
+        p.buildFileName = (p.name - "guozy-") + ".gradle"
+    }
+}

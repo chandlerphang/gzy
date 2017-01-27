@@ -1,0 +1,55 @@
+= 果之源API接口定义
+彭乾慧 <chandlerphang@outlook.com>
+v2.0, 2017-01-04
+:toc: left
+:toc-title: 目录
+:source-highlighter: coderay
+
+:toc!:
+
+ baseurl = http://101.200.134.112:8080/guozy/api/v1/
+ 
+返回数据通用格式
+
+[source, javascript]
+----
+{
+	"status": ""   // 处理结果状态；字符串类型
+	"data": Object // 处理结果数据；类型不确定，具体看各个api的描述
+}
+----
+
+NOTE: 只有status等于``200``时才表示流程正常返回，此时data包含的是服务器返回的数据；
+其它代码均表示错误状态，具体指代的意义会在后面给出
+
+include::register.adoc[]
+
+<<<
+
+include::login.adoc[]
+
+<<<
+
+include::catalog.adoc[]
+
+<<<
+include::order.adoc[]
+
+<<<
+
+include::profile.adoc[]
+
+== TODO
+
+.TODO list
+- [line-through]*重置密码加上token（文档）*
+- [line-through]*重置密码验证去掉手机号（文档）*
+- [line-through]*忘记密码*
+- [line-through]*登录后的信息*
+- [line-through]*目录'商品' -> '清单'*
+- 用户名密码错误做细分 -> 用户名错还是密码错
+- [line-through]*购物车接口*
+- 订单相关接口
+- 商品下架
+- [line-through]*关于我们*
+- [line-through]*水果常识*

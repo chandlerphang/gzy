@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.profile.dao.UserDao">
+  <resultMap id="userResult" type="com.cactus.guozy.profile.domain.User">
+  	<id column="id" property="id"/>
+    <result column="phone" property="phone" />
+    <result column="password" property="password" />
+    <result column="nickname" property="nickname" />
+    <result column="deactivated" property="deactivated" />  
+    <result column="is_saler" property="isSaler" />
+    <result column="line_to_saler" property="canLineToSaler" />
+    <result column="avatar" property="avatar"/>
+    <result column="create_time" property="dateCreated"/>
+  </resultMap>
+  
+  <resultMap id="address" type="com.cactus.guozy.profile.domain.Address">
+  	<id column="id" property="id"/>
+    <result column="name" property="name" />
+    <result column="addr_line1" property="addrLine1"/>
+    <result column="addr_line2" property="addrLine2"/>
+    <result column="phone" property="phone"/>
+    <result column="is_def" property="isDefault"/>
+  </resultMap>
+  
+  <select id="readUserById" parameterType="java.lang.Long" resultMap="userResult">
+  	select id,phone,password,nickname,deactivated,is_saler,line_to_saler from user where id=#{id}
+  </select>
+  
+  <select id="readUserByPhone" parameterType="java.lang.String" resultMap="userResult">
+  	select * from user where phone=#{phone}
+  </select>
+  
+  <select id="readAllUsers" resultMap="userResult">
+  	select * from user
+  </select>
+  
+  <select id="readPhoneById" parameterType="java.lang.Long"  resultType="java.lang.String">
+  	SELECT PHONE from user where id=#{id}
+  </select>
+  
+  <select id="readAddressForUser" parameterType="java.lang.Long" resultMap="address">
+  	SELECT * from address where uid=#{id}
+  </select>
+  
+  <insert id="insertUser" parameterType="com.cactus.guozy.profile.domain.User" useGeneratedKeys="true" keyProperty="id">
+    insert into user (phone,password,nickname
+    <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="deactivated != null">
+        deactivated,
+      </if>
+      <if test="isSaler != null">
+        is_saler,
+      </if>
+      <if test="canLineToSaler != null">
+        line_to_saler,
+      </if>
+    </trim>
+    values (#{phone},#{password},#{nickname}
+    <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="deactivated != null">
+        #{deactivated},
+      </if>
+      <if test="isSaler != null">
+        #{isSaler},
+      </if>
+      <if test="canLineToSaler != null">
+        #{canLineToSaler},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updatePassword">
+  	update user set password=#{passwd} where id=#{id} 
+  </update>
+  
+  <update id="updateAvatarUrl" >
+  	update user set avatar=#{newurl} where id=#{id} 
+  </update>
+  
+   <update id="updateNickname" >
+  	update user set nickname=#{newname} where id=#{id} 
+  </update>
+  
+   <insert id="addNewAddress" useGeneratedKeys="true" keyProperty="addr.id">
+    insert into address (name,addr_line1,addr_line2,phone,is_def,uid)
+    VALUES (#{addr.name},#{addr.addrLine1},#{addr.addrLine2},#{addr.phone},#{addr.isDefault},#{uid})
+   </insert>
+   
+   <update id="unDefaultAddr" parameterType="java.lang.Long">
+    UPDATE `address` set is_def=b'0' where uid=#{uid}
+   </update>
+   
+   <select id="readSalersByShopId" parameterType="java.lang.Long" resultMap="userResult">
+   		select * from `user` where `is_saler`=b'1' and `sid`=#{sid}
+   </select>
+</mapper>

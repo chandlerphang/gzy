@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.common.cms.dao.AssetDao">
+  <resultMap id="asset" type="com.cactus.guozy.common.cms.Asset">
+    <result column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="url" property="url" />
+    <result column="title" property="title" />
+    <result column="alt_txt" property="altText" />
+    <result column="mime" property="mimeType" />
+    <result column="size" property="fileSize" />
+    <result column="ext" property="fileExtension" />
+    <result column="date_created" property="dateCreated" />
+    <result column="date_updated" property="dateUpdated" />
+  </resultMap>
+  
+  <select id="readAssetById" parameterType="java.lang.Long" resultMap="asset">
+  	SELECT *
+  	FROM asset
+  	WHERE id = #{id}
+  </select>
+  
+  <select id="readAssetByUrl" parameterType="java.lang.String" resultMap="asset">
+  	SELECT *
+  	FROM asset
+  	WHERE url=#{url}
+  </select>
+  
+   <insert id="insertAsset" parameterType="com.cactus.guozy.common.cms.Asset" useGeneratedKeys="true" keyProperty="id">
+    insert into asset (name,url    
+    <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        title,
+      </if>
+      <if test="altText != null">
+        alt_txt,
+      </if>
+      <if test="mimeType != null">
+        mime,
+      </if>
+      <if test="fileSize != null">
+        size,
+      </if>
+      <if test="fileExtension != null">
+        alt_txt,
+      </if>
+      <if test="dateCreated != null">
+        date_created,
+      </if>
+      <if test="dateUpdated != null">
+        date_updated,
+      </if>
+    </trim>
+    values (#{name},#{url}
+    <trim prefix="," suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        #{title},
+      </if>
+      <if test="altText != null">
+        #{altText},
+      </if>
+      <if test="mimeType != null">
+        #{mimeType},
+      </if>
+      <if test="fileSize != null">
+        #{fileSize},
+      </if>
+      <if test="fileExtension != null">
+        #{fileExtension},
+      </if>
+      <if test="dateCreated != null">
+        #{dateCreated},
+      </if>
+      <if test="dateUpdated != null">
+        #{dateUpdated},
+      </if>
+    </trim>
+  </insert>
+  
+	
+</mapper>

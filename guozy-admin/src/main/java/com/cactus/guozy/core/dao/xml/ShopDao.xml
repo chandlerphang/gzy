@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.core.dao.ShopDao">
+  <resultMap id="shop" type="com.cactus.guozy.core.domain.Shop">
+    <id column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="address" property="address" />
+    <result column="ship_distance" property="shipDistance" />
+    <result column="ship_price"  property="shipPrice" />
+    <result column="open_time" property="openTime" />
+    <result column="close_time" property="closeTime" />
+  </resultMap>
+  
+  <resultMap id="category" type="com.cactus.guozy.core.domain.Category">
+    <result column="cid" jdbcType="INTEGER" property="id" />
+    <result column="cname" jdbcType="VARCHAR" property="name" />
+    <result column="csid" jdbcType="INTEGER" property="sid" />
+  </resultMap>
+  
+  <resultMap id="shopWithCategory" extends="shop" type="com.cactus.guozy.core.domain.Shop">
+	<collection property="categories" resultMap="category"/>
+  </resultMap>
+  
+  <insert id="insert" parameterType="com.cactus.guozy.core.domain.Shop">
+    insert into shop (name, address, admin, ship_distance, ship_price, open_time, close_time)
+    values (#{id}, #{name}, #{address}, #{admin}, #{shipDistance}, #{shipPrice}, #{openTime}, #{closeTime})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cactus.guozy.core.domain.Shop">
+    insert into shop
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="admin != null">
+        admin,
+      </if>
+      <if test="shipDistance != null">
+        ship_distance,
+      </if>
+      <if test="shipPrice != null">
+        ship_price,
+      </if>
+      <if test="openTime != null">
+        open_time,
+      </if>
+      <if test="closeTime != null">
+        close_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="admin != null">
+        #{admin,jdbcType=INTEGER},
+      </if>
+      <if test="shipDistance != null">
+        #{shipDistance,jdbcType=TINYINT},
+      </if>
+      <if test="shipPrice != null">
+        #{shipPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="openTime != null">
+        #{openTime},
+      </if>
+      <if test="closeTime != null">
+        #{closeTime},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="readAllShops" resultMap="shop">
+  	SELECT * FROM shop
+  </select>
+  
+  <select id="readShopWithCategory" parameterType="java.lang.Long" resultMap="shopWithCategory">
+  	SELECT s.id as id, s.name as name,address,ship_distance,ship_price,open_time,close_time,c.id as cid, c.name as cname
+  	FROM shop s LEFT OUTER JOIN category c ON s.id=c.sid
+  	WHERE s.id = #{id} 
+  </select>
+</mapper>

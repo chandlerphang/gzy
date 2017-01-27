@@ -1,0 +1,138 @@
+== 订单
+=== 1. 提交订单
+|===
+|url|method|参数
+
+| /orders
+| POST
+| HEADER: 'x-auth-token' = {token} +
+  json: Order (同我的返回数据)
+
+|===
+
+[caption="", cols="3d,7a"]
+.返回值
+|===
+| status | data
+
+| 200
+| 
+[source, javascript]
+----
+{
+  "id": 1,
+  "orderNumber": "20170112164040137QW",
+  "orderItems": [
+    {
+      "id": null,
+      "price": 1.5,
+      "quantity": 10,
+      "goodsId": 1000
+    }
+  ],
+  "shipAddr": "XXXXXXXXXX",
+  "shipPrice": 20.5,
+  "candidateOrderOffers": [
+    {
+      "id": 1,
+      "name": "xx",
+      "description": "吐血大减价",
+      "discountType": "PERCENT_OFF",
+      "value": 0.75,
+      "maxUsesPerOrder": 1
+    }
+  ],
+  "salePrice": null,
+  "salePriceOverride": false,
+  "isSalerOrder": false
+}
+----
+|===
+
+=== 2. 去支付
+|===
+|url|method|参数
+
+| /orders/checkout
+| POST
+| HEADER: 'x-auth-token' = {token} +
+  orderId={订单号}
+
+|===
+
+
+=== 4. 删除项目
+|===
+|url|method|参数
+
+| /orders/items/{itemId}
+| Delete
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+=== 5. 更新项目
+|===
+|url|method|参数
+
+| /orders/items/{itemId}
+| PUT
+| quantity={数量} +      
+  HEADER: 'x-auth-token' = {token}
+
+|===
+
+=== 6. 添加一项优惠
+|===
+|url|method|参数
+
+| /orders/offer
+| POST
+| offerId={优惠Id} +      
+  orderId={订单Id} +   
+  HEADER: 'x-auth-token' = {token}
+
+|===
+
+=== 7. 移除一项优惠
+|===
+|url|method|参数
+
+| /orders/offer
+| DELETE
+| offerId={优惠Id} +  
+  orderId={订单Id} +  
+  HEADER: 'x-auth-token' = {token}
+
+|===
+
+=== 7. 移除所有优惠
+|===
+|url|method|参数
+
+| /orders/offers
+| DELETE
+| offerId={优惠Id} +  
+  orderId={订单Id} +
+  HEADER: 'x-auth-token' = {token}
+
+|=== 
+=== 8. 查找所有待支付订单
+|===
+|url|method|参数
+
+| /orders/topay
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+=== 9. 查找已支付订单
+|===
+|url|method|参数
+
+| /orders/history
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===

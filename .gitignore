@@ -1,0 +1,16 @@
+.settings
+bin
+.gradle
+
+/build
+/guozy-*/build
+target/
+
+# Eclipse artifacts, including WTP generated manifests
+.classpath
+.project
+guozy-*/src/main/java/META-INF/MANIFEST.MF
+
+out
+test-output
+.gradletasknamecache

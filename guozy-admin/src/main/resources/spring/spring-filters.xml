@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd">
+        
+    <bean id="restPreSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+        <sec:filter-chain-map request-matcher="ant">        
+            <sec:filter-chain pattern="/api/**" filters="
+               statelessSessionFilter"/>
+        </sec:filter-chain-map>
+    </bean>
+    
+    <bean id="postSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+        <sec:filter-chain-map request-matcher="ant">        
+            <sec:filter-chain pattern="/**" filters="
+               wakaRequestFilter"/>
+        </sec:filter-chain-map>
+    </bean>
+    
+</beans>

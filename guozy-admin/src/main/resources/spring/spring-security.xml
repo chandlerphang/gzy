@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:sec="http://www.springframework.org/schema/security" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <sec:http pattern="/bootstrap/**" security="none" />
+    <sec:http pattern="/dist/**" security="none" />
+    <sec:http pattern="/plugins/**" security="none" />
+    <sec:http pattern="/**/*.css" security="none" />
+    <sec:http pattern="/**/*.js" security="none" />
+    <sec:http pattern="/robots.txt" security="none" />
+    <sec:http pattern="/login" security="none" />
+    <sec:http pattern="/**/${asset.url.prefix}/**" security="none" />
+    <sec:http pattern="/${asset.url.prefix}/**" security="none" />
+    <sec:http pattern="/api/*/login" security="none" />
+    <sec:http pattern="/api/*/nopwdlogin/**" security="none" />
+    <sec:http pattern="/api/*/register/**" security="none" />
+    <sec:http pattern="/api/*/catalog/**" security="none" />
+    <sec:http pattern="/api/*/open/payNotify/**" security="none" />
+    
+    <sec:http
+    	auto-config="false" 
+    	authentication-manager-ref="apiAuthenticationManager"
+    	pattern="/api/**"
+    	create-session="stateless"
+		entry-point-ref="apiAuthenticationEntryPoint">
+		<sec:csrf disabled="true"/>
+		
+		<sec:custom-filter ref="restPreSecurityFilterChain" before="CHANNEL_FILTER"/>
+		<sec:custom-filter ref="apiAuthenticationFilter" before="FORM_LOGIN_FILTER" />
+	</sec:http>
+	
+	<bean id="apiAuthenticationFilter" class="com.cactus.guozy.api.security.ApiAuthenticationProcessingFilter">
+        <property name="authenticationManager" ref="apiAuthenticationManager" />
+        <property name="authenticationSuccessHandler" ref="apiAuthenticationSuccessHandler" />
+        <property name="authenticationFailureHandler" ref="apiAuthenticationFailureHandler"></property>
+    </bean>
+
+    <sec:authentication-manager id="apiAuthenticationManager" alias="apiAuthenticationManager">
+        <sec:authentication-provider ref="apiAuthenticationProvider" />
+    </sec:authentication-manager>
+    
+    <bean id="apiAuthenticationProvider" class="com.cactus.guozy.api.security.ApiAuthenticationProvider"></bean>
+    <bean id="apiAuthenticationSuccessHandler" class="com.cactus.guozy.api.security.ApiAuthenticationSuccessHandler"></bean>
+    <bean id="apiAuthenticationFailureHandler" class="com.cactus.guozy.api.security.ApiAuthenticationFailureHandler"></bean>
+    <bean id="apiAuthenticationEntryPoint" class="com.cactus.guozy.api.security.RestAuthenticationEntryPoint"/>
+    
+    
+    
+    
+    
+	<sec:http auto-config="false" disable-url-rewriting="true"
+		authentication-manager-ref="adminAuthenticationManager"
+		entry-point-ref="adminAuthenticationEntryPoint">
+		<sec:intercept-url pattern="/*" requires-channel="any" />
+		<sec:intercept-url pattern="/**" requires-channel="any" />
+
+		<sec:form-login 
+			authentication-failure-handler-ref='adminAuthenticationFailureHandler'
+			authentication-success-handler-ref='adminAuthenticationSuccessHandler'
+			login-processing-url="/login_admin_post" />
+		<sec:logout invalidate-session="true" logout-url="/admin_logout" logout-success-url="/login" />
+		
+		<sec:csrf disabled="true"/>
+		<sec:custom-filter ref="adminFilterSecurityInterceptor" after="EXCEPTION_TRANSLATION_FILTER" />
+		<sec:custom-filter ref="postSecurityFilterChain" after="SWITCH_USER_FILTER"/>
+	</sec:http>
+
+	<sec:authentication-manager alias="adminAuthenticationManager">
+		<sec:authentication-provider user-service-ref="adminUserDetailsService">
+		 	<sec:password-encoder ref="passwdEncoder"/>
+		</sec:authentication-provider>
+	</sec:authentication-manager>
+	<bean id="adminUserDetailsService" class="com.cactus.guozy.admin.security.AdminUserDetailsServiceImpl" />
+	<bean id="adminAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<constructor-arg value="/login" />
+		<property name="useForward" value="true" />
+	</bean>
+
+	<bean id="adminAuthenticationFailureHandler"
+		class="com.cactus.guozy.admin.security.AdminAuthenticationFailureHandler">
+		<constructor-arg value="/login?login_error=true" />
+	</bean>
+
+	<bean id="adminAuthenticationSuccessHandler" class="com.cactus.guozy.admin.security.AdminAuthenticationSuccessHandler">
+		<property name="defaultTargetUrl" value="/home" />
+		<property name="alwaysUseDefaultTargetUrl" value="false" />
+	</bean>
+
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter">
+					<property name="rolePrefix" value="PERMISSION_" />
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="adminFilterSecurityInterceptor"
+		class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<property name="accessDecisionManager" ref="accessDecisionManager" />
+		<property name="authenticationManager" ref="adminAuthenticationManager" />
+		<property name="securityMetadataSource">
+			<sec:filter-security-metadata-source use-expressions="false">
+				<sec:intercept-url pattern="/**/*" access="PERMISSION_OTHER_DEFAULT" />
+				<sec:intercept-url pattern="/*" access="PERMISSION_OTHER_DEFAULT" />
+			</sec:filter-security-metadata-source>
+		</property>
+	</bean>
+</beans>

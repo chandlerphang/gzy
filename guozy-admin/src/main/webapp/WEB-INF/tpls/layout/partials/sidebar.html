@@ -1,0 +1,39 @@
+<ul class="sidebar-menu">
+	<li class="header">菜单</li>
+	#if($adminMenu)
+		#foreach($module in $adminMenu.AdminModules)
+		#if($module.id)
+		<li class="treeview #if($currentAdminModule && $currentAdminModule.id == $module.id)active#end">
+	         <a href="javascript:void(0);">
+	           <i class="fa #if($module.Icon)$module.Icon#{else}fa-circle-o#end"></i><span>$module.Name</span>
+	           <span class="pull-right-container">
+	             <i class="fa fa-angle-left pull-right"></i>
+	           </span>
+	         </a>
+	         <ul class="treeview-menu #if($currentAdminModule && $currentAdminModule.id == $module.id)active#end">
+				#foreach( $func in $module.funcs )
+					<li #if($currentAdminFunc && $currentAdminFunc.id == $func.id)class="active"#end>
+						<a href="$func.Url.substring(1)">
+							<i class="fa #if($func.Icon)$func.Icon#{else}fa-circle-o#end"></i>
+							$func.Name
+						</a>
+					</li>
+				#end
+	         </ul>
+	    </li>
+	    #else
+			#foreach( $func in $module.funcs )
+			<li #if($currentAdminFunc && $currentAdminFunc.id == $func.id)class="active"#end>
+				<a href="$func.Url.substring(1)">
+					<i class="fa #if($func.Icon)$func.Icon#{else}fa-circle-o#end"></i>
+					<span>$func.Name</span>
+					<span class="pull-right-container">
+		             <i class="fa fa-angle-left pull-right"></i>
+		            </span>
+				</a>
+			</li>
+			#end
+		#end
+		#end
+	#end
+</ul> 

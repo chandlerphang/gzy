@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.admin.dao.AdminNavigationDao">
+  <resultMap id="func" type="com.cactus.guozy.admin.domain.AdminFunction">
+  	<id column="id" property="id"/>
+    <result column="name" property="name" />
+    <result column="key" property="funcKey" />
+    <result column="url" property="url" />
+    <result column="icon" property="icon" />
+    <result column="order" property="displayOrder" /> 
+  </resultMap>
+  <resultMap id="funcwithmodule" extends="func" type="com.cactus.guozy.admin.domain.AdminFunction" >
+  	  <association property="module" resultMap="module"/>
+  </resultMap>
+  
+  <resultMap id="module" type="com.cactus.guozy.admin.domain.AdminModule">
+  	<id column="md_id" property="id"/>
+    <result column="md_name" property="name" />
+    <result column="md_key" property="moduleKey" />
+    <result column="md_icon" property="icon" />
+    <result column="md_order" property="displayOrder" /> 
+  </resultMap>
+  <resultMap id="modulewithfuncs" extends="module" type="com.cactus.guozy.admin.domain.AdminModule" >
+  	  <collection property="funcs" resultMap="func"/>
+  </resultMap>
+  
+  <select id="readAllModules" resultMap="module">
+  	select * from admin_module
+  </select>
+  
+  <select id="readAllModulesAndFuncs" resultMap="modulewithfuncs">
+  	select * from admin_module m left join admin_func f on m.md_id = f.`id`
+  </select>
+  
+  <select id="readFuncsWithoutModule" resultMap="func">
+  	select * from admin_func where mid is null
+  </select>
+  
+  <select id="readAllFuncs" resultMap="func">
+  	select * from admin_func
+  </select>
+  
+  <select id="readFuncByURI" parameterType="java.lang.String" resultMap="funcwithmodule">
+  	select * from admin_func f left join admin_module m on m.md_id = f.id where f.`url`=#{uri}
+  </select>
+  
+  <select id="readFuncByKey" parameterType="java.lang.String" resultMap="funcwithmodule">
+  	select * from admin_func f left join admin_module m on m.md_id = f.id where f.`key`=#{funcKey}
+  </select>
+  
+</mapper>

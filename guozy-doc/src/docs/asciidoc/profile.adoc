@@ -1,0 +1,281 @@
+== 个人中心
+
+=== 1. 修改用户头像
+
+请求地址： /profile/{userId}/avatar    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| PATH: userId
+| int
+| 是
+| 用户Id, PATH 指明该参数必须加在请求url中。
+
+| file
+| 文件
+| 是
+| 用户头像
+
+|===
+
+[caption="", cols="2,2,6"] 
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| string
+| 新头像的url
+
+|===
+
+=== 2. 修改用户昵称
+
+请求地址： /profile/{userId}/nickname    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| PATH: userId
+| int
+| 是
+| 用户Id, PATH 指明该参数必须加在请求url中。
+
+| nickname
+| string
+| 是
+| 用户昵称
+
+|===
+
+[caption="", cols="2,2,6"]
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| string
+| 'ok'
+
+|===
+
+=== 3. 获取用户所有地址
+
+请求地址： /profile/{userId}/addresses    请求方法: GET
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| PATH: userId
+| int
+| 是
+| 用户Id, PATH 指明该参数必须加在请求url中。
+
+|===
+
+[caption="", cols="2,2,6"] 
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| JSONArray
+a| [source, javascript]
+----
+[
+    {
+      "id": 100,
+      "name": "大宝",
+      "addrLine1": "重庆市沙坪坝区",
+      "addrLine2": "南方香榭里小区43号附12号",
+      "phone": "1390000000",
+      "isDefault": false
+    },
+    {
+      "id": 103,
+      "name": "大宝",
+      "addrLine1": "四川省自贡市",
+      "addrLine2": "贡井区龙潭镇",
+      "phone": "1390000000",
+      "isDefault": false
+    }
+]
+----
+
+|===
+
+=== 4. 添加新地址
+
+请求地址： /profile/{userId}/address    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| PATH: userId
+| int
+| 是
+| 用户Id, PATH 指明该参数必须加在请求url中。
+
+| 请求体中的json
+| JSON
+| 是
+a| [source, javascript]
+----
+{
+  "name": "大宝",
+  "addrLine1": "重庆市沙坪坝区",
+  "addrLine2": "南方香榭里小区43号附12号",
+  "phone": "1390000000",
+  "isDefault": false
+}
+----
+
+|===
+
+[caption="", cols="2,2,6"]
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| string
+| 'ok'
+
+|===
+
+=== 5. 关于我们
+
+请求地址： /aboutus    请求方法: GET
+
+[caption="", cols="2,2,6"]
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| string
+| 关于我们的url地址
+
+|===
+
+=== 6. 水果常识
+
+请求地址： /fruitcs    请求方法: GET
+
+[caption="", cols="2,2,6"]
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| JSONArray
+a| [source, javascript]
+----
+[
+	{
+	  "id": 1,
+	  "title": 苹果啊苹果,
+	  "picurl": /cmsasset/fruitcs/xxx.jpg,
+	  "cnturl": /cmsasset/fruitcs/xxx.jpg,
+	},
+	...
+]
+----
+|===
+
+=== 7. 获取所有优惠券
+
+请求地址： /offers   请求方法: GET
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| uid
+| int
+| 是
+| 用户Id
+
+|===
+
+[caption="", cols="2,2,6"]
+.正常返回值
+|===
+|名称  |类型  |描述
+  
+| status
+| string
+| '200'
+
+| data
+| JSONArray
+a| [source, javascript]
+----
+[
+    {
+      "id": 100,
+      "user": null,
+      "offer": {
+        "id": 100,
+        "name": "注册优惠券",
+        "description": "注册成功即送的优惠券",
+        "discountType": {
+          "type": "AMOUNT_OFF",
+          "friendlyType": "数量型"
+        },
+        "value": 10,
+        "startDate": 1483228800000,
+        "endDate": 1514764800000,
+        "maxUsesPerUser": 3,
+        "maxUsesPerOrder": 1
+      },
+      "used": false
+    }
+  ]
+----
+
+|===

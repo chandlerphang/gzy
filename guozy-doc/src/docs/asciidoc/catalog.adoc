@@ -1,0 +1,211 @@
+== 清单
+=== 1. 获取所有商店
+
+|===
+|url|method|参数
+
+| catalog/shops
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="",cols="3d,7a"]
+.返回值
+|===
+|status|data
+
+| 200
+| [source, javascript]
+----
+[
+    {
+      "id": 1,             // 商店id
+      "name": "test",      // 店名
+      "address": "test",   // 地址
+      "shipDistance": 1,   // 配送距离
+      "shipPrice": 1,      // 配送价格
+      "openTime": 54000000,// 开店时间（毫秒）
+      "closeTime": 54000000// 关店时间（毫秒）
+    },
+    ...
+]
+----
+
+
+
+
+|===
+
+=== 2. 获取商店
+
+|===
+|url|method|参数
+
+| /catalog/shop/{shopId}
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="", cols="3d,7a"]
+.返回值
+|===
+| status | data
+
+| 200
+| 
+[source, javascript]
+----
+{
+    "id": 1,
+    "name": "test",
+    "address": "test",
+    "shipDistance": 1,
+    "shipPrice": 1,
+    "openTime": 54000000,
+    "closeTime": 54000000,
+    "categories": [
+      {
+        "id": 1000,
+        "name": "水果"
+      }
+    ]
+}
+----
+
+|===
+
+=== 3. 获取商店的所有分类
+
+|===
+|url|method|参数
+
+| /catalog/categories
+| GET
+| sid={商店Id} +
+  HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="", cols="3d,7a"]
+.返回值
+|===
+| status | data
+
+| 200
+| 
+[source, javascript]
+----
+[
+    {
+      "id": 1000,
+      "name": "水果"
+    },
+    ...
+]
+----
+|===
+
+=== 4. 获取分类
+
+|===
+|url|method|参数
+
+| /catalog/category/{cid}
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="", cols="3d,7a"]
+.返回值
+|===
+| status | data
+
+| 200
+| 
+[source, javascript]
+----
+{
+    "id": 1000,
+    "name": "水果",
+    "goods": [
+      {
+        "id": 1000,
+        "name": "苹果三块一斤",
+        "price": 12,
+        "needSaler": false  //该商品需要连线导购员来购买  
+      },
+      {
+        "id": 1001,
+        "name": "橘子三块一斤",
+        "price": 13,
+        "needSaler": false
+      }
+    ]
+}
+----
+|===
+
+=== 5. 获取分类下所有商品
+
+|===
+|url|method|参数
+
+| /catalog/goods?cid={分类Id}
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+[caption="", cols="3d,7a"]
+.返回值
+|===
+| status | data
+
+| 200
+| 
+[source, javascript]
+----
+[
+    {
+      "id": 1000,
+      "name": "苹果三块一斤",
+      "price": 12,
+      "needSaler": false,
+      "pic": ""   // 商品展示图片，base64编码
+    },
+    {
+      "id": 1001,
+      "name": "橘子三块一斤",
+      "price": 13,
+      "needSaler": false,
+      "pic": ""
+    }
+  ]
+----
+|===
+
+=== 6. 获取所有导购员
+
+|===
+|url|method|参数
+
+| /salers?sid={店铺Id}
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===
+
+
+=== 7. 获取导购员信息
+
+|===
+|url|method|参数
+
+| /saler/{salerId}
+| GET
+| HEADER: 'x-auth-token' = {token}
+
+|===

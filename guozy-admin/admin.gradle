@@ -1,0 +1,200 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+	dependencies {
+		classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.5'
+		classpath 'org.hidetake:gradle-ssh-plugin:0.1.7'
+		classpath 'org.kordamp.gradle:stats-gradle-plugin:0.2.0'
+	}
+}
+
+apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+apply plugin: 'com.bmuschko.tomcat'
+apply plugin: 'ssh'
+apply plugin: 'org.kordamp.gradle.stats'
+
+processResources {
+  from ('src/main/java') {
+    include '**/*.xml'
+  }
+}
+
+//war.archiveName = 'guozy.war'
+
+dependencies {
+
+	compile project(":guozy-common")
+	// 日志
+	compile 'org.slf4j:slf4j-api:1.7.22'
+	runtime 'ch.qos.logback:logback-classic:1.1.8'
+	
+	//compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
+	//compile group: 'org.springframework.data', name: 'spring-data-redis', version: '1.7.5.RELEASE'
+	//compile group: 'com.alibaba', name: 'fastjson', version: '1.2.17'
+	
+	compile files('../libs/taobao-sdk-java-auto_1455552377940-20160607.jar')
+	compile files('../libs/bccs-api-3.0.1.jar')
+	testCompile files('../libs/json-lib-2.4-jdk15.jar')
+	testCompile files('../libs/ezmorph-1.0.6.jar')
+	
+	// 数据
+	runtime 'mysql:mysql-connector-java:6.0.5'
+	compile 'com.alibaba:druid:1.0.27'
+	compile 'org.mybatis:mybatis:3.4.1'
+	compile 'org.mybatis:mybatis-spring:1.3.0'
+	
+	// 验证
+	compile 'org.hibernate:hibernate-validator:5.2.4.Final'
+	
+	// 模型转json
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+	//
+	compile 'io.jsonwebtoken:jjwt:0.7.0'
+	compile 'net.sf.ehcache:ehcache:2.10.2'
+	compile 'org.apache.commons:commons-lang3:3.5'
+	compile 'commons-io:commons-io:2.4'
+	compile 'commons-codec:commons-codec:1.10'
+	runtime 'commons-fileupload:commons-fileupload:1.3.1'
+	
+	compile group: 'eu.medsea.mimeutil', name: 'mime-util', version: '2.1.3'
+	compile group: 'tk.mybatis', name: 'mapper', version: '3.3.9'
+	compile group: 'com.github.pagehelper', name: 'pagehelper', version: '4.1.6'
+	//compile group: 'com.github.abel533', name: 'mapper', version: '2.3.2'
+	
+	def springVersion = '4.2.2.RELEASE'
+	def springSecurityVersion = '4.0.3.RELEASE'
+    compile	"org.springframework:spring-core:${springVersion}",
+    		"org.springframework:spring-beans:${springVersion}",
+   			"org.springframework:spring-context:${springVersion}",
+   			"org.springframework:spring-context-support:${springVersion}",
+	 		"org.springframework:spring-tx:${springVersion}",
+	 		"org.springframework:spring-jdbc:${springVersion}",
+    		"org.springframework:spring-web:${springVersion}",
+	 		"org.springframework:spring-webmvc:${springVersion}",
+			"org.springframework.security:spring-security-web:${springSecurityVersion}",
+			"org.springframework.security:spring-security-config:${springSecurityVersion}"
+
+	compile 'org.apache.velocity:velocity:1.7'
+  	compile 'org.apache.velocity:velocity-tools:2.0'
+
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    providedCompile 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.1'
+	 		
+    testCompile 'junit:junit:4.12'
+    
+    providedRuntime 'org.mybatis.generator:mybatis-generator-core:1.3.5'
+    
+    def tomcatVersion = '7.0.59'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+           
+    testCompile 'org.seleniumhq.selenium:selenium-java:2.42.0'
+	testCompile 'com.github.detro:phantomjsdriver:1.2.0'
+}
+
+remotes {
+    web01 {
+    	//host = '202.202.68.101'
+        //user = 'dev'
+        
+        host='101.200.134.112'
+        user='dev'
+        identity = file('C:/cygwin64/home/Hui/.ssh/id_rsa')
+    }
+}
+
+ssh {   
+    config(StrictHostKeyChecking: 'no') // needed for deploying to EC2
+}
+
+task toserver(type: SshTask, dependsOn: 'war') {
+    def tomcatHome = '/home/dev/tomcat8'
+    def warName = "guozy"
+    session(remotes.web01) {
+    	println "trying to stop server..."
+        execute("${tomcatHome}/bin/shutdown.sh")
+    	
+        println "Uploading new war"
+        put(war.archivePath.absolutePath,"${tomcatHome}/webapps/${warName}.war.new")
+        
+        println "removing old war"
+        execute("rm ${tomcatHome}/webapps/${warName}.war")
+        
+        println "activating new war"
+        execute("mv ${tomcatHome}/webapps/${warName}.war{.new,}")
+        
+        println "trying to start server in debug mode..."
+        execute('JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n"')
+        execute("${tomcatHome}/bin/catalina.sh jpda start")
+    }
+}
+
+task myServerDebugStart(type: SshTask) {
+ 	def tomcatHome = '/home/dev/tomcat8'
+	session(remotes.web01) {
+        println "trying to start server in debug mode..."
+        execute('JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n"')
+        execute("${tomcatHome}/bin/catalina.sh jpda start")
+    }
+}
+
+task myServerStop(type: SshTask) {
+	def tomcatHome = '/home/dev/tomcat8'
+	session(remotes.web01) {
+        println "trying to stop server..."
+        execute("${tomcatHome}/bin/shutdown.sh")
+    }
+}
+
+task myServerStatus(type: SshTask) {
+	session(remotes.web01) {
+        execute("free -h")
+    }
+}
+
+task codegen << {
+	def br = new BufferedReader(new FileReader('codegen.tpl'))
+	def sb = new StringBuilder();
+	String tmp = null
+	while((tmp = br.readLine()) != null) {
+		sb.append(tmp);
+	}
+	tmp = sb.toString()
+	File mysql = configurations.runtime.find{ File file -> file.name.contains('mysql-connector-java') }
+	tmp = tmp.replace('__classPathEntry__', mysql.path)
+	
+	def prop = new Properties();  
+	prop.load(new FileInputStream('src/main/resources/db.properties')) 
+	
+	tmp = tmp.replace('__jdbcDriverClass__', prop.getProperty('jdbc.driverClass'))
+	tmp = tmp.replace('__jdbcUrl__', prop.getProperty('jdbc.url'))
+	tmp = tmp.replace('__jdbcUser__', prop.getProperty('jdbc.user'))
+	tmp = tmp.replace('__jdbcPassword__', prop.getProperty('jdbc.password'))
+	
+	File dir = new File(buildDir.path + File.separator + 'codegen/')
+	if(!dir.exists()) {
+		dir.mkdirs();
+	}
+	
+	File cgfile = new File(dir.path + File.separator + 'codegen.xml')
+	if(!cgfile.exists()) {
+		cgfile.createNewFile()
+	}
+	
+	def bw = new BufferedWriter(new FileWriter(cgfile, false))
+	bw.write(tmp, 0, tmp.length())
+	bw.flush()
+
+	File gen = configurations.providedRuntime.find{ File file -> file.name.contains('mybatis-generator-core')}
+	javaexec { 
+    	main="-jar";
+    	args = [
+    		gen.path,
+    		"-configfile",
+    		cgfile.path
+       ]
+  	} 
+}
