@@ -1,32 +1,302 @@
+<link rel="stylesheet" href="dist/css/bootstrap-spinner.css">
+<link rel='stylesheet' type='text/css' href='dist/css/timepicki.css' />
+<script type='text/javascript' src='dist/js/timepicki.js'></script>
+<script type='text/javascript' src="dist/js/jquery.spinner.js"></script>
+
 <div class="row">
-#foreach( $shop in $shops)
+	#foreach( $shop in $shops)
 	<div class="col-md-3">
-		<div class="box box-primary" width="">
-		 	<div class="box-body box-profile">
-		    <img class="profile-user-img img-responsive img-circle" src="dist/img/user4-128x128.jpg" alt="User profile picture">
-		    <h3 class="profile-username text-center">$shop.name</h3>
-		    <ul class="list-group list-group-unbordered">
-		      <li class="list-group-item">
-		        	地址 <a class="pull-right">$shop.address</a>
-		      </li>
-		      <li class="list-group-item">
-		        	登录名
-		      </li>
-		      <li class="list-group-item">
-		           	营业时间 <a class="pull-right">$dateTool.format("HH:mm",$shop.openTime) - $dateTool.format("HH:mm",$shop.closeTime)</a>
-		      </li>
-		      <li class="list-group-item">
-		          	配送距离 <a class="pull-right">$shop.shipDistance 公里</a>
-		      </li>
-		      <li class="list-group-item">
-		        	配送费 <a class="pull-right">$shop.shipPrice 元</a>
-		      </li>
-		    </ul>
-		
-		    <a href="#" class="btn btn-info btn-block"><b>修改</b></a>
-		    <a href="#" class="btn btn-danger btn-block"><b>删除</b></a>
-		  </div>
+		<div class="box box-primary">
+			<div class="box-body box-profile">
+				<h3 class="profile-username text-center">$shop.name</h3>
+				<ul class="list-group list-group-unbordered">
+					<li class="list-group-item">地址 <a class="pull-right">$shop.address</a>
+					</li>
+					<li class="list-group-item">登录名</li>
+					<li class="list-group-item">营业时间 <a class="pull-right">$dateTool.format("HH:mm",$shop.openTime)
+							- $dateTool.format("HH:mm",$shop.closeTime)</a>
+					</li>
+					<li class="list-group-item">配送距离 <a class="pull-right">$shop.shipDistance
+							公里</a>
+					</li>
+					<li class="list-group-item">配送费 <a class="pull-right">$shop.shipPrice
+							元</a>
+					</li>
+				</ul>
+				<button class="btn btn-primary btn-info btn-block"
+					onclick="updateInfo(this);" data-shopid="$shop.id"
+					data-shopname="$shop.name" data-shopaddress="$shop.address"
+					data-shopopentime="$shop.openTime"
+					data-shopclosetime="$shop.closeTime"
+					data-shopdistance="$shop.shipDistance"
+					data-shopshipPrice="$shop.shipPrice">修改</button>
+				</td> <button onclick="deleteShop(this)" data-shopid="$shop.id"" class="btn btn-danger btn-block">删除</button>
+			</div>
 		</div>
 	</div>
-#end
+	#end
+	<div class="col-md-3" style="margin-top: 10%;">
+		<button class="btn btn-primary btn-info btn-block"
+			onclick="createShopDialog();" data-userid="$user.id">新建</button>
+
+	</div>
 </div>
+<script type="text/javascript">
+	$(function() {
+		// 测试 bootstrap 居中
+		$("#ShopEditDialog").on(
+				'show.bs.modal',
+				function() {
+					var modal = $(this);
+					var modal_dialog = modal.find('.modal-dialog');
+					// 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
+					modal.css('display', 'block');
+					modal_dialog.css({
+						'margin-top' : Math
+								.max(0, ($(window).height() - modal_dialog
+										.height()) / 2 - 30)
+					});
+				});
+
+	});
+
+	function createShopDialog() {
+		resetDialog();
+		//显示对话框
+		$("#ShopEditDialog").modal({
+			backdrop : 'static'
+		});
+		$('#dialogTitle').html("新建店铺");
+
+		//初始化时钟
+		$('#timepicker1').timepicki({
+			show_meridian : false,
+			min_hour_value : 0,
+			max_hour_value : 23,
+			start_time : [ "06", "00" ]
+		});
+		$('#timepicker2').timepicki({
+			show_meridian : false,
+			min_hour_value : 0,
+			max_hour_value : 23,
+			start_time : [ "18", "00" ]
+		});
+
+	}
+
+	function resetDialog() {
+		document.getElementById("name").value = "";
+		document.getElementById("manager").value = "";
+		document.getElementById("address").value = "";
+		document.getElementById("opentime").value = "";
+		document.getElementById("closetime").value = "";
+		document.getElementById("distance").value = "";
+		document.getElementById("shipprice").value = "";
+	}
+
+	function formatDate(strTime) {
+		var date = new Date(strTime);
+		return date.getHours() + ":" + date.getMinutes();
+	}
+
+	function getHours(strTime) {
+		var date = new Date(strTime);
+		return date.getHours();
+	}
+
+	function getMinutes(strTime) {
+		var date = new Date(strTime);
+		return date.getMinutes();
+	}
+
+	function updateInfo(shop) {
+		//显示对话框
+		$("#ShopEditDialog").modal({
+			backdrop : 'static'
+		});
+		$('#dialogTitle').html("修改信息");
+		document.getElementById("name").value = shop
+				.getAttribute("data-shopname");
+		document.getElementById("manager").value = shop
+				.getAttribute("data-shopmanager");
+		document.getElementById("address").value = shop
+				.getAttribute("data-shopaddress");
+		document.getElementById("opentime").value = formatDate(shop
+				.getAttribute("data-shopopentime"));
+		document.getElementById("closetime").value = formatDate(shop
+				.getAttribute("data-shopclosetime"));
+		document.getElementById("distance").value = shop
+				.getAttribute("data-shopdistance");
+		document.getElementById("shipprice").value = shop
+				.getAttribute("data-shopshipPrice");
+
+		$('#opentime')
+				.timepicki(
+						{
+							show_meridian : false,
+							min_hour_value : 0,
+							max_hour_value : 23,
+							start_time : [
+									getHours(shop
+											.getAttribute("data-shopopentime")),
+									getMinutes(shop
+											.getAttribute("data-shopopentime")) ]
+						});
+		$('#closetime')
+				.timepicki(
+						{
+							show_meridian : false,
+							min_hour_value : 0,
+							max_hour_value : 23,
+							start_time : [
+									getHours(shop
+											.getAttribute("data-shopclosetime")),
+									getMinutes(shop
+											.getAttribute("data-shopclosetime")) ]
+						});
+
+	}
+
+	function deleteShop(shop) {
+		var id = shop.getAttribute("data-shopid");
+		alert("删除店铺"+id);
+	}
+</script>
+
+<!--------------------------添加/修改信息的弹出层---------------------------->
+<div id="ShopEditDialog" class="modal fade" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-primary">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true"></button>
+				<h4 class="modal-title">
+					<i class="icon-pencil"></i> <span id="dialogTitle"
+						style="font-weight: bold">修改信息</span>
+				</h4>
+			</div>
+			<form class="form-horizontal form-bordered form-row-strippe"
+				id="ffAdd" action="" data-toggle="validator"
+				enctype="multipart/form-data">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">名称</label>
+								<div class="col-md-10">
+									<input id="name" name="name" type="text" class="form-control"
+										placeholder="请输入店铺名称..." />
+									<!-- 	<input id="name" name="name" type="text" class="form-control"
+										placeholder="名称..." /> -->
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">登录名</label>
+								<div class="col-md-10">
+									<input id="manager" name="manager" type="text"
+										class="form-control" placeholder="请输入店铺管理员账号..." />
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">密码</label>
+								<div class="col-md-10">
+									<input name="password" type="password" class="form-control"
+										placeholder="请输入店铺管理员密码">
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">确认密码</label>
+								<div class="col-md-10">
+									<input name="password" type="password" class="form-control"
+										placeholder="请再次输入店铺管理员密码">
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">地址</label>
+								<div class="col-md-10">
+									<input id="address" name="address" type="text"
+										class="form-control" placeholder="请输入店铺详细地址..." />
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">营业时间</label>
+								<div class="col-md-10">
+									<table>
+										<tr>
+											<td>开始时间：</td>
+											<td><input id='opentime' type='text' name='timepicker' /></td>
+
+											<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;结束时间：</td>
+											<td><input id='closetime' type='text' name='timepicker' /></td>
+
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">配送距离(km)</label>
+								<div class="col-md-10">
+
+									<div class="input-group spinner" data-trigger="spinner">
+										<input id="distance" name="distance" type="text"
+											class="form-control text-center" value="1"
+											data-rule="quantity">
+										<div class="input-group-addon">
+											<a href="javascript:;" class="spin-up" data-spin="up"><i
+												class="fa fa-caret-up"></i></a> <a href="javascript:;"
+												class="spin-down" data-spin="down"><i
+												class="fa fa-caret-down"></i></a>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">配送费(元)</label>
+								<div class="col-md-10">
+									<div class="input-group spinner" data-trigger="spinner">
+										<input id="shipprice" name="shipprice" type="text"
+											class="form-control text-center" value="1"
+											data-rule="currency">
+										<div class="input-group-addon">
+											<a href="javascript:;" class="spin-up" data-spin="up"><i
+												class="fa fa-caret-up"></i></a> <a href="javascript:;"
+												class="spin-down" data-spin="down"><i
+												class="fa fa-caret-down"></i></a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer bg-info">
+					<input type="hidden" id="ID" name="ID" />
+					<button type="submit" class="btn btn-primary">确定</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+

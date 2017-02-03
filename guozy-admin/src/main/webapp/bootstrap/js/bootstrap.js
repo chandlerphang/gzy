@@ -1009,6 +1009,28 @@ if (typeof jQuery === 'undefined') {
       that.$element.addClass('in')
 
       that.enforceFocus()
+      /***************************************************************/
+      var $modalDialog = that.$element.find(".modal-dialog"),
+          dialogHeight = $modalDialog.height(),
+          windowHeight = $(window).height();
+    
+      // When dialog height greater than window height,
+      // use default margin top value to set dialog position.
+      // if (windowHeight < dialogHeight) {
+          // do nothing
+          // return;
+      // }
+    
+      // When dialog height less than window height,
+      // use margin top set it position.
+      // Dialog position set it with vertical center.
+      if (windowHeight > dialogHeight) {
+          $modalDialog.css({
+              "marginTop": ( windowHeight - dialogHeight) / 2
+          });
+      }
+      
+/**************************************************************/
 
       var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
 
