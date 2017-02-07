@@ -1,8 +1,110 @@
-	<div class="row">
-	<div class="col-md-3"></div>
-       <div class="alert alert-warning alert-dismissible col-md-6">
-         <h4>TODO</h4>
+<link rel='stylesheet' type='text/css' href='dist/css/tablestyle.css' />
+<link rel='stylesheet' type='text/css' href='dist/css/font-awesome.css' />
+<script src="dist/js/dialog.js"></script>
 
-         <p>快了</p>
-       </div>
-    </div>
+<script type="text/javascript">
+	function resetDialog() {
+		document.getElementById("name").value = "";
+	}
+
+	function changeName(data){
+		$('#dialogTitle').html("修改名称");
+		resetDialog();
+		showDialog();
+		document.getElementById("name").value = data
+		.getAttribute("data-cname");
+	}
+	
+	function add(){
+		$('#dialogTitle').html("添加种类");
+		resetDialog();
+		showDialog();
+	}
+</script>
+#foreach( $categorys in $categories)
+<div class="col-md-3">
+	<div class="widget widget-table ">
+		<div class="widget-header ">
+			<h3>
+			#set($index=$!{velocityCount} - 1)
+			$shops.get(	$index
+			).name
+			</h3>
+		</div>
+		<!-- /widget-header -->
+		<div class="widget-content">
+			<table class="table table-striped table-bordered">
+				<thead>
+					<tr>
+						<th>序号</th>
+						<th>名称</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<script>
+						var i = 1;
+					</script>
+					#foreach( $category in $categorys)
+					<tr>
+						<td>$!{velocityCount}</td>
+						<td>$category.name</td>
+						<td class="action-td"><button 
+							class="btn btn-small btn-warning" data-cid="$category.id" data-cname="$category.name" onclick="changeName(this)"> <i class="icon-edit"></i>
+						</button> <a href="javascript:;" class="btn btn-small btn-danger"> <i
+								class="icon-remove"></i>
+						</a></td>
+					</tr>
+					#end
+				
+				</tbody>
+					
+			</table>
+			<button onclick="add()" class="btn btn-info btn-block">添加</button>
+		</div>
+		<!-- /widget-content -->
+	</div>
+	<!-- /widget -->
+</div>
+#end
+
+	<!--------------------------添加/修改信息的弹出层---------------------------->
+	<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true"></button>
+					<h4 class="modal-title">
+						<i class="icon-pencil"></i> <span id="dialogTitle"
+							style="font-weight: bold;color: white;">修改信息</span>
+					</h4>
+				</div>
+				<form class="form-horizontal form-bordered form-row-strippe"
+					id="ffAdd" action="" data-toggle="validator"
+					enctype="multipart/form-data">
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">名称</label>
+									<div class="col-md-10">
+										<input id="name" name="name" type="text"
+											class="form-control" placeholder="请输入类别名称..." />
+										<!-- 	<input id="name" name="name" type="text" class="form-control"
+										placeholder="名称..." /> -->
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					<div class="modal-footer bg-info">
+						<input type="hidden" id="ID" name="ID" />
+						<button type="submit" class="btn btn-primary">确定</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>

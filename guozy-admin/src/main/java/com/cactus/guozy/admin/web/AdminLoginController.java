@@ -3,6 +3,7 @@ package com.cactus.guozy.admin.web;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class AdminLoginController {
 	public String login() {
 		return "login";
 	}
-
+	
 	@RequestMapping(value = {"/home"}, method = RequestMethod.GET)
 	public String loginSuccess() {
 		AdminMenu adminMenu = adminNavigationService.buildMenu(WakaRequestContext.instance().getUser());

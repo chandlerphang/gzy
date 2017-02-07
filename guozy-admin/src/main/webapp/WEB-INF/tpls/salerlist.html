@@ -1,0 +1,247 @@
+#set($layout="layout/emptyLayout.html")
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>店员列表</title>
+<!-- Tell the browser to be responsive to screen width -->
+<meta
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+	name="viewport">
+<!-- Bootstrap 3.3.6 -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+<!-- Font Awesome -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<!-- Ionicons -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="dist/css/AdminLTE.min.css">
+<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+<link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+<link href="dist/css/fileinput.css" media="all" rel="stylesheet"
+	type="text/css" />
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+<!-- jQuery 2.2.3 -->
+<script src="plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<!-- SlimScroll -->
+<script src="plugins/slimScroll/jquery.slimscroll.min.js"></script>
+<!-- FastClick -->
+<script src="plugins/fastclick/fastclick.js"></script>
+<!-- AdminLTE App -->
+<script src="dist/js/app.min.js"></script>
+<script src="dist/js/fileinput.min.js"></script>
+<script src="dist/js/fileinput.js" type="text/javascript"></script>
+<script src="dist/js/dialog.js"></script>
+<script type="text/javascript">
+	var apiURL="http://101.200.134.112:8080/guozy/api/v1/";
+	function getArgs(strParame) {
+		var args = new Object();
+		var query = location.search.substring(1); // Get query string
+		var pairs = query.split("&"); // Break at ampersand
+		for (var i = 0; i < pairs.length; i++) {
+			var pos = pairs[i].indexOf('='); // Look for "name=value"
+			if (pos == -1)
+				continue; // If not found, skip
+			var argname = pairs[i].substring(0, pos); // Extract the name
+			var value = pairs[i].substring(pos + 1); // Extract the value
+			value = decodeURIComponent(value); // Decode it, if needed
+			args[argname] = value; // Store as a property
+		}
+		return args[strParame]; // Return the object
+	}
+	var shopId = getArgs("sid");
+
+	function updateInfo(saler) {
+		showDialog();
+		resetDialog();
+		$('#dialogTitle').html("修改信息");
+		var userId=saler
+		.getAttribute("data-id");
+		document.getElementById("nickname").value = saler
+				.getAttribute("data-nickname");
+		document.getElementById("phone").value = saler
+				.getAttribute("data-phone");
+		document.getElementById("ID").value =userId ;
+		document.getElementById("form").action = "./"+userId+"/update";
+	var userId=saler
+	.getAttribute("data-id");
+		document.getElementById('btnOk').onclick = function(){
+			alert("请求");
+			$.post("./"+userId+"/update","nickname=童话",function(data){
+				alert(data);
+			});
+		}; 
+		
+	}
+	function resetDialog() {
+		document.getElementById("nickname").value = "";
+		document.getElementById("phone").value = "";
+		document.getElementById("head").value = "";
+		document.getElementById("password").value = "";
+		document.getElementById("password2").value = "";
+	}
+
+	function deleteSaler(saler) {
+		var id = saler.getAttribute("data-id");
+		alert("删除店员" + id);
+	}
+	$("#head").fileinput({
+		uploadUrl : apiURL+'/profile/'+document.getElementById("ID").value+'/avatar', // you must set a valid URL here else you will get an error
+		allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
+		overwriteInitial : false,
+		maxFileSize : 1000,
+		maxFilesNum : 1,
+		//allowedFileTypes: ['image', 'video', 'flash'],
+		slugCallback : function(filename) {
+			return filename.replace('(', '_').replace(']', '_');
+		}
+	});
+
+	function createSalerDialog() {
+		resetDialog();
+		//显示对话框
+		$("#Dialog").modal({
+			backdrop : 'static'
+		});
+		$('#dialogTitle').html("添加店员");
+	}
+</script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini"
+	style="background-color: #ecf0f5;">
+	<div class="row">
+		#foreach( $saler in $salers)
+		<div class="col-md-2">
+			<!-- Widget: user widget style 1 -->
+			<div class="box box-widget widget-user-2">
+				<!-- Add the bg color to the header using any of the bg-* classes -->
+				<div class="widget-user-header bg-yellow">
+					<div class="widget-user-image">
+						<img class="img-circle" src="dist/img/user7-128x128.jpg"
+							alt="User Avatar">
+					</div>
+					<!-- /.widget-user-image -->
+					<h3 class="widget-user-username">$saler.nickname</h3>
+					<h5 class="widget-user-desc">$saler.phone</h5>
+				</div>
+				<div class="box-footer no-padding">
+					<ul class="nav nav-stacked">
+						<li style="text-align: center;">
+							<button class="btn btn-primary btn-info btn-block"
+								onclick="updateInfo(this);" data-id="$saler.id"
+								data-nickname="$saler.nickname" data-phone="$saler.phone">修改</button>
+							</td>
+							<button onclick="deleteSaler(this)" data-salerId="$saler.id"
+								class="btn btn-danger btn-block">删除</button>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.widget-user -->
+
+		</div>
+		#end
+		<div class="col-md-2" style="margin-top: 5%;">
+			<button class="btn btn-primary btn-info btn-block"
+				onclick="createSalerDialog();">新建</button>
+
+		</div>
+	</div>
+
+
+	<!--------------------------添加/修改信息的弹出层---------------------------->
+	<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true"></button>
+					<h4 class="modal-title">
+						<i class="icon-pencil"></i> <span id="dialogTitle"
+							style="font-weight: bold">修改信息</span>
+					</h4>
+				</div>
+				<form class="form-horizontal form-bordered form-row-strippe"
+					id="form" action="" data-toggle="validator"
+					enctype="multipart/form-data">
+					<div class="modal-body">
+						<div class="row">
+
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">昵称</label>
+									<div class="col-md-10">
+										<input id="nickname" name="nickname" type="text"
+											class="form-control" placeholder="请输入店员昵称..." />
+										<!-- 	<input id="name" name="name" type="text" class="form-control"
+										placeholder="名称..." /> -->
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">手机号</label>
+									<div class="col-md-10">
+										<input id="phone" name="phone" type="text"
+											class="form-control" placeholder="请输入店员手机号码..." />
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">头像</label>
+									<div class="col-md-10">
+										<input id="head" type="file" multiple class="file"
+											data-overwrite-initial="false" data-min-file-count="0"
+											data-m-file-count="1">
+									</div>
+
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">密码</label>
+									<div class="col-md-10">
+										<input name="password" id="password" type="password"
+											class="form-control" placeholder="请输入店员登录密码">
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">确认密码</label>
+									<div class="col-md-10">
+										<input name="password2" id="password2" type="password"
+											class="form-control" placeholder="请再次输入店员登录密码">
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="modal-footer bg-info">
+						<input type="hidden" id="ID" name="ID" />
+						<button type="submit" id="btnOk" class="btn btn-primary">确定</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

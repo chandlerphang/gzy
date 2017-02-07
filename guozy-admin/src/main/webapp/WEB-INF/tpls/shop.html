@@ -2,7 +2,7 @@
 <link rel='stylesheet' type='text/css' href='dist/css/timepicki.css' />
 <script type='text/javascript' src='dist/js/timepicki.js'></script>
 <script type='text/javascript' src="dist/js/jquery.spinner.js"></script>
-
+<script src="dist/js/dialog.js"></script>
 <div class="row">
 	#foreach( $shop in $shops)
 	<div class="col-md-3">
@@ -42,32 +42,16 @@
 	</div>
 </div>
 <script type="text/javascript">
-	$(function() {
-		// 测试 bootstrap 居中
-		$("#ShopEditDialog").on(
-				'show.bs.modal',
-				function() {
-					var modal = $(this);
-					var modal_dialog = modal.find('.modal-dialog');
-					// 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
-					modal.css('display', 'block');
-					modal_dialog.css({
-						'margin-top' : Math
-								.max(0, ($(window).height() - modal_dialog
-										.height()) / 2 - 30)
-					});
-				});
-
-	});
 
 	function createShopDialog() {
 		resetDialog();
 		//显示对话框
-		$("#ShopEditDialog").modal({
-			backdrop : 'static'
-		});
-		$('#dialogTitle').html("新建店铺");
-
+		showDialog();
+		
+		$('#dialogTitle').html("添加店铺");
+		document.getElementById('btnOk').onclick = function(){
+			alert("新建");
+		}; 
 		//初始化时钟
 		$('#timepicker1').timepicki({
 			show_meridian : false,
@@ -81,7 +65,7 @@
 			max_hour_value : 23,
 			start_time : [ "18", "00" ]
 		});
-
+		
 	}
 
 	function resetDialog() {
@@ -109,11 +93,24 @@
 		return date.getMinutes();
 	}
 
+	function readData(data){
+		var shop=new Object();
+		shop.name=data.getAttribute("data-shopname");
+		shop.manager=data.getAttribute("data-shopmanager");
+		shop.address=data.getAttribute("data-shopaddress");
+		shop.opentime=data.getAttribute("data-shopopentime");
+		shop.closetime=data.getAttribute("data-shopclosetime");
+		shop.distance=data.getAttribute("data-shopdistance");
+		shop.shipprice=data.getAttribute("data-shopshipPrice");
+		shop.password=data.getAttribute("data-shoppasswrod");
+		shop.password2=data.getAttribute("data-shoppasswrod2");
+		return shop;
+	}
+	
 	function updateInfo(shop) {
 		//显示对话框
-		$("#ShopEditDialog").modal({
-			backdrop : 'static'
-		});
+		showDialog();
+		var objShop=readData(shop);
 		$('#dialogTitle').html("修改信息");
 		document.getElementById("name").value = shop
 				.getAttribute("data-shopname");
@@ -129,7 +126,9 @@
 				.getAttribute("data-shopdistance");
 		document.getElementById("shipprice").value = shop
 				.getAttribute("data-shopshipPrice");
-
+	 	document.getElementById('btnOk').onclick = function(){
+			alert("更新"+objShop.name);
+		}; 
 		$('#opentime')
 				.timepicki(
 						{
@@ -161,10 +160,11 @@
 		var id = shop.getAttribute("data-shopid");
 		alert("删除店铺"+id);
 	}
+	
 </script>
 
 <!--------------------------添加/修改信息的弹出层---------------------------->
-<div id="ShopEditDialog" class="modal fade" tabindex="-1" role="dialog"
+<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
 	aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -291,7 +291,7 @@
 				</div>
 				<div class="modal-footer bg-info">
 					<input type="hidden" id="ID" name="ID" />
-					<button type="submit" class="btn btn-primary">确定</button>
+					<button type="submit" id="btnOk" class="btn btn-primary">确定</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 				</div>
 			</form>
