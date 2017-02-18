@@ -3,6 +3,7 @@ include 'guozy-doc'
 include 'guozy-common'
 include 'guozy-core'
 include 'guozy-api'
+include 'guozy-logconfig'
 
 
 rootProject.name = "guozy"

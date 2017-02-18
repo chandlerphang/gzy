@@ -39,10 +39,9 @@ public class PricingServiceImpl implements PricingService {
 			return order;
 		}
 		
-		if(order.getSubTotal() == null) {
-			BigDecimal subtotal = order.calculateSubTotal();
-			order.setSubTotal(subtotal);
-		}
+		
+		BigDecimal subtotal = order.calculateSubTotal();
+		order.setSubTotal(subtotal);
 		
 		// 加原总价
 		BigDecimal total = BigDecimal.ZERO.add(order.getSubTotal());

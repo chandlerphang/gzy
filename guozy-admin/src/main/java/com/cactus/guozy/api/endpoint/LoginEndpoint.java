@@ -5,8 +5,6 @@ import static com.cactus.guozy.core.domain.validator.GenericValidator.checkPhone
 import static com.cactus.guozy.core.domain.validator.GenericValidator.checkVCode;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,35 +18,36 @@ import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.service.GenericResponse;
 import com.cactus.guozy.core.service.VerifyCodeService;
 import com.cactus.guozy.profile.domain.User;
-import com.cactus.guozy.profile.service.UserService;
 
 @RestController
-public class LoginEndpoint {
+public class LoginEndpoint extends BaseEndpoint {
 
-	@Autowired
-	protected UserService userService;
-	
 	@Autowired
 	protected VerifyCodeService vcodeService;
 
 	@RequestMapping(value = { "/login"}, method = RequestMethod.POST)
-	public GenericWebResult login(@RequestParam("phone") String phone, @RequestParam("passwd") String passwd) {
+	public GenericWebResult login(
+			@RequestParam("phone") String phone, 
+			@RequestParam("passwd") String passwd) {
 		if (!GenericValidator.checkPhone(phone) || !GenericValidator.checkPasswd(passwd)) {
-			return GenericWebResult.error("000101").withData(ErrorMsgWrapper.error("paramsError").withMsg("参数错误"));
+			return GenericWebResult.PARAMETER_ERROR;
 		}
 		
-		User user = userService.exists(phone, passwd);
+		User user = userService.tryLogin(phone, passwd);
 		UserWrapper wrapper = new UserWrapper();
 		wrapper.wrapSummary(user);
-		wrapper.setToken(TokenHandler.createTokenForUser(user));
+		wrapper.setToken(TokenHandler.createTokenForUser(user.getId(), false));
 		
 		return GenericWebResult.success(wrapper);
 	}
 	
 	@RequestMapping(value = { "/nopwdlogin"}, method = RequestMethod.POST)
-	public GenericWebResult nopwdlogin(@RequestParam("phone") String phone, @RequestParam("passwd") String passwd, @RequestParam("vcode") String vcode) {
-		if (!GenericValidator.checkPhone(phone) || !checkVCode(vcode) || !checkPasswd(passwd)) {
-			return GenericWebResult.error("000101").withData(ErrorMsgWrapper.error("paramsError").withMsg("参数错误"));
+	public GenericWebResult nopwdlogin(
+			@RequestParam("phone") String phone, 
+			@RequestParam("passwd") String passwd, 
+			@RequestParam("vcode") String vcode) {
+		if (!GenericValidator.checkPhone(phone) || !GenericValidator.checkPasswd(passwd)) {
+			return GenericWebResult.PARAMETER_ERROR;
 		}
 		
 		boolean isCodeRight = vcodeService.verifyCode(phone, vcode, VerifyCodeService.MODULE_NOPASSWD);
@@ -56,7 +55,7 @@ public class LoginEndpoint {
 			User user = userService.findUserByPhone(phone);
 			if(user != null) {
 				userService.changePasswd(passwd, user.getId());
-				return GenericWebResult.success(TokenHandler.createTokenForUser(user));
+				return GenericWebResult.success(TokenHandler.createTokenForUser(user.getId(), false));
 			}
 			return GenericWebResult.error("010303").withData(ErrorMsgWrapper.error("userNotFound").withMsg("用户不存在"));
 		} else {
@@ -104,15 +103,5 @@ public class LoginEndpoint {
 		}
 		
 		return GenericWebResult.success("ok");
-	}
-
-	protected Long getCurrentUserId() {
-		SecurityContext ctx = SecurityContextHolder.getContext();
-		if (ctx != null && ctx.getAuthentication() != null) {
-			User temp = (User) ctx.getAuthentication().getDetails();
-			return temp.getId();
-		}
-
-		return null;
 	}
 }

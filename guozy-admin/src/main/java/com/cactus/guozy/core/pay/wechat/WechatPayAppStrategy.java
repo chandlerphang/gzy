@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.json.Jsons;
@@ -17,8 +16,6 @@ import com.cactus.guozy.core.pay.PayType;
  * 微信app支付
  */
 public class WechatPayAppStrategy implements PayStrategy {
-
-	private static Logger logger = org.slf4j.LoggerFactory.getLogger(WechatPayAppStrategy.class);
 
 	@Override
 	public String generatePayParams(PayType payType, Map<String, Object> params) {
@@ -45,7 +42,7 @@ public class WechatPayAppStrategy implements PayStrategy {
         	req.setClientId(spbill_create_ip);
         }
         
-		req.setOutTradeNo(orderNum);
+		req.setOutTradeNo(order.getId().toString());
 		req.setTotalFee(order.getTotal().multiply(BigDecimal.valueOf(100)).intValue());
 		
 		Map<String, String> map = wepay.pay().appPay(req);

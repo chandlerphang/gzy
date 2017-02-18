@@ -5,6 +5,7 @@ import java.util.List;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.OrderAdjustment;
 import com.cactus.guozy.core.domain.OrderStatus;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.dto.OrderItemRequestDTO;
 import com.cactus.guozy.profile.domain.User;
 
@@ -12,7 +13,9 @@ public interface OrderService {
 	
 	Order createNewCartForUser(User user);
 	
-	Order createOrderForUser(Order order, User user);
+	Order createOrderForUser(Order order, User user, boolean priceOrder);
+	
+	Order createSalerOrder(Order order, Saler saler, boolean priceOrder, String channelId);
 	
 	void removeItemFromOrder(Long itemId);
 	
@@ -31,9 +34,9 @@ public interface OrderService {
 	void removeAllOffersFromOrder(Long orderId);
 	List<OrderAdjustment> findAllAdjustments(Long orderId);
 	
-	
-	
 	void updateTotal(Order order);
+	
+	void updateOrderNumber(Order order);
 	
 	Order findOrderById(Long orderId);
 	
@@ -46,6 +49,8 @@ public interface OrderService {
 	Order findOrderByOrderNumber(String orderNumber);
 	
 	void cancelOrder(Order order);
+	
+	Order finishOrder(Order order);
 	
 	Order confirmOrder(Order order);
 	

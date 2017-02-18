@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.core.dao.SalerDao">
+  <resultMap id="salerLock" type="com.cactus.guozy.core.domain.SalerLock">
+    <id column="salerid" property="salerId" />
+    <result column="locked" property="locked" />
+    <result column="last_updated" property="lastUpdated" />
+    <result column="belong_to" property="belongTo" />
+  </resultMap>
+  
+  <insert id="insertSalerLock" parameterType="com.cactus.guozy.core.domain.SalerLock">
+    INSERT INTO `saler_lock`(`salerid`,`locked`,`last_updated`, `belong_to`)
+    VALUES (#{salerId}, #{locked}, #{lastUpdated}, #{belongTo})
+  </insert>
+  
+  <select id="countSalerLock" parameterType="com.cactus.guozy.core.domain.Saler" resultType="int">
+  	SELECT COUNT(1) 
+  	FROM `saler_lock`
+    WHERE `salerid` = #{id}
+  </select>
+  
+  <update id="acquireSalerLock">
+  	UPDATE `saler_lock`
+    SET `locked`=b'1', `last_updated`= #{param2}, `belong_to`=#{param4}
+    WHERE `salerid` = #{param1.id}
+      AND ( 
+      		(`locked`=b'0' OR `last_updated` &lt; #{param3}) 
+      		OR (`locked`=b'1' AND `belong_to`=#{param4}) 
+      	  )
+  </update>
+	
+  <update id="releaseSalerLock" parameterType="com.cactus.guozy.core.domain.Saler">
+	UPDATE `saler_lock`
+    SET `locked`=b'0'
+    WHERE `salerid`=#{id}
+  </update>  
+</mapper>

@@ -48,14 +48,14 @@ public class WakaRequestFilter extends OncePerRequestFilter {
         ServletWebRequest webReq = new ServletWebRequest(request, response);
         WakaRequestContext brc = WakaRequestContext.instance();
         brc.setWebRequest(webReq);
-        brc.setAdmin(true);
+        brc.setIsAdmin(true);
         
         SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null) {
             Authentication auth = ctx.getAuthentication();
             if (auth != null) {
             	AdminUserDetails temp = (AdminUserDetails) auth.getPrincipal();
-            	brc.setUser(temp.getAdminUser());
+            	brc.setSubject(temp.getAdminUser());
             }
         }
         

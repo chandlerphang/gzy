@@ -38,7 +38,7 @@ public class AndroidPushMsgToSingleDevice {
 			//创建 Android的通知
 			JSONObject notification = new JSONObject();
 			notification.put("title", "TEST");
-			notification.put("description","Hello Baidu Push");
+			notification.put("description","果之源消息推送测试");
 			notification.put("notification_builder_id", 0);
 			notification.put("notification_basic_style", 0x04);
 			notification.put("open_type", 1);

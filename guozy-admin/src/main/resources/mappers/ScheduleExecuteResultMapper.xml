@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cactus.guozy.common.schedule.dao.ScheduleExecuteResultDao">
+
+    <sql id="scheduleExecuteResultColumns">
+        id,
+        schedule_id as scheduleId,
+        status,
+        start_time as startTime,
+        end_time as endTime
+    </sql>
+
+    <insert id="save" parameterType="com.cactus.guozy.common.schedule.ScheduleExecuteResult" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_execute_result
+        (schedule_id, status, start_time, end_time)
+        VALUES
+        (#{scheduleId}, #{status}, now(), null)
+    </insert>
+
+    <update id="update" parameterType="com.cactus.guozy.common.schedule.ScheduleExecuteResult">
+        UPDATE schedule_execute_result
+        SET  status = #{status},
+             end_time = now()
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="getPageByScheduleId" parameterType="map" resultType="com.cactus.guozy.common.schedule.ScheduleExecuteResult">
+        SELECT
+        <include refid="scheduleExecuteResultColumns"/>
+        FROM schedule_execute_result
+        WHERE schedule_id = #{scheduleId}
+        ORDER BY id DESC
+        limit #{page.offset}, #{page.pageSize}
+    </select>
+
+    <select id="countByScheduleId" parameterType="string" resultType="int">
+        SELECT COUNT(1)
+        FROM schedule_execute_result
+        WHERE schedule_id = #{scheduleId}
+    </select>
+
+    <select id="findLastExecute" parameterType="string" resultType="com.cactus.guozy.common.schedule.ScheduleExecuteResult" >
+        SELECT
+        <include refid="scheduleExecuteResultColumns"/>
+        FROM schedule_execute_result
+        WHERE schedule_id = #{scheduleId}
+        ORDER BY id DESC
+        limit 1
+    </select>
+</mapper>

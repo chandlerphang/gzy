@@ -1,13 +1,13 @@
 package com.cactus.guozy.api.wrapper;
 
 import java.math.BigDecimal;
-import java.util.Base64;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.core.domain.Goods;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -34,11 +34,6 @@ public class GoodsWrapper {
 	
 	public void wrapDetails(Goods goods) {
 		wrapSummary(goods);
-		if(goods.getPic() != null) {
-			pic = Base64.getEncoder().encodeToString(goods.getPic());
-		} else {
-			pic = "";
-		}
 	}
 
 	public void wrapSummary(Goods goods) {
@@ -46,6 +41,9 @@ public class GoodsWrapper {
 		name = goods.getName();
 		price = goods.getPrice();
 		needSaler = goods.getNeedSaler();
+		if(goods.getPic() != null && !goods.getPic().equals("")) {
+			pic = "/"+RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix","") + goods.getPic();
+		}
 	}
 	
 	public Goods upwrap() {
@@ -54,9 +52,7 @@ public class GoodsWrapper {
 		goods.setName(getName());
 		goods.setNeedSaler(getNeedSaler());
 		goods.setPrice(getPrice());
-		if(getPic() != null && !getPic().equals("")) {
-			goods.setPic(Base64.getDecoder().decode(getPic()));
-		}
+		goods.setPic(getPic());
 		return goods;
 	}
 

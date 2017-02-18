@@ -8,6 +8,7 @@ import javax.persistence.Id;
 
 /**
  * 实体基类
+ * 
  * @author Chaven Peng
  */
 public class BaseDomain implements Serializable {

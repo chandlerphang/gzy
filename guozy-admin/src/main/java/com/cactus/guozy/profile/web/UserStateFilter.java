@@ -53,8 +53,6 @@ public class UserStateFilter extends GenericFilterBean implements Ordered {
             	userId = servletRequest.getParameter(userIdAttributeName);
             }
             
-
-            
             if (userId != null && userId.trim().length() > 0) {
                 if (NumberUtils.isCreatable(userId)) {
                     //If we found it, look up the customer and put it on the request.
@@ -78,7 +76,6 @@ public class UserStateFilter extends GenericFilterBean implements Ordered {
         }
 
         filterChain.doFilter(request, servletResponse);
-
     }
 
     @Override

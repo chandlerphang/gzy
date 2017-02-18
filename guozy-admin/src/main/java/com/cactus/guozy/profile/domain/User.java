@@ -9,6 +9,17 @@ import javax.persistence.Transient;
 
 import com.cactus.guozy.common.BaseDomain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name="user")
 public class User extends BaseDomain {
 
@@ -24,13 +35,10 @@ public class User extends BaseDomain {
 	private String phone;
 
 	@Column(name="deactivated")
-	private Boolean deactivated = false;
-
-	@Column(name="is_saler")
-	private Boolean isSaler = false;
+	private Boolean deactivated;
 
 	@Column(name="line_to_saler")
-	private Boolean canLineToSaler = true;
+	private Boolean canLineToSaler;
 
 	@Column(name="avatar")
 	private String avatar;
@@ -38,94 +46,9 @@ public class User extends BaseDomain {
 	@Transient
 	private List<Address> addrs;
 	
-	@Column(name="sid")
-	private Long shopId;
-	
 	@Column(name="create_time")
 	private Date dateCreated;
 	
-	public User() {}
-	
 	public User(Long id) { this.id = id;}
-
-	public Boolean getCanLineToSaler() {
-		return canLineToSaler;
-	}
-
-	public void setCanLineToSaler(Boolean canLineToSaler) {
-		this.canLineToSaler = canLineToSaler;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getPhone() {
-		return phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
-
-	public String getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		this.avatar = avatar;
-	}
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-
-	public Boolean getDeactivated() {
-		return deactivated;
-	}
-
-	public void setDeactivated(Boolean deactivated) {
-		this.deactivated = deactivated;
-	}
-
-	public Boolean getIsSaler() {
-		return isSaler;
-	}
-
-	public void setIsSaler(Boolean isSaler) {
-		this.isSaler = isSaler;
-	}
-
-	public List<Address> getAddrs() {
-		return addrs;
-	}
-
-	public void setAddrs(List<Address> addrs) {
-		this.addrs = addrs;
-	}
-
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-
-	public Long getShopId() {
-		return shopId;
-	}
-
-	public void setShopId(Long shopId) {
-		this.shopId = shopId;
-	}
 
 }

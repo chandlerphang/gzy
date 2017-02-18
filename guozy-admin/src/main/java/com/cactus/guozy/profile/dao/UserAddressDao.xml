@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.profile.dao.UserAddressDao">  
+  <resultMap id="address" type="com.cactus.guozy.profile.domain.Address">
+  	<id column="id" property="id"/>
+    <result column="name" property="name" />
+    <result column="addr_line1" property="addrLine1"/>
+    <result column="addr_line2" property="addrLine2"/>
+    <result column="phone" property="phone"/>
+    <result column="lat" property="lat"/>
+    <result column="lng" property="lng"/>
+  </resultMap>
+  
+  <resultMap id="useraddr" type="com.cactus.guozy.profile.domain.UserAddress">
+  	<id column="ua_id" property="id"/>
+    <result column="ua_name" property="name" />
+    <result column="is_def" property="isDefault"/>
+    <association property="addr" resultMap="address"></association>
+  </resultMap>
+  
+  <select id="readByUserId" parameterType="java.lang.Long" resultMap="useraddr">
+  	SELECT ua.`id` as ua_id, ua.`name` as ua_name,is_def,a.*
+  	FROM `user_addr` ua LEFT JOIN `address` a ON ua.`addr` = a.`id`
+  	WHERE ua.`user` = #{id}
+  </select>
+  
+   <update id="unDefaultAddr" parameterType="java.lang.Long">
+    UPDATE `user_addr` set is_def=b'0' where `user`=#{uid}
+   </update>
+   
+</mapper>

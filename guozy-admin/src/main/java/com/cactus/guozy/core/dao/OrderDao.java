@@ -5,6 +5,7 @@ import java.util.List;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.OrderAdjustment;
 import com.cactus.guozy.core.domain.OrderItem;
+import com.cactus.guozy.core.domain.OrderLock;
 import com.cactus.guozy.core.domain.OrderStatus;
 import com.cactus.guozy.profile.domain.User;
 
@@ -50,5 +51,17 @@ public interface OrderDao {
 	
 	int updateStatus(Long orderId, String status);
 	
+	int updateOrderNumber(Order order);
+	
 	User readUserForOrder(Long orderId);
+	
+	List<OrderItem> readItemsForOrder(Long orderId);
+	
+	int countOrderLock(Order order);
+	
+	int insertOrderLock(OrderLock ol);
+	
+	int acquireOrderLock(Order order, Long currentTime, Long timeToLive);
+	
+	int releaseOrderLock(Order order);
 }

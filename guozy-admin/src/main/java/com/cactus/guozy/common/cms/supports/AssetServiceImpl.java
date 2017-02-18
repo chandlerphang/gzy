@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cactus.guozy.common.BaseDao;
-import com.cactus.guozy.common.TransactionUtils;
 import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.dao.AssetDao;
 import com.cactus.guozy.common.service.BaseServiceImpl;
+import com.cactus.guozy.core.util.TransactionUtils;
 
 import eu.medsea.mimeutil.MimeType;
 import eu.medsea.mimeutil.MimeUtil;

@@ -1,6 +1,8 @@
 package com.cactus.guozy.profile.service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -13,30 +15,36 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cactus.guozy.common.BaseDao;
 import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.common.service.BaseServiceImpl;
+import com.cactus.guozy.core.service.lbs.Utils;
+import com.cactus.guozy.profile.dao.UserAddressDao;
 import com.cactus.guozy.profile.dao.UserDao;
 import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
+import com.cactus.guozy.profile.domain.UserAddress;
 
 @Service("userService")
 public class UserServiceImpl extends BaseServiceImpl<User> implements UserService {
 
 	@Autowired
 	protected UserDao userDao;
+	
+	@Autowired
+	protected UserAddressDao userAddrDao;
+	
+	@Resource(name="addrService")
+	protected AddressService addrService;
 
 	@Resource(name="cacheManager")
 	protected CacheManager cacheManager;
 	
 	@Resource(name="passwdEncoder")
 	protected PasswordEncoder pwdEncoder;
-
-	@Override
-	public User saveUser(User user) {
-		userDao.insertUser(user);
-		return user;
-	}
-
-	@Override
-	public User exists(String phone, String passwd) {
+	
+	@Resource(name="userServiceExtensionManager")
+	protected UserServiceExtensionManager extMgr;
+	
+	@Override 
+	public User tryLogin(String phone, String passwd){
 		User user = new User();
 		user.setPhone(phone);
 		
@@ -50,6 +58,17 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		}
 		
 		throw new BizException("010304", "密码错误");
+	}
+	
+	@Override
+	public User findUserByPhone(String phone) {
+		return userDao.readUserByPhone(phone);
+	}
+	
+	@Override
+	public User saveUser(User user) {
+		userDao.insertUser(user);
+		return user;
 	}
 
 	@Override
@@ -91,11 +110,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	@Override
-	public User findUserByPhone(String phone) {
-		return userDao.readUserByPhone(phone);
-	}
-
-	@Override
 	public User saveUser(User user, boolean register) {
 		// TODO Auto-generated method stub
 		return null;
@@ -109,10 +123,20 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 			return null;
 		} else {
 			String password = pwdEncoder.encode(rawpasswd);
-			User user = new User();
-			user.setPhone(phone);
-			user.setPassword(password);
-			return saveUser(user);
+			User user = User.builder()
+					.password(password)
+					.phone(phone)
+					.canLineToSaler(true)
+					.deactivated(false)
+					.dateCreated(new Date())
+					.nickname("usr_" + phone)
+					.build();
+			
+			userDao.insert(user);
+			
+			// 触发用户注册 后置处理
+			extMgr.postRegisterUser(user);
+			return user;
 		}
 	}
 
@@ -144,22 +168,78 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	@Override
-	public List<Address> findAddressesForUser(Long userid) {
-		return userDao.readAddressForUser(userid);
+	public List<UserAddress> findAddressesForUser(Long userid) {
+		return userAddrDao.readByUserId(userid);
 	}
 
 	@Override
 	@Transactional
-	public boolean addNewAddress(Address address, Long uid) {
-		if(address.getIsDefault() == true) {
-			userDao.unDefaultAddr(uid);
+	public boolean addNewAddress(Address address, Long uid, Boolean isDefault) {
+		Map<String, String> json = Utils.getGeocoderLatitude(address.getAddrLine1()+address.getAddrLine2());
+		if(json.get("lat") != null && json.get("lng") != null) {
+			address.setLat(Double.valueOf(json.get("lat")));
+			address.setLng(Double.valueOf(json.get("lng")));
 		}
 		
-		return userDao.addNewAddress(address, uid) > 0;
+		int status = addrService.save(address);
+		if(status != 1) {
+			throw new RuntimeException();
+		}
+		
+		if(isDefault != null && isDefault == true) {
+			userAddrDao.unDefaultAddr(uid);
+		}
+		
+		UserAddress userAddr = new UserAddress();
+		userAddr.setAddrId(address.getId());
+		userAddr.setUserId(uid);
+		userAddr.setName("XX");
+		userAddr.setIsDefault(isDefault);
+		
+		status = userAddrDao.insert(userAddr);
+		if(status != 1) {
+			throw new RuntimeException();
+		}
+		
+		return true;
 	}
+	
+	@Override
+	@Transactional
+	public boolean updateAddress(Address address, Long uid, Long userAddressId, Boolean isDefault) {
+		Map<String, String> json = Utils.getGeocoderLatitude(address.getAddrLine1()+address.getAddrLine2());
+		if(json.get("lat") != null && json.get("lng") != null) {
+			address.setLat(Double.valueOf(json.get("lat")));
+			address.setLng(Double.valueOf(json.get("lng")));
+		}
+		
+		if(isDefault != null && isDefault == true) {
+			userAddrDao.unDefaultAddr(uid);
+		}
+		
+		int status = addrService.update(address);
+		if(status != 1) {
+			throw new RuntimeException();
+		}
+		
+		UserAddress userAddr = userAddrDao.selectByPrimaryKey(userAddressId);
+		userAddr.setIsDefault(isDefault);
+		
+		userAddrDao.updateByPrimaryKey(userAddr);
+		return true;
+	}
+	
+	@Override
+	@Transactional
+	public void deleteAddress(Long addrId, Long uid) {
+		UserAddress userAddr = userAddrDao.selectByPrimaryKey(addrId);
+		addrService.delete(userAddr.getAddrId());
+		userAddrDao.deleteByPrimaryKey(addrId);
+	}  
 
 	@Override
 	public BaseDao<User> getBaseDao() {
 		return userDao;
 	}
+
 }

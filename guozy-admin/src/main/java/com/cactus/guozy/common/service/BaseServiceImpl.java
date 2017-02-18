@@ -3,6 +3,7 @@ package com.cactus.guozy.common.service;
 import java.util.List;
 
 import org.apache.ibatis.session.RowBounds;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cactus.guozy.common.BaseDao;
 import com.cactus.guozy.common.exception.DBException;
@@ -53,6 +54,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int save(T entity) {
 		return this.getBaseDao().insert(entity);
 	}
@@ -75,6 +77,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int delete(Object id) {
 		return this.getBaseDao().deleteByPrimaryKey(id);
 	}
@@ -86,6 +89,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int saveSelective(T entity) throws DBException {
 		int result = this.getBaseDao().insertSelective(entity);
 		if (result <= 0) {
@@ -101,6 +105,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int updateSelective(T entity) {
 		return this.getBaseDao().updateByPrimaryKeySelective(entity);
 	}

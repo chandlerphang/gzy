@@ -26,6 +26,9 @@ public class OrderItemWrapper {
 	@XmlElement
 	private Long goodsId;
 	
+	@XmlElement
+	private Goods goods;
+	
 	public void wrapDetails(OrderItem item) {
 		wrapSummary(item);
 	}
@@ -35,6 +38,7 @@ public class OrderItemWrapper {
 		price = item.getPrice();
 		quantity = item.getQuantity();
 		goodsId = item.getGoods() != null ? item.getGoods().getId() : null;
+		goods = item.getGoods();
 	}
 	
 	public OrderItem upwrap() {
@@ -42,7 +46,11 @@ public class OrderItemWrapper {
 		item.setId(getId());
 		item.setPrice(getPrice());
 		item.setQuantity(getQuantity());
-		item.setGoods(new Goods(getGoodsId()));
+		if(getGoods() != null) {
+			item.setGoods(getGoods());
+		} else if(getGoodsId() != null) {
+			item.setGoods(new Goods(getGoodsId()));
+		}
 		
 		return item;
 	}
@@ -77,6 +85,14 @@ public class OrderItemWrapper {
 
 	public void setGoodsId(Long goodsId) {
 		this.goodsId = goodsId;
+	}
+
+	public Goods getGoods() {
+		return goods;
+	}
+
+	public void setGoods(Goods goods) {
+		this.goods = goods;
 	}
 
 }

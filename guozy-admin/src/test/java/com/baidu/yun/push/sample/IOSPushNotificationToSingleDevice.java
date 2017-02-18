@@ -16,8 +16,8 @@ public class IOSPushNotificationToSingleDevice {
 	public static void main(String[] args) 
 			throws PushClientException,PushServerException {
 		// 1. get apiKey and secretKey from developer console
-		 String apiKey = "xxxxxxxxxxxxxxxx";
-		 String secretKey = "xxxxxxxxxxxxxxxxxxxxxxxxxx";
+		 String apiKey = "e1na0QpabebBpeiCKLw0KWp5";
+		 String secretKey = "RdyUP6FBnwL8EOUpFGNZyFd0N7TMC86m";
 		PushKeyPair pair = new PushKeyPair(apiKey, secretKey);
 
 		// 2. build a BaidupushClient object to access released interfaces
@@ -45,10 +45,10 @@ public class IOSPushNotificationToSingleDevice {
 			notification.put("key2", "value2");
 
 			PushMsgToSingleDeviceRequest request = new PushMsgToSingleDeviceRequest()
-					.addChannelId("xxxxxxxxxxxxxxxxxx")
+					.addChannelId("4899600949711649881")
 					.addMsgExpires(new Integer(3600)). // 设置message的有效时间
-					addMessageType(1).// 1：通知,0:透传消息.默认为0 注：IOS只有通知.
-					addMessage(notification.toString()).addDeployStatus(2). // IOS,
+					addMessageType(0).// 1：通知,0:透传消息.默认为0 注：IOS只有通知.
+					addMessage(notification.toString()).addDeployStatus(1). // IOS,
 																			// DeployStatus
 																			// => 1: Developer
 																			// 2: Production.

@@ -4,18 +4,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-@Table(name="goods")
-public class Goods {
+import com.cactus.guozy.common.BaseDomain;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name="goods")
+public class Goods extends BaseDomain {
+
+	private static final long serialVersionUID = 1L;
 
 	@Column(name="name")
     private String name;
@@ -25,9 +22,9 @@ public class Goods {
 
 	@Column(name="need_saler")
     private Boolean needSaler;
-
-	@Transient
-    private byte[] pic;
+	
+	@Column(name="pic")
+	private String pic;
     
 	@Transient
     private List<Category> categories;
@@ -35,14 +32,6 @@ public class Goods {
     public Goods() {}
     public Goods(Long id) {
     	this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -69,19 +58,19 @@ public class Goods {
         this.needSaler = needSaler;
     }
 
-    public byte[] getPic() {
-        return pic;
-    }
-
-    public void setPic(byte[] pic) {
-        this.pic = pic;
-    }
-
 	public List<Category> getCategories() {
 		return categories;
 	}
 
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
+	}
+	
+	public String getPic() {
+		return pic;
+	}
+	
+	public void setPic(String pic) {
+		this.pic = pic;
 	}
 }

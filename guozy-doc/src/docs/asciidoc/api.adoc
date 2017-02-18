@@ -39,6 +39,10 @@ include::order.adoc[]
 
 include::profile.adoc[]
 
+<<<
+
+include::dialog.adoc[]
+
 == TODO
 
 .TODO list

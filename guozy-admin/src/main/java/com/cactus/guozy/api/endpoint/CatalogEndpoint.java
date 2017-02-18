@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cactus.guozy.api.wrapper.CategoryWrapper;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.api.wrapper.GoodsWrapper;
+import com.cactus.guozy.api.wrapper.SalerWrapper;
 import com.cactus.guozy.api.wrapper.ShopWrapper;
-import com.cactus.guozy.api.wrapper.UserWrapper;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Goods;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.service.CatalogService;
-import com.cactus.guozy.profile.domain.User;
 
 @RestController
 @RequestMapping("catalog")
@@ -93,10 +93,10 @@ public class CatalogEndpoint {
 	
 	@RequestMapping(value = { "/salers"}, method = RequestMethod.GET)
 	public GenericWebResult getAllSalers(@RequestParam("sid") Long sid) {
-		List<User> salers = catalogService.findSalersByShopId(sid);
-		List<UserWrapper> gs = new ArrayList<>();
-		for (User g : salers) {
-			UserWrapper wrapper = new UserWrapper();
+		List<Saler> salers = catalogService.findSalersByShopId(sid);
+		List<SalerWrapper> gs = new ArrayList<>();
+		for (Saler g : salers) {
+			SalerWrapper wrapper = new SalerWrapper();
 			wrapper.wrapSummary(g);
 			gs.add(wrapper);
 		}

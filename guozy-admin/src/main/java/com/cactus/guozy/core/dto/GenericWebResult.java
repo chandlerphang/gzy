@@ -3,11 +3,15 @@ package com.cactus.guozy.core.dto;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
+
 /**
  * ajax 请求的返回类型封装JSON结果
  */
 @XmlRootElement(name="result")
 public class GenericWebResult {
+	
+	public static GenericWebResult PARAMETER_ERROR = GenericWebResult.error("000101").withData(ErrorMsgWrapper.error("paramsError").withMsg("参数错误"));
 
 	@XmlElement
 	private String status;

@@ -134,16 +134,41 @@ CREATE TABLE `user` (
 	`phone` CHAR(11) NOT NULL COMMENT '手机号',
 	`nickname` VARCHAR(30) NULL,
 	`deactivated` BIT NOT NULL DEFAULT b'0',
-  `is_saler` BIT NOT NULL DEFAULT b'0',
 	`line_to_saler` BIT NOT NULL DEFAULT b'1',
 	`avatar` VARCHAR(255) NULL,
-	`sid` INT UNSIGNED NOT NULL,
 	`create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	PRIMARY KEY (`id`),
+	KEY `idx_user_phone`(`phone`)
+)ENGINE=INNODB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+
+-- 导购员
+DROP TABLE IF EXISTS `saler`;
+CREATE TABLE `saler` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`password` VARCHAR(70) NOT NULL COMMENT '密码(加密存储)',
+	`phone` CHAR(11) NOT NULL COMMENT '手机号',
+	`nickname` VARCHAR(30) NULL,
+	`avatar` VARCHAR(255) NULL,
+	`channel_id` VARCHAR(30) NULL,
+	`shop_id` INT UNSIGNED NOT NULL,
+	`create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	`last_active_time` DATETIME NOT NULL,
+	`status` TINYINT NOT NULL,
+	PRIMARY KEY (`id`),
 	KEY `idx_user_phone`(`phone`),
-	FOREIGN KEY (`sid`) REFERENCES `shop` (`id`)
+	FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
+)ENGINE=INNODB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+
+-- 导购员加锁表
+DROP TABLE IF EXISTS `saler_lock`;
+CREATE TABLE `saler_lock` (
+	`salerid` INT UNSIGNED NOT NULL,
+  `locked` BIT NOT NULL DEFAULT b'0',
+	`last_updated` INT UNSIGNED NOT NULL,
+	`belong_to` INT UNSIGNED NOT NULL,
+	PRIMARY KEY (`salerid`)
 )ENGINE=INNODB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `shop`;
@@ -232,13 +257,26 @@ CREATE TABLE `address` (
   `addr_line1` VARCHAR(255) NOT NULL,
   `addr_line2` VARCHAR(255) NOT NULL,
   `phone` CHAR(11) NOT NULL COMMENT '手机号',
-	`is_def` BIT NOT NULL DEFAULT b'0',
-	`uid` INT UNSIGNED NOT NULL COMMENT '和user的关联外键',
-	PRIMARY KEY (`id`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE,
+	`lat` DOUBLE NULL,
+	`lng` DOUBLE NULL,
+	PRIMARY KEY (`id`)
 )ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `user_addr`;
+CREATE TABLE `user_addr` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NOT NULL,
+	`addr` INT UNSIGNED NOT NULL,
+  `user` INT UNSIGNED NOT NULL,
+	`is_def` BIT NOT NULL DEFAULT b'0',
+	PRIMARY KEY (`id`),
+  FOREIGN KEY (`addr`) REFERENCES `address` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `offer`;
 CREATE TABLE `offer` (
@@ -364,3 +402,56 @@ CREATE TABLE `pay_map`(
   INDEX orderNum (orderNum),
   INDEX orderId (orderId)
 ) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+DROP TABLE IF EXISTS `schedule_execute_result`;
+CREATE TABLE `schedule_execute_result` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schedule_id` varchar(200) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `schedule_job_setting`;
+CREATE TABLE `schedule_job_setting` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `schedule_id` varchar(200) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `cron` varchar(100) DEFAULT NULL,
+  `class_path` varchar(200) NOT NULL,
+  `status` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `schedule_id` (`schedule_id`,`group_id`) USING BTREE,
+  KEY `class_path` (`class_path`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+BEGIN;
+INSERT INTO `schedule_job_setting` VALUES ('1', 'schedule.test', 'group.test', '0/20 * * * * ?', 'com.cactus.guozy.common.schedule.jobs.ExampleScheduledJob', '0');
+COMMIT;
+
+DROP TABLE IF EXISTS `order_addr`;
+CREATE TABLE `order_addr` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID',
+	`name` VARCHAR(50) NOT NULL COMMENT '收件人',
+  `addr_line1` VARCHAR(255) NOT NULL,
+  `addr_line2` VARCHAR(255) NOT NULL,
+  `phone` CHAR(11) NOT NULL COMMENT '手机号',
+	`lat` DOUBLE NULL,
+	`lng` DOUBLE NULL,
+	`odr_id` INT UNSIGNED NOT NULL,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`odr_id`) REFERENCES `order` (`odr_id`)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE
+)ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `feedback`;
+CREATE TABLE `feedback` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID',
+	`nickname` VARCHAR(50) NOT NULL,
+  `phone` VARCHAR(255) NULL,
+  `feedback` VARCHAR(255) NOT NULL,
+	`date_created` DATETIME NOT NULL,
+	PRIMARY KEY (`id`)
+)ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;

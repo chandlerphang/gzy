@@ -60,6 +60,7 @@
 				<value>classpath:com/cactus/guozy/common/config/dao/*.xml</value>
 				<value>classpath:com/cactus/guozy/common/cms/dao/*.xml</value>
 				<value>classpath:com/cactus/guozy/profile/dao/*.xml</value>
+				<value>classpath:mappers/*.xml</value>
 			</array>
 		</property>
 	</bean>
@@ -73,7 +74,8 @@
 							        		com.cactus.guozy.core.dao;
 							        		com.cactus.guozy.common.config.dao;
 							        		com.cactus.guozy.common.cms.dao;
-							        		com.cactus.guozy.profile.dao"/>
+							        		com.cactus.guozy.profile.dao;
+							        		com.cactus.guozy.common.schedule.dao"/>
 	    <property name="properties">
 	        <value>
 	            mappers=tk.mybatis.mapper.common.Mapper

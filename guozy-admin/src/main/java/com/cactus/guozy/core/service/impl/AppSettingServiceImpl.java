@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cactus.guozy.common.TransactionUtils;
 import com.cactus.guozy.common.config.SystemConfig;
 import com.cactus.guozy.common.config.dao.SystemConfigDao;
 import com.cactus.guozy.core.dao.FruitCommonSenseDao;
 import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.service.AppSettingService;
+import com.cactus.guozy.core.util.TransactionUtils;
 
 @Service("appSettingService")
 public class AppSettingServiceImpl implements AppSettingService{

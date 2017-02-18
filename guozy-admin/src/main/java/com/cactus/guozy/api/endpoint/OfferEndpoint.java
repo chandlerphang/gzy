@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cactus.guozy.core.domain.UserOffer;
 import com.cactus.guozy.core.dto.GenericWebResult;
-import com.cactus.guozy.core.service.OfferService;
+import com.cactus.guozy.core.service.offer.OfferService;
 
 @RestController
 @RequestMapping("/offers")

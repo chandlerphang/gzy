@@ -23,7 +23,7 @@ public abstract class AbstractAdminController {
 	protected UserService userService;
 
 	protected void setModelAttributes(Model model, String funcKey) {
-		AdminUser adminUser = WakaRequestContext.instance().getUser();
+		AdminUser adminUser = WakaRequestContext.instance().getAdminUser();
 		AdminMenu adminMenu = adminNavigationService.buildMenu(adminUser);
 		model.addAttribute("adminUser", adminUser);
 		model.addAttribute("adminMenu", adminMenu);

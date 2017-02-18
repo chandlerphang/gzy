@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +24,6 @@ import com.cactus.guozy.admin.domain.AdminUser;
 @Service("adminNavigationService")
 public class AdminNavigationServiceImpl implements AdminNavigationService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AdminNavigationServiceImpl.class);
     private static final String PATTERN = "_";
 
     @Autowired

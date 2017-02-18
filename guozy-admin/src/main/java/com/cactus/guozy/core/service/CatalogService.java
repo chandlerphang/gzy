@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Goods;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
-import com.cactus.guozy.profile.domain.User;
 
 public interface CatalogService {
 	
@@ -19,6 +19,6 @@ public interface CatalogService {
 	
 	List<Goods> findAllGoods(Long cid);
 	
-	List<User> findSalersByShopId(Long sid);
+	List<Saler> findSalersByShopId(Long sid);
 	
 }
