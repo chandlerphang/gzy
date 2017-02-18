@@ -29,8 +29,8 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            classpath:spring/spring-dao.xml,
             classpath:spring/spring-service.xml
+            classpath:spring/spring-dao.xml
             classpath:spring/spring-security.xml
             classpath:spring/spring-filters.xml
             classpath:spring/spring-quartz.xml

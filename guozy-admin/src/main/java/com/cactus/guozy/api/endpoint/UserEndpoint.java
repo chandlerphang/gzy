@@ -39,66 +39,66 @@ public class UserEndpoint {
 
 	@Resource(name = "fileService")
 	protected FileService fileService;
-	
-	@Resource(name="assetStorageService")
+
+	@Resource(name = "assetStorageService")
 	protected AssetStorageService ass;
-	
-	@Resource(name="assetService")
+
+	@Resource(name = "assetService")
 	protected AssetService assetService;
-	
-	@Resource(name="userService")
+
+	@Resource(name = "userService")
 	protected UserService userService;
 	
 	@Resource(name="addrService")
 	protected AddressService addrService;
 
 	@RequestMapping(value = "/{userId}/nickname", method = RequestMethod.POST)
-	public GenericWebResult updateNickname(HttpServletRequest request, 
-			@RequestParam("nickname") String newname,
+	public GenericWebResult updateNickname(HttpServletRequest request, @RequestParam("nickname") String newname,
 			@PathVariable("userId") Long userId) {
-		
-		if(userService.updateNickname(userId, newname)){
+
+		if (userService.updateNickname(userId, newname)) {
 			return GenericWebResult.success("ok");
 		}
 		return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
 	}
-	
+
 	@RequestMapping(value = "/{userId}/avatar", method = RequestMethod.POST)
-	public GenericWebResult uploadAvatar(HttpServletRequest request, 
-			@RequestParam("file") MultipartFile file,
+	public GenericWebResult uploadAvatar(HttpServletRequest request, @RequestParam("file") MultipartFile file,
 			@PathVariable("userId") Long userId) {
-		
+
 		Map<String, String> properties = new HashMap<>();
 		properties.put("module", "profile");
 		properties.put("resourceId", userId.toString());
-		
+
 		LOG.debug("开始头像资源存储.");
-		Asset asset=assetService.createAssetFromFile(file, properties);
-		
-		if(asset == null) {
+		Asset asset = assetService.createAssetFromFile(file, properties);
+
+		if (asset == null) {
 			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
 		}
-		
+
 		try {
 			ass.storeAssetFile(file, asset);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		userService.updateAvatarUrl(userId, asset.getUrl());
 		LOG.debug("结束头像资源存储.");
-		
-		return GenericWebResult.error("200").withData("/"+RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix","")+asset.getUrl());
+
+		return GenericWebResult.error("200")
+				.withData("/" + RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix", "") + asset.getUrl());
 	}
-	
+
+
 	@RequestMapping(value = "/{userId}/addresses", method = RequestMethod.GET)
 	public GenericWebResult getAllAddress(HttpServletRequest request, 
 			@PathVariable("userId") Long userId) {
 		List<UserAddress> addrs = userService.findAddressesForUser(userId);
 		return GenericWebResult.success(UserAddressWrapper.toWrappers(addrs));
 	}
-	
+
 	@RequestMapping(value = "/{userId}/address", method = RequestMethod.POST)
 	public GenericWebResult saveNewAddress(HttpServletRequest request, 
 			@RequestBody UserAddressWrapper userAddrWrapper,
@@ -133,5 +133,5 @@ public class UserEndpoint {
 		}
 		return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
 	}
-	
+
 }
