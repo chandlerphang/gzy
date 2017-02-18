@@ -1,3 +1,13 @@
+<script type="text/javascript">
+function selectShop(shopId){
+	areaCont = "";
+/* 	for (var i=0; i<shops.length; i++) {
+		areaCont += '<li onClick="selectP(' + i + ');"><a href="javascript:void(0)">' + shops.get(i).name + '</a></li>';
+	}	
+	$("#categories").html(areaCont); */
+	alert(shopId);
+}
+</script>
 <div class="row">
         <div class="col-md-3">
           <a class="btn btn-primary btn-block margin-bottom">选择店铺和类别</a>
@@ -9,7 +19,7 @@
             <div class="box-body no-padding">
                <ul class="nav nav-pills nav-stacked">
               	  #foreach( $shop in $shops)
-			         <li><a href="#"><i class="fa fa-envelope-o"></i> $shop.name</a></li>
+			         <li><a onclick="selectShop($shop.id)"><i class="fa fa-envelope-o"></i> $shop.name</a></li>
 			      #end
               </ul>
             </div>
@@ -21,10 +31,10 @@
               <h3 class="box-title">类别</h3>
             </div>
             <div class="box-body no-padding">
-              <ul class="nav nav-pills nav-stacked">
-                <li class="active"><a href="#"><i class="fa fa-circle-o text-red"></i> Important</a></li>
-                <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> Promotions</a></li>
-                <li><a href="#"><i class="fa fa-circle-o text-light-blue"></i> Social</a></li>
+              <ul class="nav nav-pills nav-stacked" id="categories">
+                <li class="active"><a><i class="fa fa-circle-o text-red"></i> Important</a></li>
+                <li><a><i class="fa fa-circle-o text-yellow"></i> Promotions</a></li>
+                <li><a><i class="fa fa-circle-o text-light-blue"></i> Social</a></li>
               </ul>
             </div>
             <!-- /.box-body -->
