@@ -4,28 +4,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.omg.CORBA.SystemException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.cactus.guozy.common.exception.BusinessException;
-import com.cactus.guozy.core.service.IAlipayNotifyService;
-import com.cactus.guozy.core.service.IWechatNotifyService;
+import com.cactus.guozy.core.service.AlipayNotifyService;
+import com.cactus.guozy.core.service.WechatNotifyService;
 
 /**
  * 支付通知入口
  */
+@Controller
 @RequestMapping(value = "/open/payNotify")
 public class PayNotifyController {
 
-    private static Logger logger = LoggerFactory.getLogger(PayNotifyController.class);
-    
     @Autowired
-    private IWechatNotifyService wechatNotifyService;
+    private WechatNotifyService wechatNotifyService;
     @Autowired
-    private IAlipayNotifyService alipayNotifyService;
+    private AlipayNotifyService alipayNotifyService;
 
     /**
      * 国内支付宝app通知回调
@@ -44,7 +42,7 @@ public class PayNotifyController {
      * @param request
      * @param response
      */
-    @RequestMapping(value = "wechat", method = RequestMethod.POST)
+    @RequestMapping(value = "/wechat", method = RequestMethod.POST)
     public void wechatNotify(HttpServletRequest request, HttpServletResponse response) {
         wechatNotifyService.wechatNotify(request, response);
     }

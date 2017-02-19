@@ -1,16 +1,12 @@
 package com.cactus.guozy.admin.web;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,24 +15,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.cactus.guozy.api.endpoint.AppEndpoint;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
-import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
-import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
+import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.service.AppSettingService;
 import com.cactus.guozy.core.service.CatalogService;
 import com.cactus.guozy.core.service.OrderService;
-import com.cactus.guozy.profile.domain.User;
 
 @Controller
 public class AdminMainController extends AbstractAdminController{
@@ -50,7 +44,6 @@ public class AdminMainController extends AbstractAdminController{
 	
 	@Resource(name = "assetService")
 	protected AssetService assetService;
-	
 	
 	@Resource(name="appSettingService")
 	protected AppSettingService appSettingService;
@@ -110,7 +103,7 @@ public class AdminMainController extends AbstractAdminController{
 	public String saler(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		List<User> salers=catalogService.findSalersByShopId(1l);
+		List<Saler> salers=catalogService.findSalersByShopId(1l);
 		model.addAttribute("salers", salers);
 		
 		setModelAttributes(model, "dianyuanguanli");
@@ -122,7 +115,7 @@ public class AdminMainController extends AbstractAdminController{
 	public String ordershop(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		List<User> salers=catalogService.findSalersByShopId(1l);
+		List<Saler> salers=catalogService.findSalersByShopId(1l);
 		model.addAttribute("salers", salers);
 		setModelAttributes(model, "dingdanguanli");
 		return "ordershop";
@@ -132,7 +125,7 @@ public class AdminMainController extends AbstractAdminController{
 	@RequestMapping(value = {"/salerlist"}, method = RequestMethod.GET)
 	public String salerlist(@RequestParam("sid")String sid,HttpServletResponse resp,Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		List<User> salers=catalogService.findSalersByShopId(Long.parseLong(sid));
+		List<Saler> salers=catalogService.findSalersByShopId(Long.parseLong(sid));
 		model.addAttribute("salers", salers);
 		model.addAttribute("sid", sid);
 		return "salerlist";
@@ -202,7 +195,7 @@ public class AdminMainController extends AbstractAdminController{
 //		}
 //		LOG.debug("结束头像资源存储.");
 		//2.昵称
-		if(TextUtils.isEmpty(name)){
+		if(Strings.isNullOrEmpty(name)){
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
 		
@@ -216,7 +209,7 @@ public class AdminMainController extends AbstractAdminController{
 	public GenericWebResult updateUserInfo1(HttpServletRequest request,
 			@RequestParam("nickname") String name, @PathVariable("userId") Long userId) {
 		//2.昵称
-		if(TextUtils.isEmpty(name)){
+		if(Strings.isNullOrEmpty(name)){
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
 		

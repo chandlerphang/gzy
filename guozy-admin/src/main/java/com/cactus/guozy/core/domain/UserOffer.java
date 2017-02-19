@@ -1,47 +1,37 @@
 package com.cactus.guozy.core.domain;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.cactus.guozy.common.BaseDomain;
 import com.cactus.guozy.profile.domain.User;
 
-public class UserOffer {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-	private Long id;
-	
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name="user_offer")
+public class UserOffer extends BaseDomain {
+
+	private static final long serialVersionUID = 172621463440775276L;
+
+	@Transient
 	private User user;
 	
+	@Transient
 	private Offer offer;
 	
-	private boolean isUsed;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public Offer getOffer() {
-		return offer;
-	}
-
-	public void setOffer(Offer offer) {
-		this.offer = offer;
-	}
-
-	public boolean isUsed() {
-		return isUsed;
-	}
-
-	public void setUsed(boolean isUsed) {
-		this.isUsed = isUsed;
-	}
+	private Long userId;
 	
+	private Long offerId;
+	
+	private Boolean isUsed;
+
 }

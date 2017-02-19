@@ -1,0 +1,91 @@
+== 视频通话
+
+=== 1. 用户请求与导购员通话
+
+请求地址：/conn_to_saler    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| salerId
+| int
+| 是
+| 导购员id
+
+| usrId
+| int
+| 是
+| 请求通话的用户id
+
+| usrChannelId
+| string
+| 是
+| 百度云推送的channelId
+
+|===
+
+=== 2. 导购员应答用户通话请求
+
+请求地址：/saler_confirm_conn    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| salerId
+| int
+| 是
+| 导购员id
+
+| usrId
+| int
+| 是
+| 请求通话的用户id
+
+| usrChannelId
+| string
+| 是
+| 百度云推送的channelId
+
+| confirm
+| boolean
+| 是
+| true表示接受通话请求，false表示拒绝
+
+|===
+
+=== 3. 用户收到导购员通话应答后确认
+
+请求地址：/user_confirm_conn    请求方法: POST
+
+include::partials/common_params.adoc[]
+
+[caption="", cols="2,2,1,4"] 
+.请求参数
+|===
+|名称  |类型  |是否必须  |描述
+  
+| salerId
+| int
+| 是
+| 导购员id
+
+| usrId
+| int
+| 是
+| 请求通话的用户id
+
+|===
+
+=== 4. 导购员心跳
+
+请求地址：/saler_heart_beat    请求方法: POST
+
+include::partials/common_params.adoc[]

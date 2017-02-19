@@ -1,25 +1,24 @@
 package com.cactus.guozy.core.domain.validator;
 
+import com.cactus.guozy.common.utils.Strings;
+
 public class GenericValidator {
 	
+	/**
+     * 正则表达式：验证手机号
+     */
+    public static final String REGEX_MOBILE = "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
+	
 	public static boolean checkPhone(String phone) {
-		if (phone == null || phone.isEmpty()) {
+		if(Strings.isNullOrEmpty(phone)) {
 			return false;
 		}
-
-		if (phone.length() != 11) {
-			return false;
-		}
-
-		if (!phone.matches("[0-9]{11}")) {
-			return false;
-		}
-
-		return true;
+		
+		return phone.length() == 11;
 	}
 	
 	public static boolean checkPasswd(String passwd) {
-		if (passwd == null || passwd.isEmpty()) {
+		if (Strings.isNullOrEmpty(passwd)) {
 			return false;
 		}
 

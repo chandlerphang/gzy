@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
 
 public class Order {
@@ -21,7 +20,7 @@ public class Order {
 
 	private List<OrderItem> orderItems;
 
-	private Address shipAddr;
+	private OrderAddress shipAddr;
 
 	private BigDecimal shipPrice;
 
@@ -103,11 +102,11 @@ public class Order {
 		this.orderItems = orderItems;
 	}
 
-	public Address getShipAddr() {
+	public OrderAddress getShipAddr() {
 		return shipAddr;
 	}
 
-	public void setShipAddr(Address shipAddr) {
+	public void setShipAddr(OrderAddress shipAddr) {
 		this.shipAddr = shipAddr;
 	}
 

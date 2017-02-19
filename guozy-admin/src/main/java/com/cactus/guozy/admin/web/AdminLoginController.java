@@ -28,7 +28,7 @@ public class AdminLoginController {
 	
 	@RequestMapping(value = {"/home"}, method = RequestMethod.GET)
 	public String loginSuccess() {
-		AdminMenu adminMenu = adminNavigationService.buildMenu(WakaRequestContext.instance().getUser());
+		AdminMenu adminMenu = adminNavigationService.buildMenu(WakaRequestContext.instance().getAdminUser());
 		if (!adminMenu.getAdminModules().isEmpty()) {
 			AdminModule first = adminMenu.getAdminModules().get(0);
 			List<AdminFunction> funcs = first.getFuncs();

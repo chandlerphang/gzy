@@ -34,8 +34,4 @@ public interface UserDao extends BaseDao<User> {
     List<Address> readAddressForUser(Long id);
     
     int addNewAddress(@Param("addr") Address addr, @Param("uid") Long uid);
-    
-    List<User> readSalersByShopId(Long sid);
-    
-    int unDefaultAddr(Long uid);
 }

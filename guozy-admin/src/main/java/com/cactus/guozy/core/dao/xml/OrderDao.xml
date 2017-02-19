@@ -19,15 +19,24 @@
   </resultMap>
   
   <resultMap id="orderItem" type="com.cactus.guozy.core.domain.OrderItem">
-    <id column="id" property="id" />
-    <result column="price" property="price" />
-    <result column="quantity" property="quantity" />
+    <id column="odri_id" property="id" />
+    <result column="odri_price" property="price" />
+    <result column="odri_quantity" property="quantity" />
     <association property="goods" resultMap="com.cactus.guozy.core.dao.GoodsDao.goods"/>
   </resultMap>
   
-  <resultMap id="orderWithRel" extends="order" type="com.cactus.guozy.core.domain.Order">
-  	<association property="shop" resultMap="com.cactus.guozy.core.dao.ShopDao.shop" />
-  	<collection property="orderItems" resultMap="orderItem"/>
+  <resultMap id="address" type="com.cactus.guozy.core.domain.OrderAddress">
+  	<id column="id" property="id"/>
+    <result column="name" property="name" />
+    <result column="addr_line1" property="addrLine1"/>
+    <result column="addr_line2" property="addrLine2"/>
+    <result column="phone" property="phone"/>
+    <result column="lng" property="lng"/>
+    <result column="lat" property="lat"/>
+  </resultMap>
+  
+  <resultMap id="orderWithRels" extends="order" type="com.cactus.guozy.core.domain.Order">
+  	<association property="shipAddr" resultMap="address"/>
   </resultMap>
   
   <resultMap type="com.cactus.guozy.core.domain.OrderAdjustment" id="orderAdjustment">
@@ -113,12 +122,16 @@
   	UPDATE `order` SET `status`=#{param2} WHERE `odr_id`=#{param1}
   </update>
   
-  <select id="readOrdersUnpay" parameterType="java.lang.Long" resultMap="order">
-  	SELECT * FROM `order` WHERE `uid`=#{userId} AND `status`='SUBMITTED'
+  <select id="readOrdersUnpay" parameterType="java.lang.Long" resultMap="orderWithRels">
+  	SELECT odr.*, addr.* 
+  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id
+  	WHERE odr.`uid`=#{userId} AND odr.`status`='SUBMITTED'
   </select>
   
-  <select id="readOrdersCompleted" parameterType="java.lang.Long" resultMap="order">
-  	SELECT * FROM `order` WHERE `uid`=#{userId} AND `status`='COMPLETED'
+  <select id="readOrdersCompleted" parameterType="java.lang.Long" resultMap="orderWithRels">
+    SELECT odr.*, addr.* 
+  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  	WHERE odr.`uid`=#{userId} AND odr.`status`='COMPLETED'
   </select>
   
   <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="order">
@@ -128,14 +141,24 @@
   <update id="updateTotal" parameterType="com.cactus.guozy.core.domain.Order" >
   	UPDATE `order` SET `total`=#{total}, `subtotal`=#{subTotal} WHERE `odr_id`=#{id}
   </update>
-  
+	
+  <update id="updateOrderNumber" parameterType="com.cactus.guozy.core.domain.Order" >
+  	UPDATE `order` SET `odr_num`=#{orderNumber} WHERE `odr_id`=#{id}
+  </update>  
+
   <select id="readAllAdjustments" parameterType="java.lang.Long" resultMap="orderAdjustment">
   	SELECT id as adj_id, value as adj_value, reason as adj_reason FROM `order_adjustment` WHERE `odr_id`=#{orderId}
   </select>
   
-  <select id="readOrderById" parameterType="java.lang.Long" resultMap="orderWithRel">
-  	SELECT * FROM `order` odr 
-  		LEFT JOIN `order_item` item ON odr.odr_id=item.odr_id
+  <select id="readOrderById" parameterType="java.lang.Long" resultMap="orderWithRels">
+  	SELECT odr.*, addr.* 
+  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
   	WHERE odr.`odr_id`=#{orderId}
+  </select>
+	
+  <select id="readItemsForOrder" parameterType="java.lang.Long" resultMap="orderItem">
+  	SELECT i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, g.*
+  	FROM `order_item` i LEFT JOIN `goods` g ON i.goods_id=g.id
+  	WHERE odr_id=#{orderId}
   </select>
 </mapper>

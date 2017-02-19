@@ -14,13 +14,17 @@
     <sec:http pattern="/**/*.js" security="none" />
     <sec:http pattern="/robots.txt" security="none" />
     <sec:http pattern="/login" security="none" />
+    <sec:http pattern="/feedbacks" security="none" />
     <sec:http pattern="/**/${asset.url.prefix}/**" security="none" />
     <sec:http pattern="/${asset.url.prefix}/**" security="none" />
-    <sec:http pattern="/api/*/login" security="none" />
+    <sec:http pattern="/api/*/login/**" security="none" />
     <sec:http pattern="/api/*/nopwdlogin/**" security="none" />
     <sec:http pattern="/api/*/register/**" security="none" />
     <sec:http pattern="/api/*/catalog/**" security="none" />
     <sec:http pattern="/api/*/open/payNotify/**" security="none" />
+    <sec:http pattern="/api/*/aboutus" security="none" />
+    <sec:http pattern="/api/*/fruitcs" security="none" />
+    <sec:http pattern="/api/*/assets" security="none" />
     
     <sec:http
     	auto-config="false" 

@@ -6,27 +6,45 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cactus.guozy.common.exception.BizException;
+import com.cactus.guozy.common.json.Jsons;
 import com.cactus.guozy.core.dao.GoodsDao;
+import com.cactus.guozy.core.dao.OrderAddressDao;
+import com.cactus.guozy.core.dao.OrderAdjustmentDao;
 import com.cactus.guozy.core.dao.OrderDao;
 import com.cactus.guozy.core.dao.ShopDao;
+import com.cactus.guozy.core.dao.UserOfferDao;
 import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.OrderAddress;
 import com.cactus.guozy.core.domain.OrderAdjustment;
 import com.cactus.guozy.core.domain.OrderItem;
+import com.cactus.guozy.core.domain.OrderLock;
 import com.cactus.guozy.core.domain.OrderStatus;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.UserOffer;
 import com.cactus.guozy.core.dto.OrderItemRequestDTO;
-import com.cactus.guozy.core.service.OfferService;
+import com.cactus.guozy.core.dto.PushMsg;
+import com.cactus.guozy.core.service.LockManager;
+import com.cactus.guozy.core.service.MsgPushService;
 import com.cactus.guozy.core.service.OrderService;
 import com.cactus.guozy.core.service.PricingException;
+import com.cactus.guozy.core.service.PricingService;
+import com.cactus.guozy.core.service.offer.OfferService;
+import com.cactus.guozy.core.util.StreamCapableTransactionalOperationAdapter;
+import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
+import com.cactus.guozy.profile.service.AddressService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service("orderService")
 public class OrderServiceImpl implements OrderService {
 
@@ -36,11 +54,35 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired 
 	protected ShopDao shopDao;
 	
+	@Autowired
+	protected UserOfferDao userOfferDao;
+	
+	@Autowired
+	protected OrderAddressDao orderAddrDao;
+	
+	@Autowired
+	protected AddressService addrService;
+	
+	@Autowired
+	protected OrderAdjustmentDao orderAdjustmentDao;
+	
 	@Autowired 
 	protected GoodsDao goodsDao;
 	
 	@Resource(name="offerService")
 	protected OfferService offerService;
+	
+	@Resource(name="pricingService")
+	protected PricingService pricingService;
+	
+	@Resource(name="getuiPushService")
+	protected MsgPushService pushService;
+	
+	@Resource(name = "streamingTransactionCapableUtil")
+    protected StreamingTransactionCapableUtil transUtil;
+	
+	@Autowired
+	LockManager lockManager;
 	
 	@Override
 	public Order createNewCartForUser(User user) {
@@ -54,23 +96,15 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Override
 	@Transactional
-	public Order createOrderForUser(Order order, User user) {
+	public Order createOrderForUser(Order order, User user, boolean priceOrder) {
 		if(order.getIsSalerOrder() != null && order.getIsSalerOrder()) {
-			if(!user.getIsSaler()) {
-				throw new BizException("500", "非导购员，无权限");
-			}
-			
-			if(order.getUser() == null) {
-				throw new BizException("500", "找不到要生成订单的用户");
-			}
-			if(order.getSalePriceOverride() == null) {
-				order.setSalePriceOverride(false);
-			}
-		} else {
-			order.setUser(user);
-			order.setIsSalerOrder(false);
-		    order.setSalePriceOverride(false);
+			throw new BizException("500", "非用户订单");
 		}
+		
+		order.setUser(user);
+		order.setIsSalerOrder(false);
+	    order.setSalePriceOverride(false);
+	    
         order.setStatus(OrderStatus.IN_PROCESS);
         order.setDateCreated(new Date());
         order.setCreatedBy(user.getId());
@@ -97,6 +131,73 @@ public class OrderServiceImpl implements OrderService {
         List<UserOffer> offers = offerService.findUnusedOffers(user.getId());
         order.setCandidateOffers(offers);
         
+        if(priceOrder) {
+        	pricingService.executePricing(order);
+        }
+        
+        return order;
+	}
+	
+	@Override
+	@Transactional
+	public Order createSalerOrder(Order order, Saler saler, boolean priceOrder, String channelId) {
+		if(order.getIsSalerOrder() == null || !order.getIsSalerOrder()) {
+			throw new BizException("500", "非导购员订单");
+		}
+		
+		if(order.getUser() == null) {
+			throw new BizException("500", "找不到要生成订单的用户");
+		}
+		
+		if(order.getSalePriceOverride() == null) {
+			order.setSalePriceOverride(false);
+		}
+		
+		order.setStatus(OrderStatus.IN_PROCESS);
+        order.setDateCreated(new Date());
+        order.setCreatedBy(saler.getId());
+		order.setUpdatedBy(saler.getId());
+        order.setDateUpdated(new Date());
+        
+        Shop shop = shopDao.selectByPrimaryKey(order.getShop().getId());
+        order.setShipPrice(shop.getShipPrice());
+        if(orderDao.insertOrder(order) != 1) {
+        	throw new RuntimeException();
+        }
+        
+        List<OrderItem> items = order.getOrderItems();
+        for(OrderItem item : items) {
+        	item.setOrder(order);
+        	Goods goods = goodsDao.selectByPrimaryKey(item.getGoods().getId());
+        	item.setPrice(goods.getPrice());
+        }
+        
+        if(orderDao.insertOrderItemBatch(items) != items.size()) {
+        	throw new RuntimeException();
+        }
+        
+        List<UserOffer> offers = offerService.findUnusedOffers(order.getUser().getId());
+        order.setCandidateOffers(offers);
+        
+        if(priceOrder) {
+        	pricingService.executePricing(order);
+        }
+        
+        // 推送通知给用户
+ 		PushMsg msg = PushMsg.builder().msgType(4)
+ 				.subjectId(saler.getId())
+ 				.extra(order.getId())
+ 				.build();
+ 		try {
+ 			if(log.isDebugEnabled()) {
+ 				log.debug("向用户: " + order.getUser().getId() + " 推送导购员订单");
+ 			}
+ 			pushService.pushMsgToUser(channelId, Jsons.DEFAULT.toJson(msg));
+ 		} catch (RuntimeException e) {
+ 			log.error("消息推送失败: " + e.getMessage());
+ 			throw new BizException("500", "消息推送失败", e);
+ 		}
+ 		
         return order;
 	}
 	
@@ -120,20 +221,27 @@ public class OrderServiceImpl implements OrderService {
 			throw new RuntimeException();
 		}
 		
-		boolean found = false;
+		UserOffer userOffer = null;
 		List<UserOffer> unusedOffers = offerService.findUnusedOffers(user.getId());
-		for(UserOffer userOffer : unusedOffers) {
-			if(userOffer.getId() == userOfferId) {
-				found = true;
+		for(UserOffer uo : unusedOffers) {
+			if(uo.getId() == userOfferId) {
+				userOffer = uo;
 				break;
 			}
 		}
 		
-		if(found == false) {
+		if(userOffer == null) {
 			throw new RuntimeException();
 		}
 		offerService.setUsed(userOfferId);
-		orderDao.insertOfferToOrder(orderId, userOfferId);
+		
+		OrderAdjustment oa = OrderAdjustment.builder()
+				.odrId(orderId)
+				.usrofferId(userOfferId)
+				.value(userOffer.getOffer().getValue())
+				.reason(userOffer.getOffer().getName())
+				.build();
+		orderAdjustmentDao.insert(oa);
 	}
 
 	@Override
@@ -148,6 +256,8 @@ public class OrderServiceImpl implements OrderService {
 		if(usedOffer == null || !user.getId().equals(usedOffer.getUser().getId())) {
 			throw new RuntimeException(); 
 		}
+		usedOffer.setIsUsed(false);
+		userOfferDao.updateByPrimaryKey(usedOffer);
 		orderDao.deleteOrderAdjustment(orderId, userOfferId);
 	}
 
@@ -159,23 +269,52 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Override
 	public List<Order> findOrdersUnpay(Long userId) {
-		return orderDao.readOrdersUnpay(userId);
+		List<Order> orders = orderDao.readOrdersUnpay(userId);
+		for(Order order : orders) {
+			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
+		}
+		return orders;
 	}
 	
 	@Override
 	public List<Order> findOrdersCompleted(Long userId) {
-		return orderDao.readOrdersCompleted(userId);
+		List<Order> orders = orderDao.readOrdersCompleted(userId);
+		for(Order order : orders) {
+			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
+		}
+		return orders;
 	}
 	
 	@Override
 	public List<Order> findOrdersForSaler(Long salerId) {
-		return orderDao.readOrdersForSaler(salerId);
+		List<Order> orders = orderDao.readOrdersForSaler(salerId);
+		for(Order order : orders) {
+			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
+		}
+		return orders;
 	}
 	
 	@Override
 	@Transactional
 	public void updateAddress(Long orderId, Long addrId) {
-		orderDao.updateAddress(orderId, addrId);
+		OrderAddress condition = OrderAddress.builder().orderId(orderId).build();
+		int count = orderAddrDao.selectCount(condition);
+		if(count > 0) {
+			orderAddrDao.delete(condition);
+		}
+		
+		Address addr = addrService.getById(addrId);
+		OrderAddress odraddr = OrderAddress.builder()
+				.name(addr.getName())
+				.phone(addr.getPhone())
+				.addrLine1(addr.getAddrLine1())
+				.addrLine2(addr.getAddrLine2())
+				.lat(addr.getLat())
+				.lng(addr.getLng())
+				.build();
+		odraddr.setOrderId(orderId);
+		
+		orderAddrDao.insert(odraddr);
 	}
 	
 	@Override
@@ -198,13 +337,16 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
+	public Order findOrderById(Long orderId) {
+		Order order = orderDao.readOrderById(orderId);
+		order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
+		
+		return order;
+	}
+	
+	@Override
 	public Order findCartForUser(User user) {
 		return orderDao.readCartForUser(user);
-	}
-
-	@Override
-	public Order findOrderById(Long orderId) {
-		return orderDao.readOrderById(orderId);
 	}
 
 	@Override
@@ -259,15 +401,61 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	@Transactional
 	public boolean acquireLock(Order order) {
-		// TODO Auto-generated method stub
-		return false;
+		int count = orderDao.countOrderLock(order);
+        if (count == 0) {
+        	// 对于同一个Order，可能会有多个线程进入该段逻辑。OrderLock的主键是orderId，
+        	// 因此只会有一个线程成功插入数据，也即只有一个线程能成功获取到锁
+            try {
+                OrderLock sl = OrderLock.builder()
+                		.orderId(order.getId())
+                		.locked(true)
+                		.lastUpdated(System.currentTimeMillis())
+                		.build();
+                orderDao.insertOrderLock(sl);
+                return true;
+            } catch (PersistenceException e) {
+                return false;
+            }
+        }
+
+        Long timeToLive = System.currentTimeMillis();
+        int rowsAffected = orderDao.acquireOrderLock(order, System.currentTimeMillis(), timeToLive);
+        return rowsAffected == 1;
 	}
 
 	@Override
 	public boolean releaseLock(Order order) {
-		// TODO Auto-generated method stub
-		return false;
+		final boolean[] response = {false};
+        try {
+            transUtil.runTransactionalOperation(new StreamCapableTransactionalOperationAdapter() {
+                @Override
+                public void execute() throws Throwable {
+                    int rowsAffected = orderDao.releaseOrderLock(order);
+                    response[0] = rowsAffected == 1;
+                }
+
+                @Override
+                public boolean shouldRetryOnTransactionLockAcquisitionFailure() {
+                    return true;
+                }
+            }, RuntimeException.class);
+        } catch (RuntimeException e) {
+            log.error(String.format("Could not release order lock (%s)", order.getId()), e);
+        }
+        return response[0];
+	}
+
+	@Override
+	public void updateOrderNumber(Order order) {
+		orderDao.updateOrderNumber(order);
+	}
+
+	@Override
+	public Order finishOrder(Order order) {
+		orderDao.updateStatus(order.getId(), OrderStatus.COMPLETED.getType());
+		return order;
 	}
 
 }

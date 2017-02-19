@@ -11,6 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.ibatis.type.JdbcType;
+
+import tk.mybatis.mapper.annotation.ColumnType;
+
 @Table(name="shop")
 public class Shop {
 	
@@ -31,9 +35,11 @@ public class Shop {
     private BigDecimal shipPrice;
 
 	@Column(name="open_time")
+	@ColumnType(jdbcType=JdbcType.TIME)
     private Date openTime;
 
 	@Column(name="close_time")
+	@ColumnType(jdbcType=JdbcType.TIME)
     private Date closeTime;
     
 	@Transient

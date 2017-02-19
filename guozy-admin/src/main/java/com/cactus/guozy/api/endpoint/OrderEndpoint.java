@@ -2,12 +2,11 @@ package com.cactus.guozy.api.endpoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,43 +14,59 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cactus.guozy.api.WebServiceException;
 import com.cactus.guozy.api.wrapper.OrderWrapper;
+import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.dto.PayRequestParam;
-import com.cactus.guozy.core.service.OrderService;
-import com.cactus.guozy.core.service.PayRouteService;
+import com.cactus.guozy.core.service.CheckoutService;
 import com.cactus.guozy.profile.domain.User;
 
 @RestController
 @RequestMapping("/orders")
-public class OrderEndpoint {
+public class OrderEndpoint extends BaseEndpoint {
 
-	@Resource(name = "orderService")
-	protected OrderService orderService;
-
-	@Resource(name = "payRouteService")
-	private PayRouteService payRouteService;
+	@Autowired
+	protected CheckoutService checkoutService;
 
 	@RequestMapping(value = { "/", "" }, method = RequestMethod.POST)
-	public OrderWrapper submit(HttpServletRequest request, @RequestBody OrderWrapper order) {
+	public OrderWrapper submit(
+			HttpServletRequest request, 
+			@RequestBody OrderWrapper order,
+			@RequestParam(value = "priceOrder", defaultValue = "true") boolean priceOrder) {
 		Order real = order.upwrap();
-		User user = getCurrentUser();
-		if (user == null) {
-			throw WebServiceException.build(500);
+		Long uid = getCurrentUserId();
+		if(uid == null || !uid.equals(order.getSubject())) {
+			throw new BizException("500", "未授权");
 		}
-
-		real = orderService.createOrderForUser(real, user);
+		
+		if(real.getIsSalerOrder()) {
+			Saler saler = salerService.getById(order.getSubject());
+			real = orderService.createSalerOrder(real, saler, priceOrder, order.getChannelId());
+		} else {
+			User user = userService.getById(order.getSubject());
+			real = orderService.createOrderForUser(real, user, priceOrder);		
+		}
+		
 		order.wrapDetails(real);
 
 		return order;
 	}
+	
+	@RequestMapping(value = { "/{orderid}"}, method = RequestMethod.GET)
+	public OrderWrapper getOrder(@PathVariable("orderid") Long orderId) {
+		Order real = orderService.findOrderById(orderId);
+		OrderWrapper wrapper = new OrderWrapper();
+		wrapper.wrapDetails(real);
+
+		return wrapper;
+	}
 
 	@RequestMapping(value={"/checkout"}, method = RequestMethod.POST)
 	public GenericWebResult performCheckout(HttpServletRequest request, @RequestBody PayRequestParam payRequestParam) {
-		orderService.confirmOrder(new Order(payRequestParam.getOrderId()));
-		return GenericWebResult.success(payRouteService.getPayRetMap(payRequestParam));
+		Map<String, Object> ret = checkoutService.performCheckout(payRequestParam);
+		return GenericWebResult.success(ret);
     }
 
 	@RequestMapping(value = { "/offer" }, method = RequestMethod.POST)
@@ -96,7 +111,7 @@ public class OrderEndpoint {
 
 	@RequestMapping(value = { "/topay" }, method = RequestMethod.GET)
 	public List<OrderWrapper> findOrdersUnpay(HttpServletRequest request) {
-		List<Order> orders = orderService.findOrdersUnpay(getCurrentUser().getId());
+		List<Order> orders = orderService.findOrdersUnpay(getCurrentUserId());
 		List<OrderWrapper> wrappers = new ArrayList<>();
 		for (Order order : orders) {
 			OrderWrapper wrapper = new OrderWrapper();
@@ -108,7 +123,7 @@ public class OrderEndpoint {
 
 	@RequestMapping(value = { "/history" }, method = RequestMethod.GET)
 	public List<OrderWrapper> findOrdersHistory(HttpServletRequest request) {
-		List<Order> orders = orderService.findOrdersCompleted(getCurrentUser().getId());
+		List<Order> orders = orderService.findOrdersCompleted(getCurrentUserId());
 		List<OrderWrapper> wrappers = new ArrayList<>();
 		for (Order order : orders) {
 			OrderWrapper wrapper = new OrderWrapper();
@@ -118,13 +133,4 @@ public class OrderEndpoint {
 		return wrappers;
 	}
 	
-	protected User getCurrentUser() {
-		SecurityContext ctx = SecurityContextHolder.getContext();
-		if (ctx != null && ctx.getAuthentication() != null) {
-			return (User) ctx.getAuthentication().getDetails();
-		}
-
-		return null;
-	}
-
 }

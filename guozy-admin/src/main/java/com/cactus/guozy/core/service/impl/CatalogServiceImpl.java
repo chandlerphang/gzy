@@ -10,10 +10,11 @@ import com.cactus.guozy.core.dao.GoodsDao;
 import com.cactus.guozy.core.dao.ShopDao;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Goods;
+import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.service.CatalogService;
+import com.cactus.guozy.core.service.SalerService;
 import com.cactus.guozy.profile.dao.UserDao;
-import com.cactus.guozy.profile.domain.User;
 
 @Service("catalogService")
 public class CatalogServiceImpl implements CatalogService {
@@ -29,6 +30,9 @@ public class CatalogServiceImpl implements CatalogService {
 	
 	@Autowired
 	protected UserDao userDao;
+	
+	@Autowired
+	protected SalerService salerService;
 	
 	public List<Shop> findAllShops() {
 		return shopDao.readAllShops();
@@ -55,8 +59,8 @@ public class CatalogServiceImpl implements CatalogService {
 	}
 	
 	@Override
-	public List<User> findSalersByShopId(Long sid) {
-		return userDao.readSalersByShopId(sid);
+	public List<Saler> findSalersByShopId(Long sid) {
+		return salerService.getByEntity(Saler.builder().shopId(sid).build());
 	}
 
 }

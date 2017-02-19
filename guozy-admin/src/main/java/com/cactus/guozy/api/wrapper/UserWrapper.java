@@ -11,8 +11,6 @@ public class UserWrapper {
 
 	private String nickname;
 
-	private Boolean isSaler = false;
-
 	private Boolean canLineToSaler = true;
 	
 	private Boolean deactivated = false;
@@ -20,8 +18,6 @@ public class UserWrapper {
 	private String avatar;
 	
 	private String token;
-	
-	private Long shopId;
 	
 	public void wrapDetails(User user) {
 		wrapSummary(user);
@@ -31,11 +27,9 @@ public class UserWrapper {
 		id = user.getId();
 		phone = user.getPhone();
 		nickname = user.getNickname();
-		isSaler = user.getIsSaler();
 		canLineToSaler = user.getCanLineToSaler();
 		avatar = "/"+RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix","") + user.getAvatar();
 		deactivated = user.getDeactivated();
-		shopId = user.getShopId();
 	}
 	
 	public User upwrap() {
@@ -45,7 +39,6 @@ public class UserWrapper {
 		user.setCanLineToSaler(getCanLineToSaler());
 		user.setDeactivated(getDeactivated());
 		user.setNickname(getNickname());
-		user.setIsSaler(getIsSaler());
 		
 		return user;
 	}
@@ -64,14 +57,6 @@ public class UserWrapper {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
-	}
-
-	public Boolean getIsSaler() {
-		return isSaler;
-	}
-
-	public void setIsSaler(Boolean isSaler) {
-		this.isSaler = isSaler;
 	}
 
 	public Boolean getCanLineToSaler() {
@@ -112,14 +97,6 @@ public class UserWrapper {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-	
-	public Long getShopId() {
-		return shopId;
-	}
-
-	public void setShopId(Long shopId) {
-		this.shopId = shopId;
 	}
 	
 }

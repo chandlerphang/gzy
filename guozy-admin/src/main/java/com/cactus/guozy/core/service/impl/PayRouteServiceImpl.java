@@ -106,6 +106,7 @@ public class PayRouteServiceImpl implements PayRouteService {
     	
     	if(order.getOrderNumber() == null) {
     		order.setOrderNumber(determineOrderNumber(order));
+    		orderService.updateOrderNumber(order);
     	}
     	
     	order = pricingService.executePricing(order);

@@ -1,0 +1,2 @@
+logback=com.cactus.guozy.logconfig.logback.LogbackConfigurator
+log4j=com.cactus.guozy.logconfig.log4j.Log4jConfigurator

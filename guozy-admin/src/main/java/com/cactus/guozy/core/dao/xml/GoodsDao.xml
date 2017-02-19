@@ -2,16 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cactus.guozy.core.dao.GoodsDao">
   <resultMap id="goods" type="com.cactus.guozy.core.domain.Goods">
-    <result column="id" jdbcType="INTEGER" property="id" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="price" jdbcType="DECIMAL" property="price" />
-    <result column="need_saler" jdbcType="BIT" property="needSaler" />
+    <result column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="price" property="price" />
+    <result column="need_saler" property="needSaler" />
+    <result column="pic" property="pic"/>
   </resultMap>
   
-  <resultMap extends="goods" id="goodsWithPic" type="com.cactus.guozy.core.domain.Goods">
-    <result column="pic" jdbcType="LONGVARBINARY" property="pic" />
-  </resultMap>
-	
   <insert id="insert" parameterType="com.cactus.guozy.core.domain.Goods">
     <!--
       WARNING - @mbg.generated
@@ -66,7 +63,7 @@
     </trim>
   </insert>
   
-  <select id="readAllGoods" parameterType="java.lang.Long" resultMap="goodsWithPic">
+  <select id="readAllGoods" parameterType="java.lang.Long" resultMap="goods">
   		SELECT *
 		FROM goods g JOIN goods_cat_xref gc ON g.id = gc.gid
 		WHERE gc.cid = #{cid}

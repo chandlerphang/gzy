@@ -10,11 +10,13 @@ buildscript {
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-eclipse'
 
+apply plugin: 'eclipse-wtp'
+
 dependencies {
 	// 模型转json
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
 	
-	compile 'org.slf4j:slf4j-api:1.7.22'
-	provided 'javax.servlet:javax.servlet-api:3.1.0'
+	compile "org.slf4j:slf4j-api:${slf4jVersion}"
+	provided "javax.servlet:javax.servlet-api:${servletVersion}"
 }
 

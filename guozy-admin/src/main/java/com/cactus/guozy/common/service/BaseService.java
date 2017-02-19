@@ -24,7 +24,7 @@ public interface BaseService<T> {
 	 * @return
 	 */
 	List<T> getByEntity(T entity);
-
+	
 	/**
 	 * 获取分页数据
 	 * 

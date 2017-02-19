@@ -11,10 +11,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.OrderAddress;
 import com.cactus.guozy.core.domain.OrderItem;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.UserOffer;
-import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
 
 @XmlRootElement(name = "order")
@@ -28,6 +28,12 @@ public class OrderWrapper {
 	private Long sid;
 	
 	@XmlElement
+	private Long subject;
+	
+	@XmlElement
+	private String channelId;
+	
+	@XmlElement
 	private String orderNumber;
 
 	@XmlElementWrapper(name = "items")
@@ -35,7 +41,7 @@ public class OrderWrapper {
 	private List<OrderItemWrapper> orderItems;
 	
 	@XmlElement
-	private Address shipAddr;
+	private OrderAddress shipAddr;
 	
 	@XmlElement
 	private BigDecimal shipPrice;
@@ -48,13 +54,19 @@ public class OrderWrapper {
 	private BigDecimal salePrice;
 	
 	@XmlElement
-	private Boolean salePriceOverride;
+	private Boolean salePriceOverride=false;
 	
 	@XmlElement
-	private Boolean isSalerOrder;
+	private Boolean isSalerOrder=false;
 	
 	@XmlElement
 	private Long uid;
+	
+	@XmlElement
+	private BigDecimal total;
+	
+	@XmlElement
+	private BigDecimal subtotal;
 	
 	public void wrapDetails(Order order) {
 		wrapSummary(order);
@@ -87,6 +99,8 @@ public class OrderWrapper {
 		isSalerOrder = order.getIsSalerOrder();
 		sid = order.getShop() != null?order.getShop().getId():null;
 		uid = order.getUser() != null?order.getUser().getId():null;
+		total = order.getTotal();
+		subtotal = order.getSubTotal();
 	}
 	
 	public Order upwrap() {
@@ -97,7 +111,10 @@ public class OrderWrapper {
 		order.setShipPrice(shipPrice);
 		order.setIsSalerOrder(isSalerOrder);
 		order.setSalePriceOverride(salePriceOverride);
+		order.setSalePrice(salePrice);
 		order.setShop(new Shop(sid));
+		order.setTotal(total);
+		order.setSubTotal(subtotal);
 		if(uid != null) {
 			order.setUser(new User(uid));
 		}
@@ -145,11 +162,11 @@ public class OrderWrapper {
 		this.orderItems = orderItems;
 	}
 
-	public Address getShipAddr() {
+	public OrderAddress getShipAddr() {
 		return shipAddr;
 	}
 
-	public void setShipAddr(Address shipAddr) {
+	public void setShipAddr(OrderAddress shipAddr) {
 		this.shipAddr = shipAddr;
 	}
 
@@ -199,6 +216,46 @@ public class OrderWrapper {
 
 	public void setSid(Long sid) {
 		this.sid = sid;
+	}
+
+	public Long getUid() {
+		return uid;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
+
+	public BigDecimal getTotal() {
+		return total;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
+	public BigDecimal getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(BigDecimal subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public Long getSubject() {
+		return subject;
+	}
+
+	public void setSubject(Long subject) {
+		this.subject = subject;
+	}
+
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
 	}
 	
 }

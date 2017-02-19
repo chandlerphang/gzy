@@ -5,6 +5,24 @@
 	id="WebApp_ID" version="3.0">
 	<display-name>guozy</display-name>
 	
+	<context-param>
+        <param-name>loggingRoot</param-name> 
+        <param-value>c:/tmp/logs</param-value>
+    </context-param>
+    <context-param>
+        <param-name>loggingLevel</param-name> 
+        <param-value>DEBUG</param-value>
+    </context-param>
+    <context-param>
+        <param-name>loggingCharset</param-name> 
+        <param-value>UTF-8</param-value>
+    </context-param>
+    
+    <!-- 日志系统 -->
+    <listener>
+    	<listener-class>com.cactus.guozy.logconfig.LogConfiguratorListener</listener-class>
+    </listener>
+	
 	<listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
@@ -15,6 +33,7 @@
             classpath:spring/spring-dao.xml
             classpath:spring/spring-security.xml
             classpath:spring/spring-filters.xml
+            classpath:spring/spring-quartz.xml
         </param-value>
     </context-param>
     

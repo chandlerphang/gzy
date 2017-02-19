@@ -3,6 +3,7 @@ package com.cactus.guozy.core.pay;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cactus.guozy.core.pay.alipay.AlipayAppStrategy;
 import com.cactus.guozy.core.pay.wechat.WechatPayAppStrategy;
 
 /**
