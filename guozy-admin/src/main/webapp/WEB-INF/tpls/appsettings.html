@@ -39,16 +39,18 @@
 
 			<div class="row">
 				<div class="col-md-7" style="overflow: auto">
-				<button class="btn btn-primary btn-info btn-block margin" onclick="addDialog();">添加新的水果常识</button>
+					<button class="btn btn-primary btn-info btn-block margin"
+						onclick="addDialog();">添加新的水果常识</button>
 					#foreach( $fruit in $fruits)
 					<div class="info-box" style="cursor: pointer;"
 						onclick="preview(this);" data-url="$fruit.cnturl">
-						<span class="info-box-icon"><img
-							src="$fruit.picurl"
+						<span class="info-box-icon"><img src="$fruit.picurl"
 							alt="..."></span>
 						<div class="info-box-content">
 							<span class="pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="add" onclick="updateInfo(this)" data-title="$fruit.title" data-cnturl="$fruit.cnturl">
+								<button type="button" class="btn btn-box-tool" data-widget="add"
+									onclick="updateInfo(this)" data-title="$fruit.title"
+									data-cnturl="$fruit.cnturl">
 									<i class="fa fa-edit"></i>
 								</button>
 								<button type="button" class="btn btn-box-tool"
@@ -66,7 +68,7 @@
 				</div>
 
 				<div class="col-md-5" id="previewPart">
-				
+
 					<div id="f2">
 						<iframe id="previewFrame" style="border: solid 1px #ccc;"
 							width="335" height="480" src=""></iframe>
@@ -78,6 +80,9 @@
 		<!-- /.tab-pane -->
 	</div>
 	<!-- /.tab-content -->
+
+
+
 
 	<!--------------------------添加/修改信息的弹出层---------------------------->
 	<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
@@ -92,18 +97,32 @@
 							style="font-weight: bold">修改信息</span>
 					</h4>
 				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="editform" action="#" data-toggle="validator"
-					enctype="multipart/form-data">
+				<div>
 					<div class="modal-body">
 						<div class="row">
 							<div class="col-md-12">
 								<div class="form-group">
 									<label class="control-label col-md-2">封面</label>
 									<div class="col-md-10">
-										<input id="coverImg" type="file" multiple class="file"
-											data-overwrite-initial="false" data-min-file-count="0"
-											data-m-file-count="1">
+										<input id="imgUpload" name="imgUpload" type="file" multiple
+											class="file">
+										<script>
+											$("#imgUpload")
+													.fileinput(
+															{
+																uploadUrl : "/avatar/fruit", // server upload action
+																uploadAsync : true,
+																maxFileCount : 1,
+																language : 'zh', //设置语言
+																allowedFileExtensions : [
+																		'jpg',
+																		'png',
+																		'gif' ],//接收的文件后缀
+																showUpload : true, //是否显示上传按钮
+																showCaption : true
+															//是否显示标题
+															});
+										</script>
 									</div>
 
 								</div>
@@ -134,7 +153,7 @@
 						<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -24,38 +24,44 @@ $(document).ready(function() {
 		}
 	});
 	
-	$("#coverImg").fileinput({
-		language: 'zh', //设置语言
-		uploadUrl : 'assets/fruit',
-		allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
-		overwriteInitial : false,
-		maxFileSize : 1000,
-		maxFilesNum : 1,
-		showRemove: false,
-	    showCancel: false,
-		slugCallback : function(filename) {
-			return filename.replace('(', '_').replace(']', '_');
-		}
-	});
 	
 });
 
 
 
 function updateInfo(data) {
+	   //初始化fileinput控件（第一次初始化）
+  
 	showDialog();
 	$('#dialogTitle').html("修改信息");
 	document.getElementById("title").value = data
 	.getAttribute("data-title");
-	document.getElementById("contenturl").value = data
+	document.getElementById("cnturl").value = data
 	.getAttribute("data-cnturl");
 }
 
 function addDialog() {
+	   //初始化fileinput控件（第一次初始化）
+	
 	showDialog();
 	$('#dialogTitle').html("添加水果常识");
 	document.getElementById("title").value ='';
-	document.getElementById("contenturl").value = '';
+	document.getElementById("cnturl").value = '';
+}
+
+function initFileInput(ctrlName, uploadUrl) {    
+    var control = $('#' + ctrlName); 
+
+    control.fileinput({
+        uploadUrl: uploadUrl, //上传的地址
+        language: 'zh', //设置语言
+        allowedFileExtensions : ['jpg', 'png','gif'],//接收的文件后缀
+        showUpload: true, //是否显示上传按钮
+        showCaption: true,//是否显示标题
+        maxFileCount: 2,
+        browseClass: "btn btn-primary", //按钮样式             
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>", 
+    });
 }
 
 
@@ -72,14 +78,15 @@ function preview(data) {
 
 function getAndCheck(){
 	var title=document.getElementById("title").value;
-	var cnturl=document.getElementById("contenturl").value;
+	var cnturl=document.getElementById("cnturl").value;
 }
 
 function save() {
 	var postData = $("#editform").serializeArray();
+	
 	$.post("appsettings/fruitcs", postData, function (json) {
         if(json.status=="200") {
-        	$('#coverImg').fileinput('upload');
+        	$('#imgUpload').fileinput('upload');
         	
         	alert("保存成功");
         } else {

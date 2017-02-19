@@ -87,7 +87,8 @@ public class AdminMainController extends AbstractAdminController{
 	
 	
 	@RequestMapping(value = { "/appnotification"}, method = RequestMethod.GET)
-	public String appnotification(Model model) {
+	public String appnotification(HttpServletResponse resp,Model model) {
+		resp.setHeader("x-frame-options", "sameorigin");
 		setModelAttributes(model, "tuisong");
 		return "appnotification";
 	}
@@ -111,7 +112,6 @@ public class AdminMainController extends AbstractAdminController{
 	public void fruitcs(
 			FruitCommonSense fruitcs,
 			HttpServletResponse resp) {
-		
 		appSettingService.saveFruitCommonSense(fruitcs);
 		
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
@@ -178,6 +178,7 @@ public class AdminMainController extends AbstractAdminController{
 		List<Order> orders=orderService.findOrdersCompleted(1001l);
 		model.addAttribute("orders", orders);
 		model.addAttribute("sid", sid);
+		System.out.println("订单数量");
 		return "orderlist";
 	}
 	
@@ -196,6 +197,16 @@ public class AdminMainController extends AbstractAdminController{
 		
 		setModelAttributes(model, "shangpinguanli");
 		return "goods";
+	}
+	
+	@RequestMapping(value = {"/goodlist/{shopId}/{categoryId}"}, method = RequestMethod.GET)
+	public String goodlist(HttpServletResponse resp,Model model,@PathVariable("shopId") Long shopId,@PathVariable("categoryId") Long userId) {
+		resp.setHeader("x-frame-options", "sameorigin");
+		List<Shop> shops = catalogService.findAllShops();
+		model.addAttribute("shops", shops);
+		
+		setModelAttributes(model, "shangpinguanli");
+		return "goodlist";
 	}
 	
 	
