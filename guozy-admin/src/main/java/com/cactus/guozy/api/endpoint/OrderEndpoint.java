@@ -57,7 +57,6 @@ public class OrderEndpoint extends BaseEndpoint {
 	@RequestMapping(value = { "/{orderid}"}, method = RequestMethod.GET)
 	public OrderWrapper getOrder(@PathVariable("orderid") Long orderId) {
 		Order real = orderService.findOrderById(orderId);
-		
 		OrderWrapper wrapper = new OrderWrapper();
 		wrapper.wrapDetails(real);
 

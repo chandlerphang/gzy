@@ -32,6 +32,6 @@ public class UserOffer extends BaseDomain {
 	
 	private Long offerId;
 	
-	private boolean isUsed;
+	private Boolean isUsed;
 
 }

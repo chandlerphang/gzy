@@ -26,7 +26,7 @@ public class UserOfferWrapper {
 
 	public void wrapSummary(UserOffer userOffer) {
 		id = userOffer.getId();
-		isUsed = userOffer.isUsed();
+		isUsed = userOffer.getIsUsed() == null ? false : (userOffer.getIsUsed().booleanValue() == true);
 		offer = new OfferWrapper();
 		offer.wrapSummary(userOffer.getOffer());
 	}
@@ -34,7 +34,7 @@ public class UserOfferWrapper {
 	public UserOffer unwrap() {
 		UserOffer userOffer = new UserOffer();
 		userOffer.setId(id);
-		userOffer.setUsed(isUsed);
+		userOffer.setIsUsed(isUsed);
 		userOffer.setOffer(offer.upwrap());
 		return userOffer;
 	}

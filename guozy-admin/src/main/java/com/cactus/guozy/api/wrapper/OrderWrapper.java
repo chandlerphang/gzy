@@ -11,10 +11,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.OrderAddress;
 import com.cactus.guozy.core.domain.OrderItem;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.UserOffer;
-import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
 
 @XmlRootElement(name = "order")
@@ -41,7 +41,7 @@ public class OrderWrapper {
 	private List<OrderItemWrapper> orderItems;
 	
 	@XmlElement
-	private Address shipAddr;
+	private OrderAddress shipAddr;
 	
 	@XmlElement
 	private BigDecimal shipPrice;
@@ -162,11 +162,11 @@ public class OrderWrapper {
 		this.orderItems = orderItems;
 	}
 
-	public Address getShipAddr() {
+	public OrderAddress getShipAddr() {
 		return shipAddr;
 	}
 
-	public void setShipAddr(Address shipAddr) {
+	public void setShipAddr(OrderAddress shipAddr) {
 		this.shipAddr = shipAddr;
 	}
 

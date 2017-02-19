@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -23,6 +22,7 @@ import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
 import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
+import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.Saler;
@@ -44,7 +44,6 @@ public class AdminMainController extends AbstractAdminController{
 	
 	@Resource(name = "assetService")
 	protected AssetService assetService;
-	
 	
 	@Resource(name="appSettingService")
 	protected AppSettingService appSettingService;
@@ -195,7 +194,7 @@ public class AdminMainController extends AbstractAdminController{
 //		}
 //		LOG.debug("结束头像资源存储.");
 		//2.昵称
-		if(TextUtils.isEmpty(name)){
+		if(Strings.isNullOrEmpty(name)){
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
 		
@@ -209,7 +208,7 @@ public class AdminMainController extends AbstractAdminController{
 	public GenericWebResult updateUserInfo1(HttpServletRequest request,
 			@RequestParam("nickname") String name, @PathVariable("userId") Long userId) {
 		//2.昵称
-		if(TextUtils.isEmpty(name)){
+		if(Strings.isNullOrEmpty(name)){
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
 		

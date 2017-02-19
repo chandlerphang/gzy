@@ -2,66 +2,42 @@ package com.cactus.guozy.core.domain;
 
 import java.math.BigDecimal;
 
-public class OrderAdjustment {
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
-	private Long id;
+import com.cactus.guozy.common.BaseDomain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="order_adjustment")
+public class OrderAdjustment extends BaseDomain{
+
+	private static final long serialVersionUID = -3123545384982388162L;
+
+	@Transient
 	protected Order order;
 
+	@Transient
 	protected Offer offer;
 	
+	@Transient
 	protected UserOffer userOffer;
 
 	protected String reason;
 
 	protected BigDecimal value;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	public Offer getOffer() {
-		return offer;
-	}
-
-	public void setOffer(Offer offer) {
-		this.offer = offer;
-	}
-
-	public String getReason() {
-		return reason;
-	}
-
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
-
-	public BigDecimal getValue() {
-		return value;
-	}
-
-	public void setValue(BigDecimal value) {
-		this.value = value;
-	}
-
-	public UserOffer getUserOffer() {
-		return userOffer;
-	}
-
-	public void setUserOffer(UserOffer userOffer) {
-		this.userOffer = userOffer;
-	}
+	
+	protected Long odrId;
+	
+	protected Long usrofferId;
 
 }

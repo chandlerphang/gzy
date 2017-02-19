@@ -25,8 +25,18 @@
     <association property="goods" resultMap="com.cactus.guozy.core.dao.GoodsDao.goods"/>
   </resultMap>
   
+  <resultMap id="address" type="com.cactus.guozy.core.domain.OrderAddress">
+  	<id column="id" property="id"/>
+    <result column="name" property="name" />
+    <result column="addr_line1" property="addrLine1"/>
+    <result column="addr_line2" property="addrLine2"/>
+    <result column="phone" property="phone"/>
+    <result column="lng" property="lng"/>
+    <result column="lat" property="lat"/>
+  </resultMap>
+  
   <resultMap id="orderWithRels" extends="order" type="com.cactus.guozy.core.domain.Order">
-  	<association property="shipAddr" resultMap="com.cactus.guozy.profile.dao.UserDao.address"/>
+  	<association property="shipAddr" resultMap="address"/>
   </resultMap>
   
   <resultMap type="com.cactus.guozy.core.domain.OrderAdjustment" id="orderAdjustment">
@@ -141,7 +151,9 @@
   </select>
   
   <select id="readOrderById" parameterType="java.lang.Long" resultMap="orderWithRels">
-  	SELECT * FROM `order` odr WHERE odr.`odr_id`=#{orderId}
+  	SELECT odr.*, addr.* 
+  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  	WHERE odr.`odr_id`=#{orderId}
   </select>
 	
   <select id="readItemsForOrder" parameterType="java.lang.Long" resultMap="orderItem">

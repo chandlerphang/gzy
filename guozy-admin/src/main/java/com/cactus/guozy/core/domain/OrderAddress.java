@@ -5,13 +5,17 @@ import javax.persistence.Table;
 
 import com.cactus.guozy.common.BaseDomain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name="order_addr")
 public class OrderAddress extends BaseDomain {
 	

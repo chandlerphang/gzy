@@ -15,8 +15,10 @@ import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.common.json.Jsons;
 import com.cactus.guozy.core.dao.GoodsDao;
 import com.cactus.guozy.core.dao.OrderAddressDao;
+import com.cactus.guozy.core.dao.OrderAdjustmentDao;
 import com.cactus.guozy.core.dao.OrderDao;
 import com.cactus.guozy.core.dao.ShopDao;
+import com.cactus.guozy.core.dao.UserOfferDao;
 import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.OrderAddress;
@@ -53,10 +55,16 @@ public class OrderServiceImpl implements OrderService {
 	protected ShopDao shopDao;
 	
 	@Autowired
+	protected UserOfferDao userOfferDao;
+	
+	@Autowired
 	protected OrderAddressDao orderAddrDao;
 	
 	@Autowired
 	protected AddressService addrService;
+	
+	@Autowired
+	protected OrderAdjustmentDao orderAdjustmentDao;
 	
 	@Autowired 
 	protected GoodsDao goodsDao;
@@ -213,20 +221,27 @@ public class OrderServiceImpl implements OrderService {
 			throw new RuntimeException();
 		}
 		
-		boolean found = false;
+		UserOffer userOffer = null;
 		List<UserOffer> unusedOffers = offerService.findUnusedOffers(user.getId());
-		for(UserOffer userOffer : unusedOffers) {
-			if(userOffer.getId() == userOfferId) {
-				found = true;
+		for(UserOffer uo : unusedOffers) {
+			if(uo.getId() == userOfferId) {
+				userOffer = uo;
 				break;
 			}
 		}
 		
-		if(found == false) {
+		if(userOffer == null) {
 			throw new RuntimeException();
 		}
 		offerService.setUsed(userOfferId);
-		orderDao.insertOfferToOrder(orderId, userOfferId);
+		
+		OrderAdjustment oa = OrderAdjustment.builder()
+				.odrId(orderId)
+				.usrofferId(userOfferId)
+				.value(userOffer.getOffer().getValue())
+				.reason(userOffer.getOffer().getName())
+				.build();
+		orderAdjustmentDao.insert(oa);
 	}
 
 	@Override
@@ -241,6 +256,8 @@ public class OrderServiceImpl implements OrderService {
 		if(usedOffer == null || !user.getId().equals(usedOffer.getUser().getId())) {
 			throw new RuntimeException(); 
 		}
+		usedOffer.setIsUsed(false);
+		userOfferDao.updateByPrimaryKey(usedOffer);
 		orderDao.deleteOrderAdjustment(orderId, userOfferId);
 	}
 

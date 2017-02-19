@@ -32,7 +32,7 @@ public class AutoAddUserRegisterOffer implements UserServiceExtension {
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override

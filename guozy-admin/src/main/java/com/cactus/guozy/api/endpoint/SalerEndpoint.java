@@ -87,6 +87,10 @@ public class SalerEndpoint extends BaseEndpoint {
 			@RequestParam("usrId") Long usrId,
 			@RequestParam("usrChannelId") String usrChannelId) {
 		Saler saler = salerService.getById(salerId);
+		if(saler == null) {
+			throw new BizException("500", "导购员存在");
+		}
+		
 		salerService.tryToConnect(saler, usrId, usrChannelId);
 		return GenericWebResult.success("ok");
 	}

@@ -66,6 +66,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int update(T entity) {
 		return this.getBaseDao().updateByPrimaryKey(entity);
 	}

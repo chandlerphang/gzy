@@ -34,7 +34,9 @@
   </select>
   
   <select id="readUnusedOffers" parameterType="java.lang.Long" resultMap="useroffer">
-  	SELECT uo.id as uoid, is_used, o.* FROM user_offer uo left join offer o on uo.offer_id=o.id where uo.user_id=#{userid} and is_used=b'0'
+  	SELECT uo.id as uoid, is_used, o.* 
+  	FROM user_offer uo LEFT JOIN offer o ON uo.offer_id=o.id 
+  	WHERE uo.user_id=#{userid} and is_used=b'0'
   </select>
   
   <update id="setUsed" parameterType="java.lang.Long">
