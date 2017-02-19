@@ -71,6 +71,7 @@ public class AdminMainController extends AbstractAdminController{
 	@RequestMapping(value = {"/appsettings"}, method = RequestMethod.GET)
 	public String appsettings(Model model) {
 		model.addAttribute("aboutus", appSettingService.findAboutusUrl());
+		model.addAttribute("fruits", appSettingService.findAllFruitCommonSense());
 		
 		setModelAttributes(model, "appsettings");
 		return "appsettings";
