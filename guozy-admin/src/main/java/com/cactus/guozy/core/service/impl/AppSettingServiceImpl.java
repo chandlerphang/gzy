@@ -35,7 +35,7 @@ public class AppSettingServiceImpl implements AppSettingService{
 	@Transactional(TransactionUtils.DEFAULT_TRANSACTION_MANAGER)
 	public void saveFruitCommonSense(FruitCommonSense cs) {
 		if(cs.getId() != null) {
-			fruitDao.update(cs);
+			fruitDao.updateByPrimaryKey(cs);
 		} else {
 			fruitDao.insert(cs);
 		}
@@ -49,7 +49,7 @@ public class AppSettingServiceImpl implements AppSettingService{
 
 	@Override
 	public List<FruitCommonSense> findAllFruitCommonSense() {
-		return fruitDao.readAll();
+		return fruitDao.selectAll();
 	}
 
 }

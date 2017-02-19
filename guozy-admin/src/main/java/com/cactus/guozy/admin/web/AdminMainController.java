@@ -1,12 +1,16 @@
 package com.cactus.guozy.admin.web;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -15,15 +19,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cactus.guozy.api.endpoint.AppEndpoint;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
+import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
+import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
 import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
+import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
@@ -55,6 +63,29 @@ public class AdminMainController extends AbstractAdminController{
 	@Resource(name="orderService")
 	protected OrderService orderService;
 	
+	@RequestMapping(value = "/assets/{module}", method = RequestMethod.POST)
+	public GenericWebResult uploadAssets(HttpServletRequest request, 
+			@PathVariable("module") String module,
+			@RequestParam("file") MultipartFile file) {
+		
+		Map<String, String> properties = new HashMap<>();
+		properties.put("module", module);
+		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
+		
+		Asset asset=assetService.createAssetFromFile(file, properties);
+		if(asset == null) {
+			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
+		}
+		
+		try {
+			ass.storeAssetFile(file, asset);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return GenericWebResult.error("200").withData(asset.getUrl());
+	}
+	
+	
 	@RequestMapping(value = { "/appnotification"}, method = RequestMethod.GET)
 	public String appnotification(Model model) {
 		setModelAttributes(model, "tuisong");
@@ -73,6 +104,16 @@ public class AdminMainController extends AbstractAdminController{
 	@RequestMapping(value = {"/appsettings/aboutus"}, method = RequestMethod.POST)
 	public void aboutus(@RequestParam("url") String url, HttpServletResponse resp) {
 		appSettingService.saveAboutusUrl(url);
+		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+	}
+	
+	@RequestMapping(value = {"/appsettings/fruitcs"}, method = RequestMethod.POST)
+	public void fruitcs(
+			FruitCommonSense fruitcs,
+			HttpServletResponse resp) {
+		
+		appSettingService.saveFruitCommonSense(fruitcs);
+		
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
 	

@@ -12,8 +12,7 @@ $(function() {
 				modal.css('display', 'block');
 				modal_dialog
 						.css({
-							'margin-top' : Math
-									.max(0, ($(window).height() - modal_dialog
+							'margin-top' : Math.max(0, ($(window).height() - modal_dialog
 											.height()) / 2 - 30)
 						});
 			});

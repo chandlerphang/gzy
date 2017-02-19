@@ -1,45 +1,29 @@
 package com.cactus.guozy.core.domain;
 
-public class FruitCommonSense {
+import javax.persistence.Table;
+
+import com.cactus.guozy.common.BaseDomain;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name="fruit_cs")
+public class FruitCommonSense extends BaseDomain {
 	
-	private Long id;
-	
+	private static final long serialVersionUID = 398033849173876926L;
+
 	private String title;
 	
 	private String picurl;
 	
 	private String cnturl;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getPicurl() {
-		return picurl;
-	}
-
-	public void setPicurl(String picurl) {
-		this.picurl = picurl;
-	}
-
-	public String getCnturl() {
-		return cnturl;
-	}
-
-	public void setCnturl(String cnturl) {
-		this.cnturl = cnturl;
-	}
 
 }

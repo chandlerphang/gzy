@@ -25,14 +25,14 @@ $(document).ready(function() {
 	});
 	
 	$("#coverImg").fileinput({
-		uploadUrl : '/profile/'+document.getElementById("ID").value+'/avatar', // you must set a valid URL here else you will get an error
+		language: 'zh', //设置语言
+		uploadUrl : 'assets/fruit',
 		allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
 		overwriteInitial : false,
 		maxFileSize : 1000,
 		maxFilesNum : 1,
 		showRemove: false,
 	    showCancel: false,
-		//allowedFileTypes: ['image', 'video', 'flash'],
 		slugCallback : function(filename) {
 			return filename.replace('(', '_').replace(']', '_');
 		}
@@ -60,8 +60,7 @@ function addDialog() {
 
 
 function preview(data) {
-	var url=data
-	.getAttribute("data-url");;
+	var url=data.getAttribute("data-url");;
 	if (url != '') {
 		if (url.substr(0, 7) != 'http://') {
 			url = 'http://' + url;
@@ -77,5 +76,16 @@ function getAndCheck(){
 }
 
 function save() {
-	alert("23");
+	var postData = $("#editform").serializeArray();
+	$.post("appsettings/fruitcs", postData, function (json) {
+        if(json.status=="200") {
+        	$('#coverImg').fileinput('upload');
+        	
+        	alert("保存成功");
+        } else {
+        	alert("error")
+        }
+	});
+	
+	return false;
 }
