@@ -83,7 +83,6 @@ function getAndCheck(){
 
 function save() {
 	var postData = $("#editform").serializeArray();
-	
 	$.post("appsettings/fruitcs", postData, function (json) {
         if(json.status=="200") {
         	$('#imgUpload').fileinput('upload');

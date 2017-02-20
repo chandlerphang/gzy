@@ -32,6 +32,7 @@ import com.cactus.guozy.common.json.JsonResponse;
 import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.FruitCommonSense;
+import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
@@ -140,6 +141,7 @@ public class AdminMainController extends AbstractAdminController{
 	}
 	
 	
+	
 	@RequestMapping(value = {"/saler"}, method = RequestMethod.GET)
 	public String saler(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
@@ -199,15 +201,33 @@ public class AdminMainController extends AbstractAdminController{
 		return "goods";
 	}
 	
-	@RequestMapping(value = {"/goodlist/{shopId}/{categoryId}"}, method = RequestMethod.GET)
-	public String goodlist(HttpServletResponse resp,Model model,@PathVariable("shopId") Long shopId,@PathVariable("categoryId") Long userId) {
+	@RequestMapping(value = {"/goodlist"}, method = RequestMethod.GET)
+	public String goodlist(HttpServletResponse resp,Model model,@RequestParam("cateId") Long categoryId) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		List<Shop> shops = catalogService.findAllShops();
-		model.addAttribute("shops", shops);
-		
+		List<Goods> goods = catalogService.findAllGoods(categoryId);
+		model.addAttribute("goods", goods);
+		for (Goods goodsItem : goods) {
+			goodsItem.setPic("http://101.200.134.112:8080/guozy/cmsasset"+goodsItem.getPic());
+		}
 		setModelAttributes(model, "shangpinguanli");
 		return "goodlist";
 	}
+	
+	@RequestMapping(value = {"/category"}, method = RequestMethod.POST)
+	public void categorys(@RequestParam("shopId") Long shopId,
+			HttpServletResponse resp) {
+		List<Category> categories = catalogService.findCategories(shopId);
+		
+		new JsonResponse(resp).with("status", "200").with("data", categories).done();
+	}
+	
+	@RequestMapping(value = {"/shops"}, method = RequestMethod.POST)
+	public void shops(
+			HttpServletResponse resp) {
+		List<Shop> shops = catalogService.findAllShops();		
+		new JsonResponse(resp).with("status", "200").with("data", shops).done();
+	}
+	
 	
 	
 	@RequestMapping(value = { "/user"}, method = RequestMethod.GET)
