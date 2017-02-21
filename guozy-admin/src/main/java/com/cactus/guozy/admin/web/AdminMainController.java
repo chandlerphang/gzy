@@ -1,6 +1,7 @@
 package com.cactus.guozy.admin.web;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,24 +10,29 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cactus.guozy.api.endpoint.AppEndpoint;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
+import com.cactus.guozy.api.wrapper.FruitCSWrapper;
 import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
-import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
 import com.cactus.guozy.common.utils.Strings;
@@ -41,6 +47,9 @@ import com.cactus.guozy.core.service.AppSettingService;
 import com.cactus.guozy.core.service.CatalogService;
 import com.cactus.guozy.core.service.OrderService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 public class AdminMainController extends AbstractAdminController{
 	protected static final Logger LOG = LoggerFactory.getLogger(AppEndpoint.class);
@@ -59,33 +68,9 @@ public class AdminMainController extends AbstractAdminController{
 	
 	@Resource(name="catalogService")
 	protected CatalogService catalogService;
-	
 
 	@Resource(name="orderService")
 	protected OrderService orderService;
-	
-	@RequestMapping(value = "/assets/{module}", method = RequestMethod.POST)
-	public GenericWebResult uploadAssets(HttpServletRequest request, 
-			@PathVariable("module") String module,
-			@RequestParam("file") MultipartFile file) {
-		
-		Map<String, String> properties = new HashMap<>();
-		properties.put("module", module);
-		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
-		
-		Asset asset=assetService.createAssetFromFile(file, properties);
-		if(asset == null) {
-			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
-		}
-		
-		try {
-			ass.storeAssetFile(file, asset);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return GenericWebResult.error("200").withData(asset.getUrl());
-	}
-	
 	
 	@RequestMapping(value = { "/appnotification"}, method = RequestMethod.GET)
 	public String appnotification(HttpServletResponse resp,Model model) {
@@ -97,7 +82,12 @@ public class AdminMainController extends AbstractAdminController{
 	@RequestMapping(value = {"/appsettings"}, method = RequestMethod.GET)
 	public String appsettings(Model model) {
 		model.addAttribute("aboutus", appSettingService.findAboutusUrl());
-		model.addAttribute("fruits", appSettingService.findAllFruitCommonSense());
+		List<FruitCSWrapper> wrappers = new ArrayList<>();
+		List<FruitCommonSense> fcs = appSettingService.findAllFruitCommonSense();
+		for(FruitCommonSense tmp : fcs) {
+			wrappers.add(FruitCSWrapper.wrapDetail(tmp));
+		}
+		model.addAttribute("fruits", wrappers);
 		
 		setModelAttributes(model, "appsettings");
 		return "appsettings";
@@ -111,10 +101,29 @@ public class AdminMainController extends AbstractAdminController{
 	
 	@RequestMapping(value = {"/appsettings/fruitcs"}, method = RequestMethod.POST)
 	public void fruitcs(
-			FruitCommonSense fruitcs,
+			@RequestParam("file") MultipartFile file,
+			@Valid FruitCSWrapper fruitcs,
 			HttpServletResponse resp) {
-		appSettingService.saveFruitCommonSense(fruitcs);
 		
+		Map<String, String> properties = new HashMap<>();
+		properties.put("module", "fruitcs");
+		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
+		
+		Asset asset=assetService.createAssetFromFile(file, properties);
+		if(asset == null) {
+			new JsonResponse(resp)
+				.with("error", "服务器内部错误")
+				.done();
+		}
+		
+		try {
+			ass.storeAssetFile(file, asset);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		fruitcs.setPicurl(asset.getUrl());
+		appSettingService.saveFruitCommonSense(fruitcs.unwrap());
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
 	
@@ -290,4 +299,27 @@ public class AdminMainController extends AbstractAdminController{
 		}
 		return GenericWebResult.error("200");
 	}
+	
+	@ExceptionHandler(BindException.class)
+    public String validExceptionHandler(BindException e, WebRequest request, HttpServletResponse response) {
+        List<FieldError> fieldErrors=e.getBindingResult().getFieldErrors();
+        for (FieldError error:fieldErrors){
+            log.error(error.getField()+":"+error.getDefaultMessage());
+        }
+        request.setAttribute("fieldErrors", fieldErrors, WebRequest.SCOPE_REQUEST);
+        if(AjaxUtils.isAjaxRequest(request)){
+        	Map<String, Object> vmap = new HashMap<>(); 
+            String[] atrrNames=request.getAttributeNames(WebRequest.SCOPE_REQUEST);
+            for(String attr:atrrNames){
+                Object value=request.getAttribute(attr,WebRequest.SCOPE_REQUEST);
+                if(value instanceof Serializable){
+                	vmap.put(attr, value);
+                }
+            }
+            new JsonResponse(response).with("status", "500").with("data", vmap);
+            return null;
+        }
+
+        return "/validError";
+    }
 }

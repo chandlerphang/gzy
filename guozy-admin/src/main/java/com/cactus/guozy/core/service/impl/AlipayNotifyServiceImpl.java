@@ -40,6 +40,7 @@ public class AlipayNotifyServiceImpl implements AlipayNotifyService {
         Map params = getRequestParams(request);
         if (AlipayNotify.verify(params)) {//验证成功
             try {
+            	
                 out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "UTF-8");
                 trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"), "UTF-8");
             } catch (UnsupportedEncodingException e) {

@@ -17,8 +17,7 @@
 	<mvc:resources order="-10" location="dist/" mapping="dist/**"></mvc:resources>
 	<mvc:resources order="-10" location="plugins/" mapping="plugins/**"></mvc:resources>
     
-    <mvc:annotation-driven>
-    </mvc:annotation-driven>
+    <mvc:annotation-driven />
     
     <bean id="runtimeEnvConfigLoader" class="com.cactus.guozy.common.config.supports.RuntimeEnvConfigLoader" />
 
@@ -44,8 +43,5 @@
 
     <!--扫描web相关的controller-->
     <context:component-scan base-package="com.cactus.guozy.admin.web"/>
-
-	<!--全局异常捕捉 -->
-	<bean class="com.cactus.guozy.admin.exception.GlobalExceptionResolver" />
 
 </beans>

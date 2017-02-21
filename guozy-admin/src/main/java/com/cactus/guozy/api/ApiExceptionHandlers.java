@@ -3,8 +3,6 @@ package com.cactus.guozy.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -17,15 +15,16 @@ import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.core.dto.GenericWebResult;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ControllerAdvice
 public class ApiExceptionHandlers {
 	
-    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandlers.class);
-
     @ExceptionHandler(WebServiceException.class)
     public @ResponseBody GenericWebResult handleWebServiceException(HttpServletRequest request, HttpServletResponse response, Exception ex){
-        if (LOG.isErrorEnabled() && ex.getCause() != null) {
-            LOG.error("An error occured invoking a REST service.", ex.getCause());
+        if (log.isErrorEnabled() && ex.getCause() != null) {
+            log.error("An error occured invoking a REST service.", ex.getCause());
         }
         
         WebServiceException wsException = (WebServiceException) ex;
@@ -54,13 +53,13 @@ public class ApiExceptionHandlers {
     
     @ExceptionHandler(BizException.class)
     public @ResponseBody GenericWebResult handleBizException(HttpServletRequest request, HttpServletResponse response, Exception ex){
-        if (LOG.isErrorEnabled() && ex.getCause() != null) {
-            LOG.error("An error occured invoking a REST service.", ex.getCause());
+        if (log.isErrorEnabled() && ex.getCause() != null) {
+            log.error("An error occured invoking a REST service.", ex.getCause());
         }
         
         BizException wsException = (BizException) ex;
         GenericWebResult result = GenericWebResult.error(wsException.getErrno());	
-        response.setStatus(500);
+        response.setStatus(200);
         
         ErrorMsgWrapper errorMessageWrapper = new ErrorMsgWrapper();
         errorMessageWrapper.setKey(WebServiceException.UNKNOWN_ERROR);
@@ -72,8 +71,8 @@ public class ApiExceptionHandlers {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public @ResponseBody GenericWebResult handleNoHandlerFoundException(HttpServletRequest request, HttpServletResponse response, Exception ex){
-    	if(LOG.isErrorEnabled()) {
-    		LOG.error("An error occured invoking a REST service", ex);
+    	if(log.isErrorEnabled()) {
+    		log.error("An error occured invoking a REST service", ex);
     	}
     	GenericWebResult result = GenericWebResult.error(HttpServletResponse.SC_NOT_FOUND + "");	
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -87,8 +86,8 @@ public class ApiExceptionHandlers {
     
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public @ResponseBody GenericWebResult handleHttpMediaTypeNotSupportedException(HttpServletRequest request, HttpServletResponse response, Exception ex){
-    	if(LOG.isErrorEnabled()) {
-    		LOG.error("An error occured invoking a REST service", ex);
+    	if(log.isErrorEnabled()) {
+    		log.error("An error occured invoking a REST service", ex);
     	}
     	GenericWebResult result = GenericWebResult.error(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE + "");	
         response.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
@@ -102,8 +101,8 @@ public class ApiExceptionHandlers {
     
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public @ResponseBody GenericWebResult handleHttpRequestMethodNotSupportedException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
-    	if(LOG.isErrorEnabled()) {
-    		LOG.error("An error occured invoking a REST service", ex);
+    	if(log.isErrorEnabled()) {
+    		log.error("An error occured invoking a REST service", ex);
     	}
     	GenericWebResult result = GenericWebResult.error(HttpServletResponse.SC_METHOD_NOT_ALLOWED + "");	
         response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -117,8 +116,8 @@ public class ApiExceptionHandlers {
     
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public @ResponseBody GenericWebResult handleMissingServletRequestParameterException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
-    	if(LOG.isErrorEnabled()) {
-    		LOG.error("An error occured invoking a REST service", ex);
+    	if(log.isErrorEnabled()) {
+    		log.error("An error occured invoking a REST service", ex);
     	}
     	
     	MissingServletRequestParameterException castedException = (MissingServletRequestParameterException)ex;
@@ -144,8 +143,8 @@ public class ApiExceptionHandlers {
 
     @ExceptionHandler(Exception.class)
     public @ResponseBody GenericWebResult handleException(HttpServletRequest request, HttpServletResponse response, Exception ex){
-    	if(LOG.isErrorEnabled()) {
-    		LOG.error("An error occured invoking a REST service", ex);
+    	if(log.isErrorEnabled()) {
+    		log.error("An error occured invoking a REST service", ex);
     	}
     	
     	GenericWebResult result = GenericWebResult.error(HttpServletResponse.SC_INTERNAL_SERVER_ERROR + "");	

@@ -43,23 +43,22 @@
 						onclick="addDialog();">添加新的水果常识</button>
 					#foreach( $fruit in $fruits)
 					<div class="info-box" style="cursor: pointer;"
-						onclick="preview(this);" data-url="$fruit.cnturl">
-						<span class="info-box-icon"><img src="$fruit.picurl"
-							alt="..."></span>
+						onclick="preview(this);" data-url="${fruit.cnturl}">
+						<span class="info-box-icon"><img src="$fruit.picurl" alt="..."></span>
 						<div class="info-box-content">
 							<span class="pull-right">
 								<button type="button" class="btn btn-box-tool" data-widget="add"
 									onclick="updateInfo(this)" data-title="$fruit.title"
-									data-cnturl="$fruit.cnturl">
+									data-cnturl="$fruit.cnturl" data-id="$!{fruit.id}">
 									<i class="fa fa-edit"></i>
 								</button>
 								<button type="button" class="btn btn-box-tool"
 									data-widget="remove">
 									<i class="fa fa-times"></i>
 								</button>
-							</span> <span class="info-box-text margin">$fruit.title</span> <span
+							</span> <span class="info-box-text margin">${fruit.title}</span> <span
 								class="info-box-text margin"
-								style="margin-top: 0px; font-size: 12px; text-transform: none">$fruit.cnturl</span>
+								style="margin-top: 0px; font-size: 12px; text-transform: none">${fruit.cnturl}</span>
 						</div>
 						<!-- /.info-box-content -->
 					</div>
@@ -97,63 +96,57 @@
 							style="font-weight: bold">修改信息</span>
 					</h4>
 				</div>
-				<div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-12">
-								<div class="form-group">
-									<label class="control-label col-md-2">封面</label>
-									<div class="col-md-10">
-										<input id="imgUpload" name="imgUpload" type="file" multiple
-											class="file">
-										<script>
-											$("#imgUpload")
-													.fileinput(
-															{
-																uploadUrl : "/avatar/fruit", // server upload action
-																uploadAsync : true,
-																maxFileCount : 1,
-																language : 'zh', //设置语言
-																allowedFileExtensions : [
-																		'jpg',
-																		'png',
-																		'gif' ],//接收的文件后缀
-																showUpload : true, //是否显示上传按钮
-																showCaption : true
-															//是否显示标题
-															});
-										</script>
-									</div>
-
+				<form class="form-horizontal form-bordered form-row-strippe"
+					id="editform" action="#" data-toggle="validator" enctype="multipart/form-data">
+				<div class="modal-body">
+					<div class="row">
+						   	<div class="form-group">
+								<label class="control-label col-md-2">封面</label>
+								<div class="col-md-10">
+									<input id="imgUpload" name="file" type="file" multiple
+										class="file">
+									<script>
+										$("#imgUpload").fileinput({
+											uploadUrl : "appsettings/fruitcs",
+											uploadAsync : false,
+											maxFileCount : 1,
+											language : 'zh', //设置语言
+											allowedFileExtensions : [
+													'jpg',
+													'png',
+													'gif' ],//接收的文件后缀
+											showUpload : true, //是否显示上传按钮
+											showCaption : true, //是否显示标题
+											fileuploaded: function(event, data, previewId, index) {
+												var response = data.response;
+												alert(response);
+											}
+										});
+									</script>
 								</div>
 							</div>
-							<div class="col-md-12">
-								<div class="form-group">
-									<label class="control-label col-md-2">标题</label>
-									<div class="col-md-10">
-										<input id="title" name="title" type="text"
-											class="form-control" placeholder="请输入水果知识的标题..." />
-									</div>
+							<div class="form-group">
+								<label class="control-label col-md-2">标题</label>
+								<div class="col-md-10">
+									<input id="title" name="title" type="text"
+										class="form-control" placeholder="请输入水果知识的标题..." />
 								</div>
 							</div>
-							<div class="col-md-12">
-								<div class="form-group">
-									<label class="control-label col-md-2">正文地址</label>
-									<div class="col-md-10">
-										<input id="cnturl" name="cnturl" type="text"
-											class="form-control" placeholder="请输入水果知识的正文链接地址..." />
-									</div>
+							<div class="form-group">
+								<label class="control-label col-md-2">正文地址</label>
+								<div class="col-md-10">
+									<input id="cnturl" name="cnturl" type="text"
+										class="form-control" placeholder="请输入水果知识的正文链接地址..." />
 								</div>
 							</div>
-
-						</div>
-					</div>
-					<div class="modal-footer bg-info">
-						<input type="hidden" id="id" name="id" />
-						<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
 				</div>
+				<div class="modal-footer bg-info">
+					<input type="hidden" id="id" name="id" />
+					<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				</div>
+				</form>
 			</div>
 		</div>
 	</div>

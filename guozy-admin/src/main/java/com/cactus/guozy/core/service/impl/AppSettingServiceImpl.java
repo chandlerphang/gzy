@@ -40,7 +40,7 @@ public class AppSettingServiceImpl implements AppSettingService{
 			fruitDao.insert(cs);
 		}
 	}
-
+	
 	@Override
 	public String findAboutusUrl() {
 		SystemConfig config = systemConfigDao.readPropertyByName(AppSettingService.ABOUT_US);

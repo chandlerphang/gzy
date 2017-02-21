@@ -60,7 +60,7 @@
   </insert>  
   
   <insert id="insertOrder" parameterType="com.cactus.guozy.core.domain.Order" useGeneratedKeys="true" keyProperty="id">
-    insert into `order`(`sid`, `status`,`sale_price_override`,`is_saler_odr`,
+    insert into `order`(`sid`, `status`,`sale_price`, `sale_price_override`,`is_saler_odr`,
     	`date_created`,`created_by`,`date_updated`,`updated_by`
     <trim prefix="," suffix=")" suffixOverrides=",">
       <if test="orderNumber != null">
@@ -76,7 +76,7 @@
         `uid`,
       </if>
     </trim>
-    values (#{shop.id},#{status},#{salePriceOverride},#{isSalerOrder},
+    values (#{shop.id},#{status},#{salePrice},#{salePriceOverride},#{isSalerOrder},
     	#{dateCreated},#{createdBy},#{dateUpdated},#{updatedBy}
    <trim prefix="," suffix=")" suffixOverrides=",">
       <if test="orderNumber != null">

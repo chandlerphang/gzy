@@ -143,12 +143,11 @@ task toserver(type: SshTask, dependsOn: 'war') {
     }
 }
 
-task myServerDebugStart(type: SshTask) {
+task myServerStart(type: SshTask) {
  	def tomcatHome = '/home/dev/tomcat8'
 	session(remotes.web01) {
-        println "trying to start server in debug mode..."
-        execute('JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n"')
-        execute("${tomcatHome}/bin/catalina.sh jpda start")
+        println "trying to start server ..."
+        execute("${tomcatHome}/bin/startup.sh")
     }
 }
 

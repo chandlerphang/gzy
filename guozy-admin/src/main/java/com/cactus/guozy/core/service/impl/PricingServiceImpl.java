@@ -25,28 +25,29 @@ public class PricingServiceImpl implements PricingService {
 	
 	@Override
 	public Order executePricing(Order order) {
+		// 加原总价
+		BigDecimal subtotal = order.calculateSubTotal();
+		order.setSubTotal(subtotal);
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("Order Id: " + order.getId() + ", SubTotal: " + subtotal);
+		}
+		
+		BigDecimal total = BigDecimal.ZERO;
 		if(order.getIsSalerOrder() && order.getSalePriceOverride()) {
 			if(order.getSalePrice() == null || order.getSalePrice().compareTo(BigDecimal.ZERO) <= 0) {
-				final String msg = "导购员推送订单价格设置异常. Order Id: " + order.getId() + ", Sale Price: " + order.getSalePrice().toString();
+				final String msg = "导购员推送订单价格设置异常. Order Id: " + order.getId() + ", Sale Price: " + order.getSalePrice();
 				if(LOG.isErrorEnabled()) {
 					LOG.error(msg);
 				}
 				throw new PricingException(msg);
 			}
-			order.setTotal(order.getSalePrice().add(order.getShipPrice()));
-			order.setSubTotal(order.calculateSubTotal());
-			orderService.updateTotal(order);
-			return order;
-		}
-		
-		
-		BigDecimal subtotal = order.calculateSubTotal();
-		order.setSubTotal(subtotal);
-		
-		// 加原总价
-		BigDecimal total = BigDecimal.ZERO.add(order.getSubTotal());
-		if(LOG.isDebugEnabled()) {
-			LOG.debug("Order Id: " + order.getId() + ", SubTotal: " + total);
+			//order.setTotal(order.getSalePrice().add(order.getShipPrice()));
+			//order.setSubTotal(order.calculateSubTotal());
+			//orderService.updateTotal(order);
+			//return order;
+			total.add(order.getSalePrice());
+		} else {
+			total.add(order.getSubTotal());
 		}
 		
 		// 减优惠券

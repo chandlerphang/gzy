@@ -23,21 +23,16 @@ $(document).ready(function() {
 			loadPage('', url);
 		}
 	});
-	
-	
 });
 
 
 
 function updateInfo(data) {
-	   //初始化fileinput控件（第一次初始化）
-  
 	showDialog();
 	$('#dialogTitle').html("修改信息");
-	document.getElementById("title").value = data
-	.getAttribute("data-title");
-	document.getElementById("cnturl").value = data
-	.getAttribute("data-cnturl");
+	document.getElementById("title").value = data.getAttribute("data-title");
+	document.getElementById("cnturl").value = data.getAttribute("data-cnturl");
+	document.getElementById("id").value = data.getAttribute("data-id");
 }
 
 function addDialog() {
@@ -83,15 +78,20 @@ function getAndCheck(){
 
 function save() {
 	var postData = $("#editform").serializeArray();
-	$.post("appsettings/fruitcs", postData, function (json) {
-        if(json.status=="200") {
-        	$('#imgUpload').fileinput('upload');
-        	
-        	alert("保存成功");
-        } else {
-        	alert("error")
-        }
+	var extraData = {};
+	postData.forEach(function(val){
+		extraData[val.name] = val.value;
 	});
+	$('#imgUpload').fileinput('refresh', {'uploadExtraData' : extraData});
+	$('#imgUpload').fileinput('upload');
+	
+//	$.post("appsettings/fruitcs", postData, function (json) {
+//        if(json.status=="200") {
+//        	alert("保存成功");
+//        } else {
+//        	alert("error")
+//        }
+//	});
 	
 	return false;
 }
