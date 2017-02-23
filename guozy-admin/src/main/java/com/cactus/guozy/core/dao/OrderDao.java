@@ -7,6 +7,7 @@ import com.cactus.guozy.core.domain.OrderAdjustment;
 import com.cactus.guozy.core.domain.OrderItem;
 import com.cactus.guozy.core.domain.OrderLock;
 import com.cactus.guozy.core.domain.OrderStatus;
+import com.cactus.guozy.core.domain.Page;
 import com.cactus.guozy.profile.domain.User;
 
 public interface OrderDao {
@@ -42,6 +43,8 @@ public interface OrderDao {
 	List<Order> readOrdersCompleted(Long userId);
 	
 	List<Order> readOrdersForSaler(Long salerId);
+	
+	List<Order> readOrdersForShopNotPROCESS(Page page);
 	
 	List<OrderAdjustment> readAllAdjustments(Long orderId);
 	

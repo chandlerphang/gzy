@@ -27,6 +27,8 @@ public interface OrderService {
 	
 	List<Order> findOrdersForSaler(Long salerId);
 	
+	List<Order> readOrdersForShopNotPROCESS(Long shopId,int perNum,int pageNum);
+	
 	void updateAddress(Long orderId, Long addrId);
 	
 	void addOfferToOrder(Long orderId, Long userOfferId);

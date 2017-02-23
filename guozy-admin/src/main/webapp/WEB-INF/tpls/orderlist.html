@@ -1,6 +1,6 @@
 #set($layout="layout/emptyLayout.html")
 <!DOCTYPE html>
-<html>
+<html style="height: 100%;">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,82 +45,125 @@
 <script src="dist/js/fileinput.min.js"></script>
 <script src="dist/js/fileinput.js" type="text/javascript"></script>
 <script src="dist/js/dialog.js"></script>
+<style type="text/css">
+#footer {
+	position: relative;
+	height: 60px;
+	margin-left:auto;
+	margin-right:auto;
+	clear: both;
+}
+</style>
 </head>
-<body>
 
-<div class="box box-solid">
-	<div class="box-body">
-		<table class="table table-striped">
-			<tbody>
-				<tr>
-					<th></th>
-					<th>编号</th>
-					<th>订单状态</th>
-					<th>下单账号</th>
-					<th>下单时间</th>
-					<th>总金额</th>
-					<th>动作</th>
-				</tr>
-				
-				#foreach( $order in $orders)
+<body class="clearfix" style="height: 100%;text-align:center;" scroll="no">
+
+	<div class="box box-solid " style="height: 100%;">
+		<div class="box-body">
+			<table class="table table-striped">
+				<thead>
 					<tr>
-					<td style="vertical-align:middle!important;">$velocityCount</td>
-						<td style="vertical-align:middle!important;">$order.orderNumber</td>
-						<td style="vertical-align:middle!important;">$order.status</td>
-						<td style="vertical-align:middle!important;">$order.user</td>
-						<td style="vertical-align:middle!important;">$dateTool.format('yyyy-MM-dd HH:mm:ss', $order.dateUpdated)</td>
-						<td style="vertical-align:middle!important;">$order.total</td>
-						<td><button class="btn btn-primary" onclick="showDetail(event);" data-ordId="$order.odr_id">查看详情</button>
-						<button class="btn btn-primary" onclick="btnOnClick(this);" data-ordId="$order.odr_id">发货</button></td>
-						
+						<th></th>
+						<th>编号</th>
+						<th>订单状态</th>
+						<th>下单账号</th>
+						<th>下单时间</th>
+						<th>支付方式</th>
+						<th>总金额</th>
+						<th>动作</th>
 					</tr>
-				#end
-				</tbody>
-		</table>
-		
-		<script type="text/javascript">
-			$(function(){
-	        	// 测试 bootstrap 居中
-	       		$("#haha").on('show.bs.modal', function(){
-		          var modal = $(this);
-		          var modal_dialog = modal.find('.modal-dialog');
-		          // 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
-		          modal.css('display', 'block');
-		          modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - modal_dialog.height()) / 2 - 30)});
-	        	});
-	        
-	      });
-		
-			function btnOnClick(event) {
-				$("#haha").modal({backdrop: 'static'});
-			}
-			function showDetail(data){
-				parent.location.href = "./order?orderId="+232;
-			}
-		</script>
-	</div>
-	
-		<div class="modal fade" id="haha">
-          <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">×</span></button>
-                <h4 class="modal-title">警告</h4>
-              </div>
-              <div class="modal-body">
-                <p>确定要屏蔽该用户？屏蔽后该用户将不能与导购员连线</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary">确定</button>
-              </div>
-            </div>
-            <!-- /.modal-content -->
-          </div>
-          <!-- /.modal-dialog -->
-        </div>
-</div>
+				</thead>
+				<tbody>
 
+
+					#foreach( $order in $orders)
+					<tr>
+						<td style="vertical-align: middle !important;">$velocityCount</td>
+						<td style="vertical-align: middle !important;">$order.orderNumber</td>
+						<td style="vertical-align: middle !important;">$order.status</td>
+						<td style="vertical-align: middle !important;">$order.user</td>
+						<td style="vertical-align: middle !important;">$dateTool.format('yyyy-MM-dd
+							HH:mm:ss', $order.dateUpdated)</td>
+						<td style="vertical-align: middle !important;">$order.payment.paymentType</td>
+						<td style="vertical-align: middle !important;">$order.total</td>
+						<td style="vertical-align: middle !important;"><button
+								class="btn btn-primary" onclick="showDetail(event);"
+								data-ordId="$order.odr_id">查看详情</button>
+							<button class="btn btn-primary" onclick="btnOnClick(this);"
+								data-ordId="$order.odr_id">发货</button></td>
+
+					</tr>
+					#end
+				</tbody>
+
+			</table>
+
+
+
+			<script type="text/javascript">
+				$(function() {
+					// 测试 bootstrap 居中
+					$("#haha").on(
+							'show.bs.modal',
+							function() {
+								var modal = $(this);
+								var modal_dialog = modal.find('.modal-dialog');
+								// 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
+								modal.css('display', 'block');
+								modal_dialog.css({
+									'margin-top' : Math.max(0,
+											($(window).height() - modal_dialog
+													.height()) / 2 - 30)
+								});
+							});
+
+				});
+
+				function btnOnClick(event) {
+					$("#haha").modal({
+						backdrop : 'static'
+					});
+				}
+				function showDetail(data) {
+					parent.location.href = "./order?orderId=" + 232;
+				}
+			</script>
+		</div>
+
+		<div class="modal fade" id="haha">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title">警告</h4>
+					</div>
+					<div class="modal-body">
+						<p>确定要屏蔽该用户？屏蔽后该用户将不能与导购员连线</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button type="button" class="btn btn-primary">确定</button>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+	</div>
+	<div id="footer">
+		<div id="out" class="container" style="width: 50%;">
+			<ul class="pagination pagination" style="">
+				<li><a href="#">&laquo;第一页</a></li>
+
+				<li class="active"><a href="#">1</a></li>
+
+				<li><a
+					href=".?type=<%=type%>&page=<%=SQLUtil.getmNewsInfos().size() / Config.PER_PAGE_TOTAL%>">最后一页&raquo;</a></li>
+			</ul>
+		</div>
+	</div>
 </body>
 </html>

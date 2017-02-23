@@ -138,9 +138,13 @@
   	SELECT * FROM `order` WHERE `created_by`=#{salerId} AND `is_saler_odr`=b'1'
   </select>
   
+  <select id="readOrdersForShopNotPROCESS" parameterType="com.cactus.guozy.core.domain.Page" resultMap="order">
+      SELECT * FROM `order` WHERE `sid`=#{id} AND `status`!='IN_PROCESS' ORDER BY `date_updated` DESC LIMIT #{pageNum},#{perNum}
+  </select>
+  
   <update id="updateTotal" parameterType="com.cactus.guozy.core.domain.Order" >
   	UPDATE `order` SET `total`=#{total}, `subtotal`=#{subTotal} WHERE `odr_id`=#{id}
-  </update>
+  </update> 
 	
   <update id="updateOrderNumber" parameterType="com.cactus.guozy.core.domain.Order" >
   	UPDATE `order` SET `odr_num`=#{orderNumber} WHERE `odr_id`=#{id}

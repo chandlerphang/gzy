@@ -26,6 +26,7 @@ import com.cactus.guozy.core.domain.OrderAdjustment;
 import com.cactus.guozy.core.domain.OrderItem;
 import com.cactus.guozy.core.domain.OrderLock;
 import com.cactus.guozy.core.domain.OrderStatus;
+import com.cactus.guozy.core.domain.Page;
 import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.UserOffer;
@@ -293,7 +294,15 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return orders;
 	}
-	
+
+	@Override
+	public List<Order> readOrdersForShopNotPROCESS(Long shopId,int perNum,int pageNum) {
+		List<Order> orders = orderDao.readOrdersForShopNotPROCESS(new Page(shopId,perNum,pageNum));
+		for(Order order : orders) {
+			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
+		}
+		return orders;
+	}
 	@Override
 	@Transactional
 	public void updateAddress(Long orderId, Long addrId) {

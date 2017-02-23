@@ -184,12 +184,15 @@ public class AdminMainController extends AbstractAdminController{
 	}
 	
 	@RequestMapping(value = {"/orderlist"}, method = RequestMethod.GET)
-	public String orderlist(@RequestParam("sid")Long sid,HttpServletResponse resp,Model model) {
+	public String orderlist(@RequestParam("shopId")Long shopId,@RequestParam("perNum")int perNum,@RequestParam("pageNum")int pageNum,HttpServletResponse resp,Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		List<Order> orders=orderService.findOrdersCompleted(1001l);
+		if(perNum<=0||pageNum<=0){
+			perNum=12;
+			pageNum=0;
+		}
+		List<Order> orders=orderService.readOrdersForShopNotPROCESS(shopId,perNum,pageNum);
 		model.addAttribute("orders", orders);
-		model.addAttribute("sid", sid);
-		System.out.println("订单数量");
+		model.addAttribute("sid", shopId);
 		return "orderlist";
 	}
 	
@@ -233,7 +236,7 @@ public class AdminMainController extends AbstractAdminController{
 	@RequestMapping(value = {"/shops"}, method = RequestMethod.POST)
 	public void shops(
 			HttpServletResponse resp) {
-		List<Shop> shops = catalogService.findAllShops();		
+		List<Shop> shops = catalogService.findAllShops();
 		new JsonResponse(resp).with("status", "200").with("data", shops).done();
 	}
 	
