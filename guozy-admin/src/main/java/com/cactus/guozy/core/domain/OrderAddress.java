@@ -30,7 +30,7 @@ public class OrderAddress extends BaseDomain {
 	@Column(name = "addr_line1")
 	private String addrLine1;
 
-	@Column(name = "addr_line2")
+	@Column(name = "addr_line2")	
 	private String addrLine2;
 
 	@Column(name = "lat")

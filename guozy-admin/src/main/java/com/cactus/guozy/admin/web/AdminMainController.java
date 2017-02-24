@@ -39,13 +39,16 @@ import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.domain.Goods;
+import com.cactus.guozy.core.domain.Offer;
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.domain.OrderStatus;
 import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.service.AppSettingService;
 import com.cactus.guozy.core.service.CatalogService;
 import com.cactus.guozy.core.service.OrderService;
+import com.cactus.guozy.core.service.offer.OfferService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,6 +74,9 @@ public class AdminMainController extends AbstractAdminController{
 
 	@Resource(name="orderService")
 	protected OrderService orderService;
+	
+	@Resource(name="offerService")
+	protected OfferService offerService;
 	
 	@RequestMapping(value = { "/appnotification"}, method = RequestMethod.GET)
 	public String appnotification(HttpServletResponse resp,Model model) {
@@ -187,20 +193,21 @@ public class AdminMainController extends AbstractAdminController{
 	public String orderlist(@RequestParam("shopId")Long shopId,@RequestParam("perNum")int perNum,@RequestParam("pageNum")int pageNum,HttpServletResponse resp,Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
 		if(perNum<=0||pageNum<=0){
-			perNum=12;
+			perNum=8;
 			pageNum=0;
 		}
 		List<Order> orders=orderService.readOrdersForShopNotPROCESS(shopId,perNum,pageNum);
 		model.addAttribute("orders", orders);
 		model.addAttribute("sid", shopId);
+		model.addAttribute("index", (pageNum-1)*perNum);
 		return "orderlist";
 	}
 	
 	@RequestMapping(value = {"/order"}, method = RequestMethod.GET)
-	public String order(@RequestParam("orderId")Long orderId,HttpServletResponse resp,Model model) {
+	public String order(@RequestParam("ordId")String orderId,HttpServletResponse resp,Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		Order order=orderService.findOrderById(orderId);
-		model.addAttribute("orders", order);
+		Order order=orderService.findOrderById(Long.parseLong(orderId));
+		model.addAttribute("order", order);
 		return "order";
 	}
 	
@@ -325,4 +332,8 @@ public class AdminMainController extends AbstractAdminController{
 
         return "/validError";
     }
+	
+	
+	
+	
 }
