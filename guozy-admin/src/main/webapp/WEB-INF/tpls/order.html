@@ -51,11 +51,36 @@
 	margin-right: auto;
 	clear: both;
 }
-</style>
 
+
+</style>
+<!--将不需要打印的部分，标记为 class="noprint" -->  
+<style type="text/css" media=print>  
+.noprint{
+display : none
+}  
+</style>  
+<script>  
+function preview(oper)         
+{  
+	if (oper < 10)  
+	{  
+		bdhtml=window.document.body.innerHTML;//获取当前页的html代码  
+		sprnstr="<!--startprint"+"<print-start>"+"-->";//设置打印开始区域  
+		eprnstr="<!--endprint"+"<print-end>"+"-->";//设置打印结束区域  
+		prnhtml=bdhtml.substring(bdhtml.indexOf(sprnstr)+18); //从开始代码向后取html  
+		prnhtmlprnhtml=prnhtml.substring(0,prnhtml.indexOf(eprnstr));//从结束代码向前取html  
+		window.document.body.innerHTML=prnhtml;  
+		window.print();  
+		window.document.body.innerHTML=bdhtml;  
+	} else {  
+		window.print();  
+	}  
+}  
+</script>
 
 </head>
-
+<print-start>
 <body class="clearfix" style="height: 80%;" scroll="no">
 
 	<div class="box box-solid " style="height: 80%;">
@@ -63,6 +88,8 @@
 			<div class="box box-primary">
 				<div class="box-header with-border">
 					<h3 class="box-title">订单详情</h3>
+					<div class="noprint"><button onclick="preview(1);" class="btn btn-info noprint" style="float:right;font-size: 18px; display: inline-block;  line-height: 1;margin: 0;">打印</button></div>
+			
 				</div>
 				<!-- /.box-header -->
 				<div class="box-body">
@@ -82,7 +109,7 @@
 						<tbody>
 							<tr>
 								<td>$order.orderNumber</td>
-								<td>$order.status</td>
+								<td>$order.status.friendlyType</td>
 								<td>$order.user.nickname</td>
 								<td>$dateTool.format('yyyy-MM-dd HH:mm:ss',
 									$order.dateUpdated)</td>
@@ -131,7 +158,30 @@
 					</p>
 
 					<hr>
--->
+				-->
+					<strong><i class="fa fa-map-marker margin-r-5"></i> 配送信息</strong>
+					<p>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>收件人</th>
+								<th>联系电话</th>
+								<th>所在地址</th>
+								<th>详细地址</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>$order.shipAddr.name</td>
+								<td>$order.shipAddr.phone</td>
+								<td>$order.shipAddr.addrLine1</td>
+								<td>$order.shipAddr.addrLine2</td>
+							</tr>
+
+						</tbody>
+
+					</table>
+					</p>
 					<strong><i class="fa fa-pencil margin-r-5"></i> 商品信息</strong>
 
 					<p>#foreach( $orderItem in $order.orderItems)
@@ -141,9 +191,8 @@
 						</span>
 						<div class="info-box-content">
 
-							<span class="pull-right">
-								数量：$orderItem.quantity
-							</span> <span class="info-box-text margin">$orderItem.name</span> <span
+							<span class="pull-right"> 数量：$orderItem.quantity </span> <span
+								class="info-box-text margin">$orderItem.name</span> <span
 								class="info-box-text margin"
 								style="margin-top: 0px; font-size: 12px; text-transform: none; color: red;">￥$orderItem.price</span>
 						</div>
@@ -177,4 +226,5 @@
 		
 	</script>
 </body>
+<print-end>
 </html>

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -23,6 +24,15 @@ public class AdminLoginController {
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login() {
 		return "login";
+	}
+	
+	@RequestMapping(value = {"/appDownload"}, method = RequestMethod.GET)
+	public String app(Model model) {
+		String androidUrl="http://shouji.360tpcdn.com/170224/5d352d543c2ee6a579d5f1f270ccdfee/com.gzy.client_2.apk";
+		String iosUrl="www.baidu.com";
+		model.addAttribute("androidUrl", androidUrl);
+		model.addAttribute("iosUrl", iosUrl);
+		return "appdownload";
 	}
 	
 	@RequestMapping(value = {"/home"}, method = RequestMethod.GET)

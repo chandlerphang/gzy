@@ -88,7 +88,7 @@ table td {
 					#set( $no =$velocityCount+$index) 
 						<td>$no</td>
 						<td>$order.orderNumber</td>
-						<td>$order.status</td>
+						<td>$order.status.friendlyType</td>
 						<td>$order.user.nickname</td>
 						<td>$dateTool.format('yyyy-MM-dd HH:mm:ss',
 							$order.dateUpdated)</td>

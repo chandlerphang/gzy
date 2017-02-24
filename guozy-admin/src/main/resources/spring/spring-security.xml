@@ -14,6 +14,7 @@
     <sec:http pattern="/**/*.js" security="none" />
     <sec:http pattern="/robots.txt" security="none" />
     <sec:http pattern="/login" security="none" />
+    <sec:http pattern="/appDownload" security="none" />
     <sec:http pattern="/feedbacks" security="none" />
     <sec:http pattern="/**/${asset.url.prefix}/**" security="none" />
     <sec:http pattern="/${asset.url.prefix}/**" security="none" />
