@@ -1,6 +1,7 @@
 package com.cactus.guozy.core.domain;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -25,6 +26,12 @@ public class Goods extends BaseDomain {
 	
 	@Column(name="pic")
 	private String pic;
+	
+	@Column(name="start_date")
+	private Date startDate;
+	
+	@Column(name="end_date")
+	private Date endDate;
     
 	@Transient
     private List<Category> categories;
@@ -72,5 +79,21 @@ public class Goods extends BaseDomain {
 	
 	public void setPic(String pic) {
 		this.pic = pic;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+	
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 }

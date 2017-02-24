@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.OrderItem;
 
@@ -22,12 +23,15 @@ public class OrderItemWrapper {
 
 	@XmlElement
 	private int quantity;
-
-	@XmlElement
-	private Long goodsId;
 	
 	@XmlElement
-	private GoodsWrapper goods;
+	private String name;
+	
+	@XmlElement
+	private String pic;
+	
+	@XmlElement
+	private Long goodsId;
 	
 	public void wrapDetails(OrderItem item) {
 		wrapSummary(item);
@@ -36,11 +40,13 @@ public class OrderItemWrapper {
 	public void wrapSummary(OrderItem item) {
 		id = item.getId();
 		price = item.getPrice();
+		name= item.getName();
+		if(item.getPic() != null) {
+			pic = "/"+RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix","") + item.getPic();
+		}
 		quantity = item.getQuantity();
 		if(item.getGoods() != null) {
 			goodsId = item.getGoods().getId();
-			goods = new GoodsWrapper();
-			goods.wrapDetails(item.getGoods());
 		}
 	}
 	
@@ -49,9 +55,9 @@ public class OrderItemWrapper {
 		item.setId(getId());
 		item.setPrice(getPrice());
 		item.setQuantity(getQuantity());
-		if(getGoods() != null) {
-			item.setGoods(getGoods().upwrap());
-		} else if(getGoodsId() != null) {
+		item.setName(getName());
+		item.setPic(getPic());
+		if(getGoodsId() != null) {
 			item.setGoods(new Goods(getGoodsId()));
 		}
 		
@@ -90,12 +96,20 @@ public class OrderItemWrapper {
 		this.goodsId = goodsId;
 	}
 
-	public GoodsWrapper getGoods() {
-		return goods;
+	public String getName() {
+		return name;
 	}
 
-	public void setGoods(GoodsWrapper goods) {
-		this.goods = goods;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPic() {
+		return pic;
+	}
+
+	public void setPic(String pic) {
+		this.pic = pic;
 	}
 
 }

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import com.cactus.guozy.common.encrypt.MD5;
-import com.cactus.guozy.core.dto.PayRequest;
+import static com.cactus.guozy.common.utils.Preconditions.*;
 
 public final class Pays extends Component {
 
@@ -77,15 +77,13 @@ public final class Pays extends Component {
     }
 
     private void checkPayParams(PayRequest request) {
-//        checkNotNull(request, "pay detail can't be null");
-//        checkNotNullAndEmpty(request.getBody(), "body");
-//        checkNotNullAndEmpty(request.getOutTradeNo(), "outTradeNo");
-//        Integer totalFee = request.getTotalFee();
-//        checkArgument(totalFee != null && totalFee > 0, "totalFee must > 0");
-//        checkNotNullAndEmpty(request.getClientId(), "clientId");
-//        checkNotNullAndEmpty(request.getNotifyUrl(), "notifyUrl");
-//        checkNotNull(request.getFeeType(), "feeType can't be null");
-//        checkNotNullAndEmpty(request.getTimeStart(), "timeStart");
+        checkNotNull(request, "pay detail can't be null");
+        checkNotNullAndEmpty(request.getBody(), "body");
+        checkNotNullAndEmpty(request.getOutTradeNo(), "outTradeNo");
+        Integer totalFee = request.getTotalFee();
+        checkArgument(totalFee != null && totalFee > 0, "totalFee must > 0");
+        checkNotNullAndEmpty(request.getClientId(), "clientId");
+        checkNotNullAndEmpty(request.getNotifyUrl(), "notifyUrl");
     }
 
     /**
@@ -97,7 +95,7 @@ public final class Pays extends Component {
     private Map<String, String> buildPayParams(PayRequest request) {
         Map<String, String> payParams = new TreeMap<>();
 
-        // 配置参数
+        // 配置公共参数
         buildConfigParams(payParams);
 
         // 业务必需参数
@@ -108,7 +106,6 @@ public final class Pays extends Component {
         put(payParams, WepayField.NOTIFY_URL, request.getNotifyUrl());
         put(payParams, WepayField.FEE_TYPE, request.getFeeType());
         put(payParams, WepayField.NONCE_STR, RandomStringUtils.randomAlphanumeric(16));
-        put(payParams, WepayField.TIME_START, request.getTimeStart());
         put(payParams, WepayField.TRADE_TYPE, "APP");
 
         // 业务可选参数
@@ -118,6 +115,7 @@ public final class Pays extends Component {
         putIfNotEmpty(payParams, WepayField.GOODS_TAG, request.getGoodsTag());
         putIfNotEmpty(payParams, WepayField.TIME_EXPIRE, request.getTimeExpire());
         putIfNotEmpty(payParams, WepayField.LIMIT_PAY, request.getLimitPay());
+        putIfNotEmpty(payParams, WepayField.TIME_START, request.getTimeStart());
 
         return payParams;
     }

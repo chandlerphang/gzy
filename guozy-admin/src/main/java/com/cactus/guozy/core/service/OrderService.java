@@ -11,15 +11,9 @@ import com.cactus.guozy.profile.domain.User;
 
 public interface OrderService {
 	
-	Order createNewCartForUser(User user);
-	
 	Order createOrderForUser(Order order, User user, boolean priceOrder);
 	
 	Order createSalerOrder(Order order, Saler saler, boolean priceOrder, String channelId);
-	
-	void removeItemFromOrder(Long itemId);
-	
-	void updateItem(Long itemId, Long quantity);
 	
 	List<Order> findOrdersUnpay(Long userId);
 	

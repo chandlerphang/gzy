@@ -78,7 +78,7 @@
 							        		com.cactus.guozy.common.schedule.dao"/>
 	    <property name="properties">
 	        <value>
-	            mappers=tk.mybatis.mapper.common.Mapper
+	            mappers=tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.common.IdsMapper
 	        </value>
 	    </property>
 	</bean>

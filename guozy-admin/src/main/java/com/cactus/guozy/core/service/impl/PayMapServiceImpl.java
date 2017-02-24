@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -24,7 +22,6 @@ import com.cactus.guozy.core.service.PayMapService;
 @Service
 public class PayMapServiceImpl extends BaseServiceImpl<PayMap> implements PayMapService {
 
-    private static Logger logger = LoggerFactory.getLogger(PayMapServiceImpl.class);
     @Autowired
     private PayMapDao payMapMapper;
 

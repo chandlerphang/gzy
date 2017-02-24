@@ -2,8 +2,6 @@ package com.cactus.guozy.core.pay.alipay;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.pay.PayStrategy;
@@ -34,13 +32,7 @@ public class AlipayAppStrategy implements PayStrategy {
     	AppPayDetail req = new AppPayDetail(order.getId().toString(), order.getOrderNumber(), order.getTotal().toString(), null);
 		req.setAppId(appid);
 		req.setNotifyUrl(notifyUrl);
-    	
-    	String orderNum = order.getOrderNumber();
-        if (StringUtils.isNotBlank(orderNum)) {
-        	req.setOrderName("果之源-订单编号：" + orderNum);
-        } else {
-        	req.setOrderName("果之源-订单支付");
-        }
+		req.setOrderName("果之源订单-" + order.getOrderNumber());
     	
 		Alipay alipay = AlipayBuilder.newBuilder(appid)
 				.appPriKey(appPriKey)

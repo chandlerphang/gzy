@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.dto.PayRequestParam;
 import com.cactus.guozy.core.service.CheckoutService;
+import com.cactus.guozy.core.service.OrderLockManager;
 import com.cactus.guozy.profile.domain.User;
 
 @RestController
@@ -29,6 +31,9 @@ public class OrderEndpoint extends BaseEndpoint {
 
 	@Autowired
 	protected CheckoutService checkoutService;
+	
+	@Autowired
+	protected OrderLockManager lockMgr;
 
 	@RequestMapping(value = { "/", "" }, method = RequestMethod.POST)
 	public OrderWrapper submit(
@@ -64,49 +69,71 @@ public class OrderEndpoint extends BaseEndpoint {
 	}
 
 	@RequestMapping(value={"/checkout"}, method = RequestMethod.POST)
-	public GenericWebResult performCheckout(HttpServletRequest request, @RequestBody PayRequestParam payRequestParam) {
-		Map<String, Object> ret = checkoutService.performCheckout(payRequestParam);
-		return GenericWebResult.success(ret);
+	public GenericWebResult performCheckout(HttpServletRequest request, @Valid @RequestBody PayRequestParam payRequestParam) {
+		Order order = new Order(payRequestParam.getOrderId());
+		Object lock = lockMgr.acquireLock(order);
+		try {
+			// reload order
+			order = orderService.findOrderById(order.getId());
+			if(order == null) {
+				throw new BizException("500", "订单( id=" + payRequestParam.getOrderId() + " )不存在");
+			}
+			Map<String, Object> ret = checkoutService.performCheckout(payRequestParam, order);
+			return GenericWebResult.success(ret);
+		} finally {
+			lockMgr.releaseLock(lock);
+		}
     }
 
 	@RequestMapping(value = { "/offer" }, method = RequestMethod.POST)
 	public GenericWebResult addOffer(HttpServletRequest request, @RequestParam("orderId") Long orderId,
 			@RequestParam("userOfferId") Long userOfferId) {
-		orderService.addOfferToOrder(orderId, userOfferId);
-		return GenericWebResult.success("ok");
+		Order order = new Order(orderId);
+		Object lock = lockMgr.acquireLock(order);
+		try {
+			orderService.addOfferToOrder(orderId, userOfferId);
+			return GenericWebResult.success("ok");
+		} finally {
+			lockMgr.releaseLock(lock);
+		}
 	}
 
 	@RequestMapping(value = { "/offer" }, method = RequestMethod.DELETE)
 	public GenericWebResult delOffer(HttpServletRequest request, @RequestParam("orderId") Long orderId,
 			@RequestParam("userOfferId") Long userOfferId) {
-		orderService.removeOfferFromOrder(orderId, userOfferId);
-		return GenericWebResult.success("ok");
+		Order order = new Order(orderId);
+		Object lock = lockMgr.acquireLock(order);
+		try {
+			orderService.removeOfferFromOrder(orderId, userOfferId);
+			return GenericWebResult.success("ok");
+		} finally {
+			lockMgr.releaseLock(lock);
+		}
 	}
 
 	@RequestMapping(value = { "/offers" }, method = RequestMethod.DELETE)
 	public GenericWebResult delAllOffer(HttpServletRequest request, @RequestParam("orderId") Long orderId) {
-		orderService.removeAllOffersFromOrder(orderId);
-		return GenericWebResult.success("ok");
-	}
-
-	@RequestMapping(value = { "items/{itemId}" }, method = RequestMethod.DELETE)
-	public GenericWebResult delItem(HttpServletRequest request, @PathVariable("itemId") Long itemId) {
-		orderService.removeItemFromOrder(itemId);
-		return GenericWebResult.success("ok");
-	}
-
-	@RequestMapping(value = { "items/{itemId}" }, method = RequestMethod.PUT)
-	public GenericWebResult updateItem(HttpServletRequest request, @PathVariable("itemId") Long itemId,
-			@RequestParam("quantity") Long quantity) {
-		orderService.updateItem(itemId, quantity);
-		return GenericWebResult.success("ok");
+		Order order = new Order(orderId);
+		Object lock = lockMgr.acquireLock(order);
+		try {
+			orderService.removeAllOffersFromOrder(orderId);
+			return GenericWebResult.success("ok");
+		} finally {
+			lockMgr.releaseLock(lock);
+		}
 	}
 
 	@RequestMapping(value = { "address" }, method = RequestMethod.POST)
 	public GenericWebResult updateAddress(HttpServletRequest request, @RequestParam("orderId") Long orderId,
 			@RequestParam("addrId") Long addrId) {
-		orderService.updateAddress(orderId, addrId);
-		return GenericWebResult.success("ok");
+		Order order = new Order(orderId);
+		Object lock = lockMgr.acquireLock(order);
+		try {
+			orderService.updateAddress(orderId, addrId);
+			return GenericWebResult.success("ok");
+		} finally {
+			lockMgr.releaseLock(lock);
+		}
 	}
 
 	@RequestMapping(value = { "/topay" }, method = RequestMethod.GET)

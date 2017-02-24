@@ -2,18 +2,36 @@ package com.cactus.guozy.core.domain;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.cactus.guozy.common.BaseDomain;
 import com.cactus.guozy.core.service.PricingException;
 
-public class OrderItem {
+@Table(name="order_item")
+public class OrderItem extends BaseDomain {
+
+	private static final long serialVersionUID = -5613863638728060744L;
+
+	@Column
+	private Long odrId;
 	
-	private Long id;
-	
+	@Transient
 	private Order order;
 	
 	private BigDecimal price;
 	
-	private int quantity;
+	private String name;
 	
+	private String pic;
+	
+	private Integer quantity;
+	
+	@Column
+	private Long goodsId;
+	
+	@Transient
 	private Goods goods;
 	
 	public BigDecimal getTotalPrice() {
@@ -27,14 +45,6 @@ public class OrderItem {
 		return price.multiply(BigDecimal.valueOf(quantity));
 	}
 	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public Order getOrder() {
 		return order;
 	}
@@ -65,6 +75,22 @@ public class OrderItem {
 
 	public void setGoods(Goods goods) {
 		this.goods = goods;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPic() {
+		return pic;
+	}
+
+	public void setPic(String pic) {
+		this.pic = pic;
 	}
 
 }

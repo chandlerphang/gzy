@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.cactus.guozy.core.domain.Category;
 
-public interface CategoryDao {
+import tk.mybatis.mapper.common.Mapper;
+
+public interface CategoryDao extends Mapper<Category> {
 	
     int insert(Category record);
 

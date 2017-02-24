@@ -16,6 +16,8 @@ import com.cactus.guozy.core.service.CatalogService;
 import com.cactus.guozy.core.service.SalerService;
 import com.cactus.guozy.profile.dao.UserDao;
 
+import tk.mybatis.mapper.entity.Example;
+
 @Service("catalogService")
 public class CatalogServiceImpl implements CatalogService {
 	
@@ -35,7 +37,16 @@ public class CatalogServiceImpl implements CatalogService {
 	protected SalerService salerService;
 	
 	public List<Shop> findAllShops() {
-		return shopDao.readAllShops();
+		return shopDao.selectAll();
+	}
+	
+	@Override
+	public List<Category> findCategories(Shop shop) {
+		Example example = new Example(Category.class);
+		example.createCriteria()
+        .andCondition("sid = ", shop.getId());
+		
+		return categoryDao.selectByExample(example);
 	}
 
 	@Override
@@ -62,5 +73,7 @@ public class CatalogServiceImpl implements CatalogService {
 	public List<Saler> findSalersByShopId(Long sid) {
 		return salerService.getByEntity(Saler.builder().shopId(sid).build());
 	}
+
+	
 
 }

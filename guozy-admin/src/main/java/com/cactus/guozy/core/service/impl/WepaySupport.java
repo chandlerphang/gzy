@@ -1,45 +1,35 @@
-package com.cactus.guozy.core.pay.wechat;
+package com.cactus.guozy.core.service.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-@org.springframework.stereotype.Component
+import com.cactus.guozy.core.pay.wechat.Wepay;
+import com.cactus.guozy.core.pay.wechat.WepayBuilder;
+
+@Component
 public class WepaySupport {
 
-    @Value("${appId}")
+    @Value("${pay.request.wechart.appid}")
     private String appId;
 
-    @Value("${appKey}")
+    @Value("${pay.request.wechart.appkey}")
     private String appKey;
 
-    @Value("${mchId}")
+    @Value("${pay.request.wechart.mch_id}")
     private String mchId;
 
-    @Value("${payNotifyUrl}")
+    @Value("${pay.request.wechart.notify_url}")
     private String payNotifyUrl;
-
+    
     private Wepay wepay;
 
     @PostConstruct
     public void initWepay() {
-        try(InputStream in = this.getClass().getClassLoader().getResourceAsStream("cert.p12")) {
-            // 加载证书文件
-        	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	IOUtils.copy(in, baos);
-            byte[] certs = baos.toByteArray();
-            wepay = WepayBuilder.newBuilder(appId, appKey, mchId)
-                    .certPasswd(mchId)
-                    .certs(certs)
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    	wepay = WepayBuilder.newBuilder(appId, appKey, mchId).build();
     }
 
     /**

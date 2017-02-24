@@ -2,23 +2,23 @@ package com.cactus.guozy.core.domain;
 
 import java.util.List;
 
-public class Category {
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
-	private Long id;
+import com.cactus.guozy.common.BaseDomain;
+
+@Table(name="category")
+public class Category extends BaseDomain {
+
+	private static final long serialVersionUID = -8469762733026259998L;
 
     private String name;
     
+    @Transient
     private Shop shop;
     
+    @Transient
     private List<Goods> goods;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

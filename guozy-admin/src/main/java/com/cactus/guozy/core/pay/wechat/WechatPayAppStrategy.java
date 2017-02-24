@@ -3,12 +3,9 @@ package com.cactus.guozy.core.pay.wechat;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.json.Jsons;
 import com.cactus.guozy.core.domain.Order;
-import com.cactus.guozy.core.dto.PayRequest;
 import com.cactus.guozy.core.pay.PayStrategy;
 import com.cactus.guozy.core.pay.PayType;
 
@@ -25,26 +22,16 @@ public class WechatPayAppStrategy implements PayStrategy {
 		final String notifyUrl= RuntimeEnvConfigService.resolveSystemProperty("pay.request.wechart.notify_url");
 		final String spbill_create_ip= RuntimeEnvConfigService.resolveSystemProperty("pay.request.wechart.spbill_create_ip");
 		
-		Wepay wepay = WepayBuilder.newBuilder(appId, api_key, mchId).build();
-		
 		Order order =  (Order)params.get("order");
-		PayRequest req = new PayRequest();
-		req.setNotifyUrl(notifyUrl);
-		String orderNum = order.getOrderNumber();
-        if (StringUtils.isNotBlank(orderNum)) {
-        	req.setBody("果之源-订单编号：" + orderNum);
-        } else {
-        	req.setBody("果之源-订单支付");
-        }
-        if(StringUtils.isNotBlank((String)params.get("clientIp"))) {
-        	req.setClientId((String)params.get("clientIp"));
-        } else {
-        	req.setClientId(spbill_create_ip);
-        }
-        
-		req.setOutTradeNo(order.getId().toString());
-		req.setTotalFee(order.getTotal().multiply(BigDecimal.valueOf(100)).intValue());
+		PayRequest req = PayRequest.builder()
+				.notifyUrl(notifyUrl)
+				.body("果之源订单-" + order.getOrderNumber())
+				.clientId(spbill_create_ip)
+				.outTradeNo(String.valueOf(order.getId()))
+				.totalFee(order.getTotal().multiply(BigDecimal.valueOf(100)).intValue())
+				.build();
 		
+		Wepay wepay = WepayBuilder.newBuilder(appId, api_key, mchId).build();
 		Map<String, String> map = wepay.pay().appPay(req);
 		return Jsons.DEFAULT.toJson(map);
 	}

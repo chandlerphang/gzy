@@ -11,6 +11,8 @@ public interface CatalogService {
 	
 	List<Shop> findAllShops();
 	
+	List<Category> findCategories(Shop shop);
+	
 	Shop findShopById(Long id);
 	
 	List<Category> findCategories(Long shopId);

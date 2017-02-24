@@ -2,6 +2,10 @@ package com.cactus.guozy.core.dto;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 public class PayRequestParam {
 
 	/**
@@ -12,6 +16,7 @@ public class PayRequestParam {
 	/**
 	 * 订单ID
 	 */
+	@NotNull
 	private Long orderId;
 
 	/**
@@ -27,11 +32,13 @@ public class PayRequestParam {
 	/**
 	 * 支付平台
 	 */
+	@NotBlank
 	private String platformType;
 
 	/**
 	 * 支付入口
 	 */
+	@NotBlank
 	private String browseType;
 
 	/**

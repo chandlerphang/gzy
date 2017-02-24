@@ -59,7 +59,50 @@ public enum AlipayField {
 	
 	
 	
-	
+	/**
+     * yyyy-MM-dd HH:mm:ss
+     */
+    NOTIFY_TIME("notify_time", "通知时间"),
+    
+    NOTIFY_TIYE("notify_type", "通知类型"),
+    
+    /**
+     * 有效性一般为1分钟
+     */
+    NOTIFY_ID("notify_id", "通知校验ID"),
+    
+    TRADE_NO("trade_no", "支付宝交易号"),
+    
+    OUT_BIZ_NO("out_biz_no", "商户业务号"),
+    
+    BUYER_ID("buyer_id", "买家支付宝账户号"),
+    
+    BUYER_LOGON_ID("buyer_logon_id", "买家支付宝账号"),
+    
+    RECEIPT_AMOUT("receipt_amount", "实收金额"),
+    
+    INVOICE_AMOUNT("invoice_amount", "开票金额"),
+    
+    BUYER_PAY_AMOUNT("buyer_pay_amount", "付款金额"),
+    
+    POINT_AMOUNT("point_amount", "集分宝金额"),
+    
+    REFUND_FEE("refund_fee", "总退款金额"),
+    
+    GMT_CREATE("gmt_create", "交易创建时间"),
+    
+    GMT_PAYMENT("gmt_payment", "交易付款时间"),
+    
+    GMT_REFUND("gmt_refund", "退款时间"),
+    
+    GMT_CLOSE("gmt_close", "交易关闭时间"),
+    
+    FUND_BILL_LIST("fund_bill_list", "支付金额信息"),
+    
+    VOUCHER_DETAIL_LIST("voucher_detail_list", "优惠券信息"),
+    
+    AUTH_APP_ID("auth_app_id", ""),
+    
 	/**
      * 如需使用该字段，需向支付宝申请开通，否则传入无效。
      */
@@ -72,8 +115,6 @@ public enum AlipayField {
     PAY_METHOD("paymethod", "支付类型"),
 
     IT_B_PAY("it_b_pay", "超时设置"),
-
-    INPUT_CHARSET("_input_charset", "字符集设置"),
 
     RETURN_URL("return_url", "支付宝页面跳转地址"),
 
@@ -137,20 +178,6 @@ public enum AlipayField {
 
     PAYMENT_TYPE("payment_type", "支付类型"),
 
-    /**
-     * 有效性一般为1分钟
-     */
-    NOTIFY_ID("notify_id", "通知校验ID"),
-
-    NOTIFY_TIYE("notify_type", "通知类型"),
-
-    /**
-     * yyyy-MM-dd HH:mm:ss
-     */
-    NOTIFY_TIME("notify_time", "通知时间"),
-
-    TRADE_NO("trade_no", "支付宝交易号"),
-
     TRADE_STATUS("trade_status", "交易状态"),
 
     /**
@@ -161,22 +188,12 @@ public enum AlipayField {
 
     SELLER_EMAIL("seller_email", "卖家支付宝帐号"),
 
-    BUYER_ID("buyer_id", "买家支付宝账户号"),
-
     BUYER_EMAIL("buyer_email", "买家支付宝帐号"),
 
     /**
      * 取值范围为[0.01，100000000.00]，精确到小数点后两位
      */
     TOTAL_FEE("total_fee", "订单的总金额"),
-
-    GMT_CREATE("gmt_create", "交易创建时间"),
-
-    GMT_PAYMENT("gmt_payment", "交易付款时间"),
-
-    GMT_CLOSE("gmt_close", "交易关闭时间"),
-
-    GMT_REFUND("gmt_refund", "退款时间"),
 
     REFUND_STATUS("refund_status", "退款状态"),
 

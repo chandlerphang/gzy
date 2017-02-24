@@ -41,6 +41,12 @@ public class Shop {
 	@Column(name="close_time")
 	@ColumnType(jdbcType=JdbcType.TIME)
     private Date closeTime;
+	
+	@Column(name = "lat")
+	private Double lat;
+
+	@Column(name = "lng")
+	private Double lng;
     
 	@Transient
     private List<Category> categories;
@@ -113,5 +119,21 @@ public class Shop {
 
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
+	}
+
+	public Double getLat() {
+		return lat;
+	}
+
+	public void setLat(Double lat) {
+		this.lat = lat;
+	}
+
+	public Double getLng() {
+		return lng;
+	}
+
+	public void setLng(Double lng) {
+		this.lng = lng;
 	}
 }

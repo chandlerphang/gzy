@@ -4,23 +4,26 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.core.domain.Order;
+import com.cactus.guozy.core.service.OrderLockManager;
 import com.cactus.guozy.core.service.OrderService;
 
+@Component
 public class DatabaseOrderLockManager implements OrderLockManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DatabaseOrderLockManager.class);
     
-    @Resource(name = "blOrderService")
+    @Resource(name = "orderService")
     protected OrderService orderService;
 
     @Override
     public Object acquireLock(Order order) {
         if (order == null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Thread[" + Thread.currentThread().getId() + "] Attempted to grab a lock for a NullOrderImpl. ");
+                LOG.debug("Thread[" + Thread.currentThread().getId() + "] Attempted to grab a lock for a null order. ");
             }
             return order;
         }
@@ -44,7 +47,6 @@ public class DatabaseOrderLockManager implements OrderLockManager {
                 }
                 try {
                     long msToSleep = getDatabaseLockPollingIntervalMs();
-
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Thread[" + Thread.currentThread().getId() + "] Could not acquire order lock for order[" +
                                 order.getId() + "] - sleeping for " + msToSleep + " ms");
@@ -77,7 +79,7 @@ public class DatabaseOrderLockManager implements OrderLockManager {
         Order order = (Order) lockObject;
         if (order == null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Thread[" + Thread.currentThread().getId() + "] Attempted to release a lock for a NullOrderImpl");
+                LOG.debug("Thread[" + Thread.currentThread().getId() + "] Attempted to release a lock for a null order");
             }
         } else {
             if (LOG.isDebugEnabled()) {
@@ -88,7 +90,7 @@ public class DatabaseOrderLockManager implements OrderLockManager {
     }
 
     protected long getDatabaseLockPollingIntervalMs() {
-        return RuntimeEnvConfigService.resolveLongSystemProperty("order.lock.databaseLockPollingIntervalMs");
+        return RuntimeEnvConfigService.resolveLongSystemProperty("order.lock.databaseLockPollingIntervalMs", 2000);
     }
     
     protected int getDatabaseLockAcquisitionNumRetries() {

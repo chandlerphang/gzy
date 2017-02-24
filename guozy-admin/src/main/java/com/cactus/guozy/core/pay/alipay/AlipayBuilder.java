@@ -79,6 +79,16 @@ public class AlipayBuilder {
 		alipay.appPubKey = rsaPubKey;
 		return this;
 	}
+	
+	public AlipayBuilder aliPubKey(String aliPubKey) {
+		alipay.aliPubKey = aliPubKey;
+		return this;
+	}
+	
+	public AlipayBuilder sellerId(String sellerId) {
+		alipay.sellerId = sellerId;
+		return this;
+	}
 
 	/**
 	 * 设置支付超时时间

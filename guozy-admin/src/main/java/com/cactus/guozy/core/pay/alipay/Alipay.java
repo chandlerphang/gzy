@@ -62,6 +62,13 @@ public final class Alipay {
      * APP RSA公钥
      */
     String appPubKey;
+    
+    /**
+     * Ali RSA公钥
+     */
+    String aliPubKey;
+    
+    String sellerId;
 
     /**
      * 支付配置参数，不需每次请求都生成
@@ -101,6 +108,14 @@ public final class Alipay {
 
     public Verifies verify(){
         return (Verifies)components.get(Verifies.class.getSimpleName());
+    }
+    
+    public String getSellerId() {
+    	return sellerId;
+    }
+    
+    public String getAppId() {
+    	return appId;
     }
 
     @Override

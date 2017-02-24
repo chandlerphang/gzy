@@ -21,8 +21,9 @@
   <resultMap id="orderItem" type="com.cactus.guozy.core.domain.OrderItem">
     <id column="odri_id" property="id" />
     <result column="odri_price" property="price" />
+    <result column="odri_name" property="name" />
+    <result column="odri_pic" property="pic" />
     <result column="odri_quantity" property="quantity" />
-    <association property="goods" resultMap="com.cactus.guozy.core.dao.GoodsDao.goods"/>
   </resultMap>
   
   <resultMap id="address" type="com.cactus.guozy.core.domain.OrderAddress">
@@ -37,6 +38,13 @@
   
   <resultMap id="orderWithRels" extends="order" type="com.cactus.guozy.core.domain.Order">
   	<association property="shipAddr" resultMap="address"/>
+  	<collection property="orderItems" ofType="com.cactus.guozy.core.domain.OrderItem" javaType="list">
+	  	<id column="odri_id" property="id" />
+	    <result column="odri_price" property="price" />
+	    <result column="odri_name" property="name" />
+	    <result column="odri_pic" property="pic" />
+	    <result column="odri_quantity" property="quantity" />
+  	</collection>
   </resultMap>
   
   <resultMap type="com.cactus.guozy.core.domain.OrderAdjustment" id="orderAdjustment">
@@ -52,10 +60,10 @@
   </select>
   
   <insert id="insertOrderItemBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">  
-    insert into order_item (odr_id,price,quantity,goods_id)   
+    insert into order_item (odr_id,price,quantity,goods_id,name,pic)   
     values  
     <foreach collection="list" item="item" index="index" separator="," >  
-        (#{item.order.id},#{item.price},#{item.quantity},#{item.goods.id})  
+        (#{item.order.id},#{item.price},#{item.quantity},#{item.goods.id},#{item.name},#{item.pic})  
     </foreach>  
   </insert>  
   
@@ -123,19 +131,27 @@
   </update>
   
   <select id="readOrdersUnpay" parameterType="java.lang.Long" resultMap="orderWithRels">
-  	SELECT odr.*, addr.* 
-  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id
+  	SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id 
   	WHERE odr.`uid`=#{userId} AND odr.`status`='SUBMITTED'
   </select>
   
   <select id="readOrdersCompleted" parameterType="java.lang.Long" resultMap="orderWithRels">
-    SELECT odr.*, addr.* 
-  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+    SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id  
   	WHERE odr.`uid`=#{userId} AND odr.`status`='COMPLETED'
   </select>
   
   <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="order">
-  	SELECT * FROM `order` WHERE `created_by`=#{salerId} AND `is_saler_odr`=b'1'
+    SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id
+  	WHERE `created_by`=#{salerId} AND `is_saler_odr`=b'1' AND (odr.`status`='SUBMITTED' OR odr.`status`='COMPLETED')
   </select>
   
   <select id="readOrdersForShopNotPROCESS" parameterType="com.cactus.guozy.core.domain.Page" resultMap="order">
@@ -144,7 +160,7 @@
   
   <update id="updateTotal" parameterType="com.cactus.guozy.core.domain.Order" >
   	UPDATE `order` SET `total`=#{total}, `subtotal`=#{subTotal} WHERE `odr_id`=#{id}
-  </update> 
+  </update>
 	
   <update id="updateOrderNumber" parameterType="com.cactus.guozy.core.domain.Order" >
   	UPDATE `order` SET `odr_num`=#{orderNumber} WHERE `odr_id`=#{id}
@@ -155,14 +171,41 @@
   </select>
   
   <select id="readOrderById" parameterType="java.lang.Long" resultMap="orderWithRels">
-  	SELECT odr.*, addr.* 
-  	FROM `order` odr LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  	SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id 
   	WHERE odr.`odr_id`=#{orderId}
   </select>
 	
   <select id="readItemsForOrder" parameterType="java.lang.Long" resultMap="orderItem">
-  	SELECT i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, g.*
-  	FROM `order_item` i LEFT JOIN `goods` g ON i.goods_id=g.id
+  	SELECT i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order_item` i
   	WHERE odr_id=#{orderId}
   </select>
+  
+  <select id="countOrderLock" parameterType="com.cactus.guozy.core.domain.Order" resultType="int">
+  	SELECT COUNT(1) 
+  	FROM `order_lock`
+    WHERE `order_id` = #{id}
+  </select>
+  
+  <insert id="insertOrderLock" parameterType="com.cactus.guozy.core.domain.OrderLock">
+    INSERT INTO `order_lock`(`order_id`,`locked`,`last_updated`)
+    VALUES (#{orderId}, #{locked}, #{lastUpdated})
+  </insert>
+  
+  <update id="acquireOrderLock">
+  	UPDATE `order_lock`
+    SET `locked`=b'1', `last_updated`= #{param2}
+    WHERE `order_id` = #{param1.id}
+      AND (`locked`=b'0' OR `last_updated` &lt; #{param3}) 
+  </update>
+	
+  <update id="releaseOrderLock" parameterType="com.cactus.guozy.core.domain.Order">
+	UPDATE `order_lock`
+    SET `locked`=b'0'
+    WHERE `order_id`=#{id}
+  </update>  
+  
 </mapper>

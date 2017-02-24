@@ -16,7 +16,6 @@
   <resultMap id="useroffer" type="com.cactus.guozy.core.domain.UserOffer">
     <id column="uoid" property="id" />
     <result column="is_used" property="isUsed" />
-    <association property="user" resultMap="com.cactus.guozy.profile.dao.UserDao.userResult"/>
     <association property="offer" resultMap="offer"/>
   </resultMap>
   
@@ -30,7 +29,9 @@
   </select>
  
   <select id="readUserOffers" parameterType="java.lang.Long" resultMap="useroffer">
-  	SELECT uo.id as uoid, is_used, o.* FROM user_offer uo left join offer o on uo.offer_id=o.id where uo.user_id=#{userid}
+  	SELECT uo.id as uoid, is_used, o.* 
+  	FROM user_offer uo LEFT JOIN offer o on uo.offer_id=o.id
+  	WHERE uo.user_id=#{userid}
   </select>
   
   <select id="readUnusedOffers" parameterType="java.lang.Long" resultMap="useroffer">

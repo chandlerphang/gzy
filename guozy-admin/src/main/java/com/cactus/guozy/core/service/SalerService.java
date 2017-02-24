@@ -2,6 +2,7 @@ package com.cactus.guozy.core.service;
 
 import com.cactus.guozy.common.service.BaseService;
 import com.cactus.guozy.core.domain.Saler;
+import com.cactus.guozy.profile.domain.User;
 
 public interface SalerService extends BaseService<Saler> {
 	
@@ -17,7 +18,7 @@ public interface SalerService extends BaseService<Saler> {
 	
 	boolean releaseLock(final Saler saler);
 
-	void tryToConnect(Saler saler, Long usrId, String usrChannelId);
+	void tryToConnect(Saler saler, User  user, String usrChannelId);
 	
 	void userDisConnect(Saler saler, Long usrId, String homeId);
 	

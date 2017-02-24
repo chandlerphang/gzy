@@ -22,6 +22,7 @@ import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.validator.GenericValidator;
 import com.cactus.guozy.core.dto.GenericWebResult;
+import com.cactus.guozy.profile.domain.User;
 
 @RestController
 public class SalerEndpoint extends BaseEndpoint {
@@ -91,7 +92,8 @@ public class SalerEndpoint extends BaseEndpoint {
 			throw new BizException("500", "导购员存在");
 		}
 		
-		salerService.tryToConnect(saler, usrId, usrChannelId);
+		User user = userService.getById(usrId);
+		salerService.tryToConnect(saler, user, usrChannelId);
 		return GenericWebResult.success("ok");
 	}
 	

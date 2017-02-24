@@ -41,13 +41,9 @@ public class PricingServiceImpl implements PricingService {
 				}
 				throw new PricingException(msg);
 			}
-			//order.setTotal(order.getSalePrice().add(order.getShipPrice()));
-			//order.setSubTotal(order.calculateSubTotal());
-			//orderService.updateTotal(order);
-			//return order;
-			total.add(order.getSalePrice());
+			total = total.add(order.getSalePrice());
 		} else {
-			total.add(order.getSubTotal());
+			total = total.add(order.getSubTotal());
 		}
 		
 		// 减优惠券

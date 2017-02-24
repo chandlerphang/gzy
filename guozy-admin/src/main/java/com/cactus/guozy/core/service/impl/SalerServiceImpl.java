@@ -24,6 +24,7 @@ import com.cactus.guozy.core.service.MsgPushService;
 import com.cactus.guozy.core.service.SalerService;
 import com.cactus.guozy.core.service.exception.MessagePushException;
 import com.cactus.guozy.core.util.StreamCapableTransactionalOperationAdapter;
+import com.cactus.guozy.profile.domain.User;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -172,8 +173,13 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 	}
 	
 	@Override
-	public void tryToConnect(Saler saler, Long usrId, String usrChannelId) {
-		Object lock = lockManager.acquireLockIfAvailable(saler, usrId);
+	public void tryToConnect(Saler saler, User user, String usrChannelId) {
+		if(user.getCanLineToSaler() == false) {
+			throw new BizException("403", "用户禁止通话");
+		}
+		
+		Long usrId = user.getId();
+		Object lock = lockManager.acquireLockIfAvailable(saler, user.getId());
 		if(lock == null) {
 			throw new BizException("500", "获取锁失败");
 		}

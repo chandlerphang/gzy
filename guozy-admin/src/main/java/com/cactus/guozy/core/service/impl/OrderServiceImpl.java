@@ -86,16 +86,6 @@ public class OrderServiceImpl implements OrderService {
 	LockManager lockManager;
 	
 	@Override
-	public Order createNewCartForUser(User user) {
-		Order order = new Order();
-		order.setUser(user);
-        order.setStatus(OrderStatus.IN_PROCESS);
-        
-        orderDao.save(order);
-        return order;
-	}
-	
-	@Override
 	@Transactional
 	public Order createOrderForUser(Order order, User user, boolean priceOrder) {
 		if(order.getIsSalerOrder() != null && order.getIsSalerOrder()) {
@@ -118,17 +108,9 @@ public class OrderServiceImpl implements OrderService {
         	throw new RuntimeException();
         }
         
-        List<OrderItem> items = order.getOrderItems();
-        for(OrderItem item : items) {
-        	item.setOrder(order);
-        	Goods goods = goodsDao.selectByPrimaryKey(item.getGoods().getId());
-        	item.setPrice(goods.getPrice());
-        }
-        
-        if(orderDao.insertOrderItemBatch(items) != items.size()) {
-        	throw new RuntimeException();
-        }
-        
+        // 
+        insertOrderItem(order);
+       
         List<UserOffer> offers = offerService.findUnusedOffers(user.getId());
         order.setCandidateOffers(offers);
         
@@ -137,6 +119,38 @@ public class OrderServiceImpl implements OrderService {
         }
         
         return order;
+	}
+	
+	private void insertOrderItem(Order order) {
+		List<OrderItem> items = order.getOrderItems();
+        StringBuilder ids = new StringBuilder();
+        for(OrderItem item : items) {
+        	ids.append(item.getGoods().getId() + ",");
+        }
+        
+        String idlst = null;
+        if(ids.length() > 0) {
+        	idlst = ids.substring(0, ids.length() - 1);
+        } else {
+        	idlst = ids.toString();
+        }
+        
+        List<Goods> goods = goodsDao.selectByIds(idlst);
+        for(OrderItem item : items) {
+        	for(Goods g : goods) {
+        		if(g.getId().equals(item.getGoods().getId())) {
+        			item.setOrder(order);
+        			item.setName(g.getName());
+        			item.setPic(g.getPic());
+        			item.setPrice(g.getPrice());
+        			item.setGoods(g);
+        		}
+        	}
+        }
+        
+        if(orderDao.insertOrderItemBatch(items) != items.size()) {
+        	throw new RuntimeException();
+        }
 	}
 	
 	@Override
@@ -150,8 +164,11 @@ public class OrderServiceImpl implements OrderService {
 			throw new BizException("500", "找不到要生成订单的用户");
 		}
 		
-		if(order.getSalePriceOverride() == null) {
-			order.setSalePriceOverride(false);
+		if(order.getSalePriceOverride() == null || order.getSalePriceOverride().equals(true)) {
+			order.setSalePriceOverride(true);
+			if(order.getSalePrice() == null || order.getSalePrice().compareTo(BigDecimal.ZERO) <= 0) {
+				throw new BizException("500", "售价不能为空或0");
+			}
 		}
 		
 		order.setStatus(OrderStatus.IN_PROCESS);
@@ -166,16 +183,8 @@ public class OrderServiceImpl implements OrderService {
         	throw new RuntimeException();
         }
         
-        List<OrderItem> items = order.getOrderItems();
-        for(OrderItem item : items) {
-        	item.setOrder(order);
-        	Goods goods = goodsDao.selectByPrimaryKey(item.getGoods().getId());
-        	item.setPrice(goods.getPrice());
-        }
-        
-        if(orderDao.insertOrderItemBatch(items) != items.size()) {
-        	throw new RuntimeException();
-        }
+        // 
+        insertOrderItem(order);
         
         List<UserOffer> offers = offerService.findUnusedOffers(order.getUser().getId());
         order.setCandidateOffers(offers);
@@ -203,15 +212,14 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
-	@Transactional
-	public void removeItemFromOrder(Long itemId) {
-		orderDao.deleteItem(itemId);
+	public void updateOrderNumber(Order order) {
+		orderDao.updateOrderNumber(order);
 	}
-	
+
 	@Override
-	@Transactional
-	public void updateItem(Long itemId, Long quantity) {
-		orderDao.updateItem(itemId, quantity);
+	public Order finishOrder(Order order) {
+		orderDao.updateStatus(order.getId(), OrderStatus.COMPLETED.getType());
+		return order;
 	}
 	
 	@Override
@@ -223,17 +231,20 @@ public class OrderServiceImpl implements OrderService {
 		}
 		
 		UserOffer userOffer = null;
-		List<UserOffer> unusedOffers = offerService.findUnusedOffers(user.getId());
-		for(UserOffer uo : unusedOffers) {
-			if(uo.getId() == userOfferId) {
+		List<UserOffer> offers = offerService.findUserOffers(user.getId());
+		for(UserOffer uo : offers) {
+			if(uo.getId().equals(userOfferId)) {
 				userOffer = uo;
 				break;
 			}
 		}
 		
 		if(userOffer == null) {
-			throw new RuntimeException();
+			throw new BizException("500", "该用户不具有对应的优惠券[" + userOfferId + "]");
+		} else if(userOffer.getIsUsed().booleanValue() == true) {
+			throw new BizException("500", "优惠券[" + userOfferId + "] 已使用");
 		}
+		
 		offerService.setUsed(userOfferId);
 		
 		OrderAdjustment oa = OrderAdjustment.builder()
@@ -271,27 +282,18 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public List<Order> findOrdersUnpay(Long userId) {
 		List<Order> orders = orderDao.readOrdersUnpay(userId);
-		for(Order order : orders) {
-			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
-		}
 		return orders;
 	}
 	
 	@Override
 	public List<Order> findOrdersCompleted(Long userId) {
 		List<Order> orders = orderDao.readOrdersCompleted(userId);
-		for(Order order : orders) {
-			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
-		}
 		return orders;
 	}
 	
 	@Override
 	public List<Order> findOrdersForSaler(Long salerId) {
 		List<Order> orders = orderDao.readOrdersForSaler(salerId);
-		for(Order order : orders) {
-			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
-		}
 		return orders;
 	}
 
@@ -348,8 +350,6 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Order findOrderById(Long orderId) {
 		Order order = orderDao.readOrderById(orderId);
-		order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
-		
 		return order;
 	}
 	
@@ -422,14 +422,13 @@ public class OrderServiceImpl implements OrderService {
                 		.locked(true)
                 		.lastUpdated(System.currentTimeMillis())
                 		.build();
-                orderDao.insertOrderLock(sl);
-                return true;
+                return orderDao.insertOrderLock(sl) < 1 ? false : true;
             } catch (PersistenceException e) {
                 return false;
             }
         }
 
-        Long timeToLive = System.currentTimeMillis();
+        Long timeToLive = -1L;
         int rowsAffected = orderDao.acquireOrderLock(order, System.currentTimeMillis(), timeToLive);
         return rowsAffected == 1;
 	}
@@ -454,17 +453,6 @@ public class OrderServiceImpl implements OrderService {
             log.error(String.format("Could not release order lock (%s)", order.getId()), e);
         }
         return response[0];
-	}
-
-	@Override
-	public void updateOrderNumber(Order order) {
-		orderDao.updateOrderNumber(order);
-	}
-
-	@Override
-	public Order finishOrder(Order order) {
-		orderDao.updateStatus(order.getId(), OrderStatus.COMPLETED.getType());
-		return order;
 	}
 
 }
