@@ -30,7 +30,9 @@
 					data-shopclosetime="$shop.closeTime"
 					data-shopdistance="$shop.shipDistance"
 					data-shopshipPrice="$shop.shipPrice">修改</button>
-				</td> <button onclick="deleteShop(this)" data-shopid="$shop.id"" class="btn btn-danger btn-block">删除</button>
+				</td>
+				<button onclick="deleteShop(this)" data-shopid="$shop.id"
+					" class="btn btn-danger btn-block">删除</button>
 			</div>
 		</div>
 	</div>
@@ -42,16 +44,15 @@
 	</div>
 </div>
 <script type="text/javascript">
-
 	function createShopDialog() {
 		resetDialog();
 		//显示对话框
 		showDialog();
-		
+
 		$('#dialogTitle').html("添加店铺");
-		document.getElementById('btnOk').onclick = function(){
+		document.getElementById('btnOk').onclick = function() {
 			alert("新建");
-		}; 
+		};
 		//初始化时钟
 		$('#timepicker1').timepicki({
 			show_meridian : false,
@@ -65,7 +66,7 @@
 			max_hour_value : 23,
 			start_time : [ "18", "00" ]
 		});
-		
+
 	}
 
 	function resetDialog() {
@@ -92,26 +93,41 @@
 		var date = new Date(strTime);
 		return date.getMinutes();
 	}
-
-	function readData(data){
-		var shop=new Object();
-		shop.name=data.getAttribute("data-shopname");
-		shop.manager=data.getAttribute("data-shopmanager");
-		shop.address=data.getAttribute("data-shopaddress");
-		shop.opentime=data.getAttribute("data-shopopentime");
-		shop.closetime=data.getAttribute("data-shopclosetime");
-		shop.distance=data.getAttribute("data-shopdistance");
-		shop.shipprice=data.getAttribute("data-shopshipPrice");
-		shop.password=data.getAttribute("data-shoppasswrod");
-		shop.password2=data.getAttribute("data-shoppasswrod2");
+	function readDialogData(){
+		var shop = new Object();
+		shop.name = document.getElementById("name").value;
+		shop.manager = document.getElementById("manager").value;
+		shop.address = document.getElementById("address").value;
+		shop.opentime = document.getElementById("opentime").value;
+		shop.closetime = document.getElementById("closetime").value;
+		shop.distance = document.getElementById("distance").value;
+		shop.shipprice = document.getElementById("shipprice").value;
+		shop.password = document.getElementById("password").value;
+		shop.password2 =document.getElementById("password").value;
 		return shop;
 	}
-	
+
+	function readData(data) {
+		var shop = new Object();
+		shop.name = data.getAttribute("data-shopname");
+		shop.manager = data.getAttribute("data-shopmanager");
+		shop.address = data.getAttribute("data-shopaddress");
+		shop.opentime = data.getAttribute("data-shopopentime");
+		shop.closetime = data.getAttribute("data-shopclosetime");
+		shop.distance = data.getAttribute("data-shopdistance");
+		shop.shipprice = data.getAttribute("data-shopshipPrice");
+		shop.password = data.getAttribute("data-shoppasswrod");
+		shop.password2 = data.getAttribute("data-shoppasswrod2");
+		return shop;
+	}
+
 	function updateInfo(shop) {
 		//显示对话框
 		showDialog();
-		var objShop=readData(shop);
+		var objShop = readData(shop);
 		$('#dialogTitle').html("修改信息");
+		document.getElementById("ID").value = shop
+		.getAttribute("data-shopid");
 		document.getElementById("name").value = shop
 				.getAttribute("data-shopname");
 		document.getElementById("manager").value = shop
@@ -126,9 +142,30 @@
 				.getAttribute("data-shopdistance");
 		document.getElementById("shipprice").value = shop
 				.getAttribute("data-shopshipPrice");
-	 	document.getElementById('btnOk').onclick = function(){
-			alert("更新"+objShop.name);
-		}; 
+		document.getElementById('btnOk').onclick = function() {
+			$.messager.progress(); // display the progress bar
+			$('#dataForm').form('submit', {
+				url : "shopAdd",
+				onSubmit : function() {
+					var isValid = $(this).form('validate');
+					if (!isValid) {
+						$.messager.progress('close'); // hide progress
+					}
+					return isValid; // return false will stop the form submission
+				},
+				success : function(data) {
+					$.messager.progress('close'); // hide progress
+					var data = eval('(' + data + ')'); // change the JSON string to javascript object
+					if (parseInt(data.status) == 200) {
+						showDialog();
+						$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+					} else {
+						showDialog();
+						$('#tip').html("您的建议发送失败，请重新发送");
+					}
+				}
+			});
+		};
 		$('#opentime')
 				.timepicki(
 						{
@@ -158,9 +195,35 @@
 
 	function deleteShop(shop) {
 		var id = shop.getAttribute("data-shopid");
-		alert("删除店铺"+id);
+		alert("删除店铺" + id);
+		
+		$.messager.progress(); // display the progress bar
+		$('#dataForm').form('submit', {
+			url : "shopDelete",
+			onSubmit : function() {
+				var isValid = $(this).form('validate');
+				if (!isValid) {
+					$.messager.progress('close'); // hide progress
+				}
+				return isValid; // return false will stop the form submission
+			},
+			success : function(data) {
+				$.messager.progress('close'); // hide progress
+				var data = eval('(' + data + ')'); // change the JSON string to javascript object
+				if (parseInt(data.status) == 200) {
+					showDialog();
+					$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+				} else {
+					showDialog();
+					$('#tip').html("您的建议发送失败，请重新发送");
+				}
+			}
+		});
 	}
 	
+	function save(){
+		alert("保存");
+	}
 </script>
 
 <!--------------------------添加/修改信息的弹出层---------------------------->
@@ -177,7 +240,7 @@
 				</h4>
 			</div>
 			<form class="form-horizontal form-bordered form-row-strippe"
-				id="ffAdd" action="" data-toggle="validator"
+				id="dataForm" action="" data-toggle="validator"
 				enctype="multipart/form-data">
 				<div class="modal-body">
 					<div class="row">
@@ -186,7 +249,8 @@
 								<label class="control-label col-md-2">名称</label>
 								<div class="col-md-10">
 									<input id="name" name="name" type="text" class="form-control"
-										placeholder="请输入店铺名称..." />
+										placeholder="请输入店铺名称..."
+										data-options="label:'name:',required:true" />
 									<!-- 	<input id="name" name="name" type="text" class="form-control"
 										placeholder="名称..." /> -->
 								</div>
@@ -197,6 +261,7 @@
 								<label class="control-label col-md-2">登录名</label>
 								<div class="col-md-10">
 									<input id="manager" name="manager" type="text"
+										data-options="label:'manager',required:true"
 										class="form-control" placeholder="请输入店铺管理员账号..." />
 								</div>
 							</div>
@@ -205,7 +270,9 @@
 							<div class="form-group">
 								<label class="control-label col-md-2">密码</label>
 								<div class="col-md-10">
-									<input name="password" type="password" class="form-control"
+									<input id="password" name="password" type="password"
+										class="form-control"
+										data-options="label:'password',required:true"
 										placeholder="请输入店铺管理员密码">
 								</div>
 							</div>
@@ -214,7 +281,9 @@
 							<div class="form-group">
 								<label class="control-label col-md-2">确认密码</label>
 								<div class="col-md-10">
-									<input name="password" type="password" class="form-control"
+									<input id="password2" name="password2" type="password"
+										class="form-control"
+										data-options="label:'password2',required:true"
 										placeholder="请再次输入店铺管理员密码">
 								</div>
 							</div>
@@ -224,6 +293,7 @@
 								<label class="control-label col-md-2">地址</label>
 								<div class="col-md-10">
 									<input id="address" name="address" type="text"
+										data-options="label:'password',required:true"
 										class="form-control" placeholder="请输入店铺详细地址..." />
 								</div>
 							</div>
@@ -235,10 +305,13 @@
 									<table>
 										<tr>
 											<td>开始时间：</td>
-											<td><input id='opentime' type='text' name='timepicker' /></td>
+											<td><input id='opentime' type='text' name='timepicker'
+												data-options="label:'opentime',required:true" /></td>
 
 											<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;结束时间：</td>
-											<td><input id='closetime' type='text' name='timepicker' /></td>
+											<td><input id='closetime'
+												data-options="label:'closetime',required:true" type='text'
+												name='timepicker' /></td>
 
 										</tr>
 									</table>
@@ -255,6 +328,7 @@
 									<div class="input-group spinner" data-trigger="spinner">
 										<input id="distance" name="distance" type="text"
 											class="form-control text-center" value="1"
+											data-options="label:'distance',required:true"
 											data-rule="quantity">
 										<div class="input-group-addon">
 											<a href="javascript:;" class="spin-up" data-spin="up"><i
@@ -276,6 +350,7 @@
 									<div class="input-group spinner" data-trigger="spinner">
 										<input id="shipprice" name="shipprice" type="text"
 											class="form-control text-center" value="1"
+											data-options="label:'shipprice',required:true"
 											data-rule="currency">
 										<div class="input-group-addon">
 											<a href="javascript:;" class="spin-up" data-spin="up"><i
@@ -291,8 +366,8 @@
 				</div>
 				<div class="modal-footer bg-info">
 					<input type="hidden" id="ID" name="ID" />
-					<button type="submit" id="btnOk" class="btn btn-primary">确定</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<a type="submit" id="btnOk" class="btn btn-primary" onclick="save()">确定</a>
+					<a type="reset" class="btn btn-default" data-dismiss="modal">取消</a>
 				</div>
 			</form>
 		</div>

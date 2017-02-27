@@ -3,6 +3,7 @@ package com.cactus.guozy.admin.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
 import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
+import com.cactus.guozy.core.domain.Feedback;
 import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.Offer;
@@ -54,90 +56,86 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
-public class AdminMainController extends AbstractAdminController{
+public class AdminMainController extends AbstractAdminController {
 	protected static final Logger LOG = LoggerFactory.getLogger(AppEndpoint.class);
-	
+
 	@Resource(name = "fileService")
 	protected FileService fileService;
 
 	@Resource(name = "assetStorageService")
 	protected AssetStorageService ass;
-	
+
 	@Resource(name = "assetService")
 	protected AssetService assetService;
-	
-	@Resource(name="appSettingService")
+
+	@Resource(name = "appSettingService")
 	protected AppSettingService appSettingService;
-	
-	@Resource(name="catalogService")
+
+	@Resource(name = "catalogService")
 	protected CatalogService catalogService;
 
-	@Resource(name="orderService")
+	@Resource(name = "orderService")
 	protected OrderService orderService;
-	
-	@Resource(name="offerService")
+
+	@Resource(name = "offerService")
 	protected OfferService offerService;
-	
-	@RequestMapping(value = { "/appnotification"}, method = RequestMethod.GET)
-	public String appnotification(HttpServletResponse resp,Model model) {
+
+	@RequestMapping(value = { "/appnotification" }, method = RequestMethod.GET)
+	public String appnotification(HttpServletResponse resp, Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
 		setModelAttributes(model, "tuisong");
 		return "appnotification";
 	}
-	
-	@RequestMapping(value = {"/appsettings"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/appsettings" }, method = RequestMethod.GET)
 	public String appsettings(Model model) {
 		model.addAttribute("aboutus", appSettingService.findAboutusUrl());
 		List<FruitCSWrapper> wrappers = new ArrayList<>();
 		List<FruitCommonSense> fcs = appSettingService.findAllFruitCommonSense();
-		for(FruitCommonSense tmp : fcs) {
+		for (FruitCommonSense tmp : fcs) {
 			wrappers.add(FruitCSWrapper.wrapDetail(tmp));
 		}
 		model.addAttribute("fruits", wrappers);
-		
+
 		setModelAttributes(model, "appsettings");
 		return "appsettings";
 	}
-	
-	@RequestMapping(value = {"/appsettings/aboutus"}, method = RequestMethod.POST)
+
+	@RequestMapping(value = { "/appsettings/aboutus" }, method = RequestMethod.POST)
 	public void aboutus(@RequestParam("url") String url, HttpServletResponse resp) {
 		appSettingService.saveAboutusUrl(url);
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
-	
-	@RequestMapping(value = {"/appsettings/fruitcs"}, method = RequestMethod.POST)
-	public void fruitcs(
-			@RequestParam("file") MultipartFile file,
-			@Valid FruitCSWrapper fruitcs,
+
+	@RequestMapping(value = { "/appsettings/fruitcs" }, method = RequestMethod.POST)
+	public void fruitcs(@RequestParam("file") MultipartFile file, @Valid FruitCSWrapper fruitcs,
 			HttpServletResponse resp) {
-		
+
 		Map<String, String> properties = new HashMap<>();
 		properties.put("module", "fruitcs");
 		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
-		
-		Asset asset=assetService.createAssetFromFile(file, properties);
-		if(asset == null) {
-			new JsonResponse(resp)
-				.with("error", "服务器内部错误")
-				.done();
+
+		Asset asset = assetService.createAssetFromFile(file, properties);
+		if (asset == null) {
+			new JsonResponse(resp).with("error", "服务器内部错误").done();
 		}
-		
+
 		try {
 			ass.storeAssetFile(file, asset);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		fruitcs.setPicurl(asset.getUrl());
 		appSettingService.saveFruitCommonSense(fruitcs.unwrap());
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
-	
-	@RequestMapping(value = {"/category"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/category" }, method = RequestMethod.GET)
 	public String category(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
-		List<List<Category>> categories=new ArrayList<>();
-		for(int i=0;i<shops.size();i++){
+		List<List<Category>> categories = new ArrayList<>();
+		for (int i = 0; i < shops.size(); i++) {
 			categories.add(catalogService.findCategories(shops.get(i).getId()));
 		}
 		model.addAttribute("shops", shops);
@@ -145,195 +143,213 @@ public class AdminMainController extends AbstractAdminController{
 		setModelAttributes(model, "leimuguanli");
 		return "category";
 	}
-	
-	@RequestMapping(value = {"/shop"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/shop" }, method = RequestMethod.GET)
 	public String shop(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		
+
 		setModelAttributes(model, "dianpuguanli");
 		return "shop";
 	}
+
+	@RequestMapping(value = "/shopAdd", method = RequestMethod.POST)
+	public void shopAddOrUpdate(HttpServletResponse response, @RequestParam("id") String id,
+			@RequestParam("name") String name, @RequestParam("manager") String manager,
+			@RequestParam("address") String address, @RequestParam("opentime") String opentime,
+			@RequestParam("closetime") String closetime, @RequestParam("distance") String distance,
+			@RequestParam("shipprice") String shipprice, @RequestParam("password") String password,
+			@RequestParam("password2") String password2,@RequestParam("action") String action) {
+
+		if ( Strings.isNullOrEmpty(name) || Strings.isNullOrEmpty(manager) || Strings.isNullOrEmpty(address)
+				|| Strings.isNullOrEmpty(opentime) || Strings.isNullOrEmpty(closetime) || Strings.isNullOrEmpty(distance)
+				|| Strings.isNullOrEmpty(shipprice) || Strings.isNullOrEmpty(password)|| Strings.isNullOrEmpty(password2)|| Strings.isNullOrEmpty(action)) {
+			new JsonResponse(response).with("status", 500).with("data", "输入信息不完善，请完善后提交").done();
+		}
+		
+		//判断id是否存在选择插入或更新
+		new JsonResponse(response).with("status", 200).with("data", "ok").done();
+	}
 	
-	
-	
-	@RequestMapping(value = {"/saler"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/shopDelete", method = RequestMethod.POST)
+	public void shopDelete(HttpServletResponse response, @RequestParam("id") String id) {
+
+		if (Strings.isNullOrEmpty(id)) {
+			new JsonResponse(response).with("status", 500).with("data", "输入信息不完善，请完善后提交").done();
+		}
+		//删除
+		new JsonResponse(response).with("status", 200).with("data", "ok").done();
+	}
+
+	@RequestMapping(value = { "/saler" }, method = RequestMethod.GET)
 	public String saler(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		List<Saler> salers=catalogService.findSalersByShopId(1l);
+		List<Saler> salers = catalogService.findSalersByShopId(1l);
 		model.addAttribute("salers", salers);
-		
+
 		setModelAttributes(model, "dianyuanguanli");
 		return "saler";
 	}
-	
-	
-	@RequestMapping(value = {"/ordershop"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/ordershop" }, method = RequestMethod.GET)
 	public String ordershop(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		List<Saler> salers=catalogService.findSalersByShopId(1l);
+		List<Saler> salers = catalogService.findSalersByShopId(1l);
 		model.addAttribute("salers", salers);
 		setModelAttributes(model, "dingdanguanli");
 		return "ordershop";
 	}
-	
-	
-	@RequestMapping(value = {"/salerlist"}, method = RequestMethod.GET)
-	public String salerlist(@RequestParam("sid")String sid,HttpServletResponse resp,Model model) {
+
+	@RequestMapping(value = { "/salerlist" }, method = RequestMethod.GET)
+	public String salerlist(@RequestParam("sid") String sid, HttpServletResponse resp, Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		List<Saler> salers=catalogService.findSalersByShopId(Long.parseLong(sid));
+		List<Saler> salers = catalogService.findSalersByShopId(Long.parseLong(sid));
 		model.addAttribute("salers", salers);
 		model.addAttribute("sid", sid);
 		return "salerlist";
 	}
-	
-	@RequestMapping(value = {"/orderlist"}, method = RequestMethod.GET)
-	public String orderlist(@RequestParam("shopId")Long shopId,@RequestParam("perNum")int perNum,@RequestParam("pageNum")int pageNum,HttpServletResponse resp,Model model) {
+
+	@RequestMapping(value = { "/orderlist" }, method = RequestMethod.GET)
+	public String orderlist(@RequestParam("shopId") Long shopId, @RequestParam("perNum") int perNum,
+			@RequestParam("pageNum") int pageNum, HttpServletResponse resp, Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		if(perNum<=0||pageNum<=0){
-			perNum=8;
-			pageNum=0;
+		if (perNum <= 0 || pageNum <= 0) {
+			perNum = 8;
+			pageNum = 0;
 		}
-		List<Order> orders=orderService.readOrdersForShopNotPROCESS(shopId,perNum,pageNum);
+		List<Order> orders = orderService.readOrdersForShopNotPROCESS(shopId, perNum, pageNum);
 		model.addAttribute("orders", orders);
 		model.addAttribute("sid", shopId);
-		model.addAttribute("index", (pageNum-1)*perNum);
+		model.addAttribute("index", (pageNum - 1) * perNum);
 		return "orderlist";
 	}
-	
-	@RequestMapping(value = {"/order"}, method = RequestMethod.GET)
-	public String order(@RequestParam("ordId")String orderId,HttpServletResponse resp,Model model) {
+
+	@RequestMapping(value = { "/order" }, method = RequestMethod.GET)
+	public String order(@RequestParam("ordId") String orderId, HttpServletResponse resp, Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		Order order=orderService.findOrderById(Long.parseLong(orderId));
+		Order order = orderService.findOrderById(Long.parseLong(orderId));
 		model.addAttribute("order", order);
 		return "order";
 	}
-	
-	@RequestMapping(value = {"/goods"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/goods" }, method = RequestMethod.GET)
 	public String goods(Model model) {
 		List<Shop> shops = catalogService.findAllShops();
 		model.addAttribute("shops", shops);
-		
+
 		setModelAttributes(model, "shangpinguanli");
 		return "goods";
 	}
-	
-	@RequestMapping(value = {"/goodlist"}, method = RequestMethod.GET)
-	public String goodlist(HttpServletResponse resp,Model model,@RequestParam("cateId") Long categoryId) {
+
+	@RequestMapping(value = { "/goodlist" }, method = RequestMethod.GET)
+	public String goodlist(HttpServletResponse resp, Model model, @RequestParam("cateId") Long categoryId) {
 		resp.setHeader("x-frame-options", "sameorigin");
 		List<Goods> goods = catalogService.findAllGoods(categoryId);
 		model.addAttribute("goods", goods);
 		for (Goods goodsItem : goods) {
-			goodsItem.setPic("http://101.200.134.112:8080/guozy/cmsasset"+goodsItem.getPic());
+			goodsItem.setPic("http://101.200.134.112:8080/guozy/cmsasset" + goodsItem.getPic());
 		}
 		setModelAttributes(model, "shangpinguanli");
 		return "goodlist";
 	}
-	
-	@RequestMapping(value = {"/category"}, method = RequestMethod.POST)
-	public void categorys(@RequestParam("shopId") Long shopId,
-			HttpServletResponse resp) {
+
+	@RequestMapping(value = { "/category" }, method = RequestMethod.POST)
+	public void categorys(@RequestParam("shopId") Long shopId, HttpServletResponse resp) {
 		List<Category> categories = catalogService.findCategories(shopId);
-		
+
 		new JsonResponse(resp).with("status", "200").with("data", categories).done();
 	}
-	
-	@RequestMapping(value = {"/shops"}, method = RequestMethod.POST)
-	public void shops(
-			HttpServletResponse resp) {
+
+	@RequestMapping(value = { "/shops" }, method = RequestMethod.POST)
+	public void shops(HttpServletResponse resp) {
 		List<Shop> shops = catalogService.findAllShops();
 		new JsonResponse(resp).with("status", "200").with("data", shops).done();
 	}
-	
-	
-	
-	@RequestMapping(value = { "/user"}, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "/user" }, method = RequestMethod.GET)
 	public String user(Model model) {
 		model.addAttribute("users", userService.findAllUsers());
-		
+
 		setModelAttributes(model, "yonghuguanli");
 		return "user";
 	}
-	
-	
+
 	@RequestMapping(value = "/{userId}/update", method = RequestMethod.GET)
-	public GenericWebResult updateUserInfo(HttpServletRequest request,
-			@RequestParam("nickname") String name, @PathVariable("userId") Long userId) {
+	public GenericWebResult updateUserInfo(HttpServletRequest request, @RequestParam("nickname") String name,
+			@PathVariable("userId") Long userId) {
 
-//		// 1、頭像
-//		if (file != null) {
-//			Map<String, String> properties = new HashMap<>();
-//			properties.put("module", "profile");
-//			properties.put("resourceId", userId.toString());
-//
-//			LOG.debug("开始头像资源存储.");
-//			Asset asset = assetService.createAssetFromFile(file, properties);
-//
-//			if (asset == null) {
-//				return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
-//			}
-//
-//			try {
-//				ass.storeAssetFile(file, asset);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//
-//			userService.updateAvatarUrl(userId, asset.getUrl());
-//		}
-//		LOG.debug("结束头像资源存储.");
-		//2.昵称
-		if(Strings.isNullOrEmpty(name)){
+		// // 1、頭像
+		// if (file != null) {
+		// Map<String, String> properties = new HashMap<>();
+		// properties.put("module", "profile");
+		// properties.put("resourceId", userId.toString());
+		//
+		// LOG.debug("开始头像资源存储.");
+		// Asset asset = assetService.createAssetFromFile(file, properties);
+		//
+		// if (asset == null) {
+		// return
+		// GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
+		// }
+		//
+		// try {
+		// ass.storeAssetFile(file, asset);
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		//
+		// userService.updateAvatarUrl(userId, asset.getUrl());
+		// }
+		// LOG.debug("结束头像资源存储.");
+		// 2.昵称
+		if (Strings.isNullOrEmpty(name)) {
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
-		
+
 		if (userService.updateNickname(userId, name)) {
 			return GenericWebResult.success("ok");
 		}
 		return GenericWebResult.error("200");
 	}
-	
+
 	@RequestMapping(value = "/{userId}/update2", method = RequestMethod.GET)
-	public GenericWebResult updateUserInfo1(HttpServletRequest request,
-			@RequestParam("nickname") String name, @PathVariable("userId") Long userId) {
-		//2.昵称
-		if(Strings.isNullOrEmpty(name)){
+	public GenericWebResult updateUserInfo1(HttpServletRequest request, @RequestParam("nickname") String name,
+			@PathVariable("userId") Long userId) {
+		// 2.昵称
+		if (Strings.isNullOrEmpty(name)) {
 			return GenericWebResult.error("-1").withData(ErrorMsgWrapper.error("datanull").withMsg("昵称不能为空"));
 		}
-		
+
 		if (userService.updateNickname(userId, name)) {
 			return GenericWebResult.success("ok");
 		}
 		return GenericWebResult.error("200");
 	}
-	
-	@ExceptionHandler(BindException.class)
-    public String validExceptionHandler(BindException e, WebRequest request, HttpServletResponse response) {
-        List<FieldError> fieldErrors=e.getBindingResult().getFieldErrors();
-        for (FieldError error:fieldErrors){
-            log.error(error.getField()+":"+error.getDefaultMessage());
-        }
-        request.setAttribute("fieldErrors", fieldErrors, WebRequest.SCOPE_REQUEST);
-        if(AjaxUtils.isAjaxRequest(request)){
-        	Map<String, Object> vmap = new HashMap<>(); 
-            String[] atrrNames=request.getAttributeNames(WebRequest.SCOPE_REQUEST);
-            for(String attr:atrrNames){
-                Object value=request.getAttribute(attr,WebRequest.SCOPE_REQUEST);
-                if(value instanceof Serializable){
-                	vmap.put(attr, value);
-                }
-            }
-            new JsonResponse(response).with("status", "500").with("data", vmap);
-            return null;
-        }
 
-        return "/validError";
-    }
-	
-	
-	
-	
+	@ExceptionHandler(BindException.class)
+	public String validExceptionHandler(BindException e, WebRequest request, HttpServletResponse response) {
+		List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
+		for (FieldError error : fieldErrors) {
+			log.error(error.getField() + ":" + error.getDefaultMessage());
+		}
+		request.setAttribute("fieldErrors", fieldErrors, WebRequest.SCOPE_REQUEST);
+		if (AjaxUtils.isAjaxRequest(request)) {
+			Map<String, Object> vmap = new HashMap<>();
+			String[] atrrNames = request.getAttributeNames(WebRequest.SCOPE_REQUEST);
+			for (String attr : atrrNames) {
+				Object value = request.getAttribute(attr, WebRequest.SCOPE_REQUEST);
+				if (value instanceof Serializable) {
+					vmap.put(attr, value);
+				}
+			}
+			new JsonResponse(response).with("status", "500").with("data", vmap);
+			return null;
+		}
+
+		return "/validError";
+	}
+
 }

@@ -35,6 +35,15 @@ public class AdminLoginController {
 		return "appdownload";
 	}
 	
+	@RequestMapping(value = {"/aboutus"}, method = RequestMethod.GET)
+	public String aboutus(Model model) {
+		String androidUrl="http://shouji.360tpcdn.com/170224/5d352d543c2ee6a579d5f1f270ccdfee/com.gzy.client_2.apk";
+		String iosUrl="www.baidu.com";
+		model.addAttribute("androidUrl", androidUrl);
+		model.addAttribute("iosUrl", iosUrl);
+		return "aboutus";
+	}
+	
 	@RequestMapping(value = {"/home"}, method = RequestMethod.GET)
 	public String loginSuccess() {
 		AdminMenu adminMenu = adminNavigationService.buildMenu(WakaRequestContext.instance().getAdminUser());

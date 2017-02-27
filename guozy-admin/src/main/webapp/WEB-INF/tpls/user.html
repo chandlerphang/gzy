@@ -19,7 +19,8 @@
 					<td style="vertical-align: middle !important;">$dateTool.format('yyyy-MM-dd
 						HH:mm:ss', $user.dateCreated)</td>
 					<td><button class="btn btn-primary"
-							onclick="btnOnClick(this);" data-userid="$user.id" data-name="$user.nickname">#if($user.canLineToSaler)屏
+							onclick="btnOnClick(this);" data-userid="$user.id"
+							data-name="$user.nickname">#if($user.canLineToSaler)屏
 							蔽#{else}解除屏蔽#end</button></td>
 				</tr>
 				#end
@@ -27,20 +28,44 @@
 		</table>
 
 		<script type="text/javascript">
-			
 			function btnOnClick(event) {
-				var userId=event.getAttribute("data-userid");
-				var name=event.getAttribute("data-name");
-				
-				document.getElementById("id").value=userId;
-				
-				var areaCont ='确定要屏蔽用户'+name+'吗？<br>屏蔽后该用户将不能与导购员连线哟！';
+				var userId = event.getAttribute("data-userid");
+				var name = event.getAttribute("data-name");
+
+				document.getElementById("id").value = userId;
+
+				var areaCont = '确定要屏蔽用户' + name + '吗？<br>屏蔽后该用户将不能与导购员连线哟！';
 				$("#tips").html(areaCont);
 				showDialog();
 			}
-			
-			function save(){
-				var userId=document.getElementById("id").value;
+
+			function save() {
+				var userId = document.getElementById("id").value;
+
+				$.post("shops",	null,function(json) {
+									if (json.status == "200") {
+										var shop = json.data;
+										var areaCont = '';
+										for (var i = 0; i < shop.length; i++) {
+											if (i == 0)
+												areaCont += '<li class="active" onClick="selectShop('
+														+ shop[i].id
+														+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
+														+ shop[i].name
+														+ '</a></li>';
+											else
+												areaCont += '<li class="active" onClick="selectShop('
+														+ shop[i].id
+														+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
+														+ shop[i].name
+														+ '</a></li>';
+										}										;
+										$("#shops").html(areaCont);
+										selectShop(shop[0].id);
+									} else {
+										alert("error")
+									}
+								});
 			}
 		</script>
 	</div>
@@ -64,7 +89,9 @@
 					enctype="multipart/form-data">
 					<div class="modal-body">
 						<div class="row">
-								<label id="tips" style="vertical-align: middle;margin-left: 30px;">确定要屏蔽该用户？<br>屏蔽后该用户将不能与导购员连线哟！</label>
+							<label id="tips"
+								style="vertical-align: middle; margin-left: 30px;">确定要屏蔽该用户？<br>屏蔽后该用户将不能与导购员连线哟！
+							</label>
 						</div>
 					</div>
 					<div class="modal-footer bg-info">
