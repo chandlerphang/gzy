@@ -1,5 +1,7 @@
 <script src="dist/js/dialog.js"></script>
 <script src="dist/js/pages/fruits.js"></script>
+
+
 <div class="nav-tabs-custom">
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#aboutus" data-toggle="tab"
@@ -44,7 +46,8 @@
 					#foreach( $fruit in $fruits)
 					<div class="info-box" style="cursor: pointer;"
 						onclick="preview(this);" data-url="${fruit.cnturl}">
-						<span class="info-box-icon"><img src="$fruit.picurl" alt="..."></span>
+						<span class="info-box-icon"><img src="$fruit.picurl"
+							alt="..."></span>
 						<div class="info-box-content">
 							<span class="pull-right">
 								<button type="button" class="btn btn-box-tool" data-widget="add"
@@ -53,7 +56,8 @@
 									<i class="fa fa-edit"></i>
 								</button>
 								<button type="button" class="btn btn-box-tool"
-									data-widget="remove">
+									data-id="$!{fruit.id}" data-widget="remove"
+									onclick="deleteKnowledge(this)">
 									<i class="fa fa-times"></i>
 								</button>
 							</span> <span class="info-box-text margin">${fruit.title}</span> <span
@@ -96,56 +100,74 @@
 							style="font-weight: bold">修改信息</span>
 					</h4>
 				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="editform" action="#" data-toggle="validator" enctype="multipart/form-data">
-				<div class="modal-body">
-					<div class="row">
-						   	<div class="form-group">
-								<label class="control-label col-md-2">封面</label>
-								<div class="col-md-10">
-									<input id="imgUpload" name="file" type="file" multiple
-										class="file">
-									<script>
-										$("#imgUpload").fileinput({
-											uploadUrl : "appsettings/fruitcs",
-											uploadAsync : false,
-											maxFileCount : 1,
-											language : 'zh', //设置语言
-											allowedFileExtensions : [
-													'jpg',
-													'png',
-													'gif' ],//接收的文件后缀
-											showUpload : true, //是否显示上传按钮
-											showCaption : true, //是否显示标题
-											fileuploaded: function(event, data, previewId, index) {
-												var response = data.response;
-												alert(response);
-											}
-										});
-									</script>
+				<form
+					class="form-horizontal form-bordered form-row-strippe easyui-form"
+					id="editform" action="#" data-toggle="validator"
+					enctype="multipart/form-data">
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">封面</label>
+									<div class="col-md-10">
+										<input id="imgUpload" name="file" type="file" multiple
+											class="file">
+										<script>
+											$("#imgUpload")
+													.fileinput(
+															{
+																uploadUrl : "appsettings/fruitcs",
+																uploadAsync : false,
+																maxFileCount : 1,
+																language : 'zh', //设置语言
+																allowedFileExtensions : [
+																		'jpg',
+																		'png',
+																		'gif' ],//接收的文件后缀
+																showUpload : true, //是否显示上传按钮
+																showCaption : true, //是否显示标题
+																fileuploaded : function(
+																		event,
+																		data,
+																		previewId,
+																		index) {
+																	var response = data.response;
+																	alert(response);
+																}
+															});
+										</script>
+									</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="control-label col-md-2">标题</label>
-								<div class="col-md-10">
-									<input id="title" name="title" type="text"
-										class="form-control" placeholder="请输入水果知识的标题..." />
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">标题</label>
+									<div class="col-md-10">
+										<input id="title" name="title" type="text"
+											data-options="label:'title',required:true"
+											class="form-control easyui-validatebox"
+											placeholder="请输入水果知识的标题..." />
+									</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="control-label col-md-2">正文地址</label>
-								<div class="col-md-10">
-									<input id="cnturl" name="cnturl" type="text"
-										class="form-control" placeholder="请输入水果知识的正文链接地址..." />
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">正文地址</label>
+									<div class="col-md-10">
+										<input id="cnturl" name="cnturl" type="text"
+											data-options="label:'cnturl',required:true"
+											class="form-control easyui-validatebox"
+											placeholder="请输入水果知识的正文链接地址..." />
+									</div>
 								</div>
 							</div>
+						</div>
 					</div>
-				</div>
-				<div class="modal-footer bg-info">
-					<input type="hidden" id="id" name="id" />
-					<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-				</div>
+					<div class="modal-footer bg-info">
+						<input type="hidden" id="id" name="id" />
+						<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					</div>
 				</form>
 			</div>
 		</div>

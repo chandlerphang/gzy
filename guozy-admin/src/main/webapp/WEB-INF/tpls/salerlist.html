@@ -22,8 +22,12 @@
 <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-<link href="dist/css/fileinput.css" media="all" rel="stylesheet"
-	type="text/css" />
+<link href="plugins/fileinput/fileinput.min.css" media="all"
+	rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css"
+	href="plugins/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="plugins/easyui/themes/icon.css">
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -42,11 +46,13 @@
 <script src="plugins/fastclick/fastclick.js"></script>
 <!-- AdminLTE App -->
 <script src="dist/js/app.min.js"></script>
-<script src="dist/js/fileinput.min.js"></script>
-<script src="dist/js/fileinput.js" type="text/javascript"></script>
 <script src="dist/js/dialog.js"></script>
+<script src="plugins/fileinput/fileinput.min.js"></script>
+<script src="plugins/fileinput/zh.js"></script>
+<script type="text/javascript" src="plugins/easyui/jquery.easyui.min.js"></script>
+
 <script type="text/javascript">
-	var apiURL="http://101.200.134.112:8080/guozy/api/v1/";
+	var apiURL = "http://101.200.134.112:8080/guozy/api/v1/";
 	function getArgs(strParame) {
 		var args = new Object();
 		var query = location.search.substring(1); // Get query string
@@ -68,23 +74,40 @@
 		showDialog();
 		resetDialog();
 		$('#dialogTitle').html("修改信息");
-		var userId=saler
-		.getAttribute("data-id");
+		var userId = saler.getAttribute("data-id");
 		document.getElementById("nickname").value = saler
 				.getAttribute("data-nickname");
 		document.getElementById("phone").value = saler
 				.getAttribute("data-phone");
-		document.getElementById("ID").value =userId ;
-		document.getElementById("form").action = "./"+userId+"/update";
-	var userId=saler
-	.getAttribute("data-id");
-		document.getElementById('btnOk').onclick = function(){
-			alert("请求");
-			$.post("./"+userId+"/update","nickname=童话",function(data){
-				alert(data);
+		document.getElementById("ID").value = userId;
+		document.getElementById("form").action = "./" + userId + "/update";
+		var userId = saler.getAttribute("data-id");
+		document.getElementById('btnOk').onclick = function() {
+			$.messager.progress(); // display the progress bar
+			$('#dataForm').form('submit', {
+				url : "shopAdd",
+				onSubmit : function() {
+					var isValid = $(this).form('validate');
+					if (!isValid) {
+						$.messager.progress('close'); // hide progress
+					}
+					return isValid; // return false will stop the form submission
+				},
+				success : function(data) {
+					$.messager.progress('close'); // hide progress
+					var data = eval('(' + data + ')'); // change the JSON string to javascript object
+					if (parseInt(data.status) == 200) {
+						showDialog();
+						$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+					} else {
+						showDialog();
+						$('#tip').html("您的建议发送失败，请重新发送");
+					}
+				}
 			});
-		}; 
-		
+		};
+			
+
 	}
 	function resetDialog() {
 		document.getElementById("nickname").value = "";
@@ -97,18 +120,22 @@
 	function deleteSaler(saler) {
 		var id = saler.getAttribute("data-id");
 		alert("删除店员" + id);
+		$.post("./" + userId + "/delete", "id="+id, function(data) {
+			alert(data);
+		});
 	}
-	$("#head").fileinput({
-		uploadUrl : apiURL+'/profile/'+document.getElementById("ID").value+'/avatar', // you must set a valid URL here else you will get an error
-		allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
-		overwriteInitial : false,
-		maxFileSize : 1000,
-		maxFilesNum : 1,
-		//allowedFileTypes: ['image', 'video', 'flash'],
-		slugCallback : function(filename) {
-			return filename.replace('(', '_').replace(']', '_');
-		}
-	});
+	$("#head").fileinput(
+			{
+				uploadUrl : '/profile/', // you must set a valid URL here else you will get an error
+				allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
+				overwriteInitial : false,
+				maxFileSize : 1000,
+				maxFilesNum : 1,
+				//allowedFileTypes: ['image', 'video', 'flash'],
+				slugCallback : function(filename) {
+					return filename.replace('(', '_').replace(']', '_');
+				}
+			});
 
 	function createSalerDialog() {
 		resetDialog();
@@ -117,7 +144,33 @@
 			backdrop : 'static'
 		});
 		$('#dialogTitle').html("添加店员");
-	}
+		
+		document.getElementById('btnOk').onclick = function() {
+			
+			$.messager.progress(); // display the progress bar
+			$('#dataForm').form('submit', {
+				url : "shopAdd",
+				onSubmit : function() {
+					var isValid = $(this).form('validate');
+					if (!isValid) {
+						$.messager.progress('close'); // hide progress
+					}
+					return isValid; // return false will stop the form submission
+				},
+				success : function(data) {
+					$.messager.progress('close'); // hide progress
+					var data = eval('(' + data + ')'); // change the JSON string to javascript object
+					if (parseInt(data.status) == 200) {
+						showDialog();
+						$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+					} else {
+						showDialog();
+						$('#tip').html("您的建议发送失败，请重新发送");
+					}
+				}
+			});
+		};
+		}
 </script>
 </head>
 <body class="hold-transition skin-blue sidebar-mini"
@@ -176,18 +229,17 @@
 							style="font-weight: bold">修改信息</span>
 					</h4>
 				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="form" action="" data-toggle="validator"
+				<form class="form-horizontal form-bordered form-row-strippe easyui-form"
+					id="dataForm" action="" data-toggle="validator" method="post"
 					enctype="multipart/form-data">
 					<div class="modal-body">
 						<div class="row">
-
 							<div class="col-md-12">
 								<div class="form-group">
 									<label class="control-label col-md-2">昵称</label>
-									<div class="col-md-10">
-										<input id="nickname" name="nickname" type="text"
-											class="form-control" placeholder="请输入店员昵称..." />
+									<div class="col-md-6">
+										<input id="nickname" name="nickname" type="text" data-options="label:'nickname',required:true"
+											class="form-control easyui-validatebox" placeholder="请输入店员昵称..." />
 										<!-- 	<input id="name" name="name" type="text" class="form-control"
 										placeholder="名称..." /> -->
 									</div>
@@ -197,8 +249,8 @@
 								<div class="form-group">
 									<label class="control-label col-md-2">手机号</label>
 									<div class="col-md-10">
-										<input id="phone" name="phone" type="text"
-											class="form-control" placeholder="请输入店员手机号码..." />
+										<input id="phone" name="phone" type="text" data-options="label:'phone',required:true"
+											class="form-control easyui-validatebox" placeholder="请输入店员手机号码..." />
 									</div>
 								</div>
 							</div>
@@ -207,7 +259,7 @@
 									<label class="control-label col-md-2">头像</label>
 									<div class="col-md-10">
 										<input id="head" type="file" multiple class="file"
-											data-overwrite-initial="false" data-min-file-count="0"
+											data-overwrite-initial="false" data-min-file-count="0" data-language="zh"
 											data-m-file-count="1">
 									</div>
 
@@ -218,7 +270,8 @@
 									<label class="control-label col-md-2">密码</label>
 									<div class="col-md-10">
 										<input name="password" id="password" type="password"
-											class="form-control" placeholder="请输入店员登录密码">
+										data-options="label:'phone',required:true"
+											class="form-control easyui-validatebox" placeholder="请输入店员登录密码">
 									</div>
 								</div>
 							</div>
@@ -227,7 +280,8 @@
 									<label class="control-label col-md-2">确认密码</label>
 									<div class="col-md-10">
 										<input name="password2" id="password2" type="password"
-											class="form-control" placeholder="请再次输入店员登录密码">
+										data-options="label:'phone',required:true"
+											class="form-control easyui-validatebox" placeholder="请再次输入店员登录密码">
 									</div>
 								</div>
 							</div>

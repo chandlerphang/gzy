@@ -13,12 +13,66 @@
 		showDialog();
 		document.getElementById("name").value = data
 		.getAttribute("data-cname");
+		document.getElementById('btnOk').onclick = function() {
+			$.messager.progress(); // display the progress bar
+			$('#dataForm').form('submit', {
+				url : "categoryUpdate",
+				onSubmit : function() {
+					var isValid = $(this).form('validate');
+					if (!isValid) {
+						$.messager.progress('close'); // hide progress
+					}
+					return isValid; // return false will stop the form submission
+				},
+				success : function(data) {
+					$.messager.progress('close'); // hide progress
+					var data = eval('(' + data + ')'); // change the JSON string to javascript object
+					if (parseInt(data.status) == 200) {
+						showDialog();
+						$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+					} else {
+						showDialog();
+						$('#tip').html("您的建议发送失败，请重新发送");
+					}
+				}
+			});
+		};
 	}
 	
 	function add(){
 		$('#dialogTitle').html("添加种类");
 		resetDialog();
 		showDialog();
+		document.getElementById('btnOk').onclick = function() {
+			$.messager.progress(); // display the progress bar
+			$('#dataForm').form('submit', {
+				url : "categoryAdd",
+				onSubmit : function() {
+					var isValid = $(this).form('validate');
+					if (!isValid) {
+						$.messager.progress('close'); // hide progress
+					}
+					return isValid; // return false will stop the form submission
+				},
+				success : function(data) {
+					$.messager.progress('close'); // hide progress
+					var data = eval('(' + data + ')'); // change the JSON string to javascript object
+					if (parseInt(data.status) == 200) {
+						showDialog();
+						$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+					} else {
+						showDialog();
+						$('#tip').html("您的建议发送失败，请重新发送");
+					}
+				}
+			});
+		};
+	}
+	
+	function deleteCategory(data){
+		var id = data.getAttribute("data-id");
+		alert("删除类别" + id);
+		
 	}
 </script>
 #foreach( $categorys in $categories)
@@ -52,7 +106,8 @@
 						<td class="action-td"><button 
 							class="btn btn-small btn-warning" data-cid="$category.id" data-cname="$category.name" onclick="changeName(this)"> <i class="icon-edit"></i>
 						</button> <a href="javascript:;" class="btn btn-small btn-danger"> <i
-								class="icon-remove"></i>
+								data-id="$category.id"
+								class="icon-remove" onclick="deleteCategory(this)"></i>
 						</a></td>
 					</tr>
 					#end
@@ -81,8 +136,8 @@
 							style="font-weight: bold;color: white;">修改信息</span>
 					</h4>
 				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="ffAdd" action="" data-toggle="validator"
+				<form class="form-horizontal form-bordered form-row-strippe easyui-form"
+					id="dataForm" action="" data-toggle="validator"
 					enctype="multipart/form-data">
 					<div class="modal-body">
 						<div class="row">
@@ -91,7 +146,8 @@
 									<label class="control-label col-md-2">名称</label>
 									<div class="col-md-10">
 										<input id="name" name="name" type="text"
-											class="form-control" placeholder="请输入类别名称..." />
+										data-options="label:'name:',required:true" 
+											class="form-control easyui-validatebox" placeholder="请输入类别名称..." />
 										<!-- 	<input id="name" name="name" type="text" class="form-control"
 										placeholder="名称..." /> -->
 									</div>

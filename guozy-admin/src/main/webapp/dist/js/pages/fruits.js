@@ -33,6 +33,32 @@ function updateInfo(data) {
 	document.getElementById("title").value = data.getAttribute("data-title");
 	document.getElementById("cnturl").value = data.getAttribute("data-cnturl");
 	document.getElementById("id").value = data.getAttribute("data-id");
+	
+	document.getElementById('btnOk').onclick = function() {
+
+		$.messager.progress(); // display the progress bar
+		$('#editform').form('submit', {
+			url : "knowledgeUpdate",
+			onSubmit : function() {
+				var isValid = $(this).form('validate');
+				if (!isValid) {
+					$.messager.progress('close'); // hide progress
+				}
+				return isValid; // return false will stop the form submission
+			},
+			success : function(data) {
+				$.messager.progress('close'); // hide progress
+				var data = eval('(' + data + ')'); // change the JSON string to javascript object
+				if (parseInt(data.status) == 200) {
+					showDialog();
+					$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+				} else {
+					showDialog();
+					$('#tip').html("您的建议发送失败，请重新发送");
+				}
+			}
+		});
+	};
 }
 
 function addDialog() {
@@ -42,6 +68,36 @@ function addDialog() {
 	$('#dialogTitle').html("添加水果常识");
 	document.getElementById("title").value ='';
 	document.getElementById("cnturl").value = '';
+	document.getElementById('btnOk').onclick = function() {
+
+		$.messager.progress(); // display the progress bar
+		$('#editform').form('submit', {
+			url : "knowledgeAdd",
+			onSubmit : function() {
+				var isValid = $(this).form('validate');
+				if (!isValid) {
+					$.messager.progress('close'); // hide progress
+				}
+				return isValid; // return false will stop the form submission
+			},
+			success : function(data) {
+				$.messager.progress('close'); // hide progress
+				var data = eval('(' + data + ')'); // change the JSON string to javascript object
+				if (parseInt(data.status) == 200) {
+					showDialog();
+					$('#tip').html("您的建议我们已经收到，谢谢您的反馈!謝謝");
+				} else {
+					showDialog();
+					$('#tip').html("您的建议发送失败，请重新发送");
+				}
+			}
+		});
+	};
+	function deleteKnowledge(data){
+		var id = data.getAttribute("data-id");
+		alert("删除水果常识" + id);
+		
+	}
 }
 
 function initFileInput(ctrlName, uploadUrl) {    
