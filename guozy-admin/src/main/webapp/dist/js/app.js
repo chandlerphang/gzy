@@ -609,7 +609,6 @@ function _init() {
  * @usage $("#box-widget").boxRefresh( options );
  */
 (function ($) {
-
   "use strict";
 
   $.fn.boxRefresh = function (options) {

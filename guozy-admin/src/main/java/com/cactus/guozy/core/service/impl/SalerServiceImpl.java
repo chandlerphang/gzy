@@ -77,16 +77,16 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			user.setChannelId(channelId);
 			salerDao.updateByPrimaryKey(user);
 			
-			// 广播导购员状态变化
-			PushMsg msg = PushMsg.builder().msgType(0)
-					.subjectId(user.getId())
-					.extra(SalerStatus.ON_LINE.getDesc())
-					.build();
-			try {
-				pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
-			} catch (MessagePushException e) {
-				throw new BizException("500", "导购员状态同步失败"); 
-			}
+//			// 广播导购员状态变化
+//			PushMsg msg = PushMsg.builder().msgType(0)
+//					.subjectId(user.getId())
+//					.extra(SalerStatus.ON_LINE.getDesc())
+//					.build();
+//			try {
+//				pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//			} catch (MessagePushException e) {
+//				throw new BizException("500", "导购员状态同步失败"); 
+//			}
 			
 			return user;
 		} else {
@@ -108,16 +108,16 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 		saler.setLastActiveTime(new Date());
 		salerDao.updateByPrimaryKey(saler);
 		
-		// 广播导购员状态变化
-		PushMsg msg = PushMsg.builder().msgType(0)
-				.subjectId(saler.getId())
-				.extra(SalerStatus.OFF_LINE.getDesc())
-				.build();
-		try {
-			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
-		} catch (MessagePushException e) {
-			throw new BizException("500", "导购员状态同步失败"); 
-		}
+//		// 广播导购员状态变化
+//		PushMsg msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.OFF_LINE.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 	
 	@Override
@@ -134,16 +134,16 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 		saler.setLastActiveTime(new Date());
 		salerDao.updateByPrimaryKey(saler);
 		
-		// 广播导购员状态变化
-		PushMsg msg = PushMsg.builder().msgType(0)
-				.subjectId(saler.getId())
-				.extra(SalerStatus.BUSY.getDesc())
-				.build();
-		try {
-			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
-		} catch (MessagePushException e) {
-			throw new BizException("500", "导购员状态同步失败"); 
-		}
+//		// 广播导购员状态变化
+//		PushMsg msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.BUSY.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 	
 	@Override
@@ -160,16 +160,16 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 		saler.setLastActiveTime(new Date());
 		salerDao.updateByPrimaryKey(saler);
 		
-		// 广播导购员状态变化
-		PushMsg msg = PushMsg.builder().msgType(0)
-				.subjectId(saler.getId())
-				.extra(SalerStatus.ON_LINE.getDesc())
-				.build();
-		try {
-			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
-		} catch (MessagePushException e) {
-			throw new BizException("500", "导购员状态同步失败"); 
-		}
+//		// 广播导购员状态变化
+//		PushMsg msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.ON_LINE.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 	
 	@Override
@@ -204,6 +204,7 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 				log.debug("向导购员: " + saler.getId() + " 推送请求通话消息");
 			}
 			pushService.pushMsgToSaler(saler.getChannelId(), Jsons.DEFAULT.toJson(msg));
+			pushService.pushMsgToSaler(saler.getChannelId(), "用户请求导购", false);
 		} catch (MessagePushException e) {
 			log.error("消息推送失败: " + e.getMessage());
 			lockManager.releaseLock(lock);
@@ -223,12 +224,6 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			log.debug("导购员: " +  saler.getId() + "确认与用户: " + usrId + " 建立通话");
 		}
 		
-//		// 更新导购员为忙碌状态
-//		saler.setStatus(SalerStatus.BUSY.getCode());
-//		// 更新最近一次活动时间
-//		saler.setLastActiveTime(new Date());
-//		salerDao.updateByPrimaryKey(saler);
-		
 		PushMsg msg = PushMsg.builder().msgType(2)
 				.subjectId(saler.getId())
 				.extra(homeId)
@@ -243,6 +238,24 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			lockManager.releaseLock(lock);
 			throw new BizException("500", "消息推送失败", e);
 		}
+		
+		// 更新导购员为忙碌状态
+		saler.setStatus(SalerStatus.BUSY.getCode());
+		// 更新最近一次活动时间
+		saler.setLastActiveTime(new Date());
+		salerDao.updateByPrimaryKey(saler);
+		
+//		// 广播导购员状态变化
+//		msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.BUSY.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			log.error("消息推送失败: " + e.getMessage());
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 	
 	@Override
@@ -333,6 +346,10 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			log.debug("用户 " + usrId + " 请求结束通话 [salerId: " +  saler.getId() + " , homeId: " + homeId);
 		}
 		
+		if(saler.getStatus() == SalerStatus.ON_LINE.getCode()) {
+			return;
+		}
+		
 		PushMsg msg = PushMsg.builder().msgType(5)
 				.subjectId(usrId)
 				.extra(homeId)
@@ -346,6 +363,24 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			log.error("消息推送失败: " + e.getMessage());
 			throw new BizException("500", "导购员状态同步失败"); 
 		}
+		
+		// 更新导购员为忙碌状态
+		saler.setStatus(SalerStatus.ON_LINE.getCode());
+		// 更新最近一次活动时间
+		saler.setLastActiveTime(new Date());
+		salerDao.updateByPrimaryKey(saler);
+		
+//		// 广播导购员状态变化
+//		msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.ON_LINE.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			log.error("消息推送失败: " + e.getMessage());
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 
 	@Override
@@ -353,6 +388,7 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 		if(log.isDebugEnabled()) {
 			log.debug("导购员: " +  saler.getId() + "请求结束通话[userId: " + usrId + " , homeId: " + homeId);
 		}
+		
 		PushMsg msg = PushMsg.builder().msgType(5)
 				.subjectId(saler.getId())
 				.extra(homeId)
@@ -366,5 +402,24 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			log.error("消息推送失败: " + e.getMessage());
 			throw new BizException("500", "导购员状态同步失败"); 
 		} 
+		
+		
+		// 更新导购员为忙碌状态
+		saler.setStatus(SalerStatus.ON_LINE.getCode());
+		// 更新最近一次活动时间
+		saler.setLastActiveTime(new Date());
+		salerDao.updateByPrimaryKey(saler);
+		
+		// 广播导购员状态变化
+//		msg = PushMsg.builder().msgType(0)
+//				.subjectId(saler.getId())
+//				.extra(SalerStatus.ON_LINE.getDesc())
+//				.build();
+//		try {
+//			pushService.pushMsgToAllUser(Jsons.DEFAULT.toJson(msg));
+//		} catch (MessagePushException e) {
+//			log.error("消息推送失败: " + e.getMessage());
+//			throw new BizException("500", "导购员状态同步失败"); 
+//		}
 	}
 }

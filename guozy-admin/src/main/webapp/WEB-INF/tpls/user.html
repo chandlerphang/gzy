@@ -1,4 +1,3 @@
-<script src="dist/js/dialog.js"></script>
 <div class="box box-solid">
 	<div class="box-body">
 		<table class="table table-striped">
@@ -28,44 +27,25 @@
 		</table>
 
 		<script type="text/javascript">
+			
 			function btnOnClick(event) {
-				var userId = event.getAttribute("data-userid");
-				var name = event.getAttribute("data-name");
-
-				document.getElementById("id").value = userId;
-
-				var areaCont = '确定要屏蔽用户' + name + '吗？<br>屏蔽后该用户将不能与导购员连线哟！';
-				$("#tips").html(areaCont);
-				showDialog();
+				
+				GZYAdmin.confirm("确定屏蔽该用户? 屏蔽后该用户将无法与导购员视频通话", function(ret) {
+					alert(ret);
+				});
+				
+// 				var userId=event.getAttribute("data-userid");
+// 				var name=event.getAttribute("data-name");
+				
+// 				document.getElementById("id").value=userId;
+				
+// 				var areaCont ='确定要屏蔽用户'+name+'吗？<br>屏蔽后该用户将不能与导购员连线哟！';
+// 				$("#tips").html(areaCont);
+// 				showDialog();
 			}
-
-			function save() {
-				var userId = document.getElementById("id").value;
-
-				$.post("shops",	null,function(json) {
-									if (json.status == "200") {
-										var shop = json.data;
-										var areaCont = '';
-										for (var i = 0; i < shop.length; i++) {
-											if (i == 0)
-												areaCont += '<li class="active" onClick="selectShop('
-														+ shop[i].id
-														+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-														+ shop[i].name
-														+ '</a></li>';
-											else
-												areaCont += '<li class="active" onClick="selectShop('
-														+ shop[i].id
-														+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-														+ shop[i].name
-														+ '</a></li>';
-										}										;
-										$("#shops").html(areaCont);
-										selectShop(shop[0].id);
-									} else {
-										alert("error")
-									}
-								});
+			
+			function save(){
+				var userId=document.getElementById("id").value;
 			}
 		</script>
 	</div>

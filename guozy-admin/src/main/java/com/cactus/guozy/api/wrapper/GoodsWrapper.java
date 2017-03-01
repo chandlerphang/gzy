@@ -2,10 +2,12 @@ package com.cactus.guozy.api.wrapper;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.DecimalMin;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.core.domain.Goods;
@@ -17,19 +19,16 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class GoodsWrapper {
 
-	@XmlElement
 	private Long id;
 
-	@XmlElement
+	@NotBlank(message = "商品名称不可为空")
 	private String name;
-
-	@XmlElement
+	
+	@DecimalMin("0")
 	private BigDecimal price;
 
-	@XmlElement
 	private Boolean needSaler;
 
-	@XmlElement
 	private String pic;
 	
 	public void wrapDetails(Goods goods) {
@@ -50,7 +49,11 @@ public class GoodsWrapper {
 		Goods goods = new Goods();
 		goods.setId(getId());
 		goods.setName(getName());
-		goods.setNeedSaler(getNeedSaler());
+		if(getNeedSaler() == null) {
+			goods.setNeedSaler(false);
+		} else {
+			goods.setNeedSaler(getNeedSaler());
+		}
 		goods.setPrice(getPrice());
 		goods.setPic(getPic());
 		return goods;

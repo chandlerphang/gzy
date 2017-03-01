@@ -1,0 +1,11 @@
+#set($layout="layout/emptyLayout.html")
+<ul class="nav nav-pills nav-stacked" id="categories">
+	#foreach($category in $categories)
+	<li data-cid="$category.id">
+		<a href="#">
+			<i class="fa fa-circle-o text-red"></i>
+			$category.Name
+		</a>
+	</li>
+	#end
+</ul>

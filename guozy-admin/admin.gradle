@@ -126,8 +126,8 @@ task toserver(type: SshTask, dependsOn: 'war') {
     def tomcatHome = '/home/dev/tomcat8'
     def warName = "guozy"
     session(remotes.web01) {
-    	println "trying to stop server..."
-        execute("${tomcatHome}/bin/shutdown.sh")
+    	//println "trying to stop server..."
+        //execute("${tomcatHome}/bin/shutdown.sh")
     	
         println "Uploading new war"
         put(war.archivePath.absolutePath,"${tomcatHome}/webapps/${warName}.war.new")
@@ -138,8 +138,8 @@ task toserver(type: SshTask, dependsOn: 'war') {
         println "activating new war"
         execute("mv ${tomcatHome}/webapps/${warName}.war{.new,}")
         
-        println "trying to start server ..."
-        execute("${tomcatHome}/bin/startup.sh")
+        //println "trying to start server ..."
+        //execute("${tomcatHome}/bin/startup.sh")
     }
 }
 

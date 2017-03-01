@@ -16,8 +16,10 @@ import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.impl.AppMessage;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
 import com.gexin.rp.sdk.base.impl.Target;
+import com.gexin.rp.sdk.base.payload.APNPayload;
 import com.gexin.rp.sdk.exceptions.RequestException;
 import com.gexin.rp.sdk.http.IGtPush;
+import com.gexin.rp.sdk.template.AbstractTemplate;
 import com.gexin.rp.sdk.template.TransmissionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,18 +68,47 @@ public class GetuiMsgPushService implements MsgPushService {
 		});
 	}
 	
+	protected AbstractTemplate makeTemplate(String msg, boolean isTransmission) {
+		if(isTransmission) {
+			TransmissionTemplate template = new TransmissionTemplate();
+			// 设置APPID与APPKEY
+			template.setAppId(salerAppid);
+			template.setAppkey(salerAppkey);
+			template.setTransmissionType(2);
+			template.setTransmissionContent(msg);
+			
+			return template;
+		} else {
+			TransmissionTemplate template = new TransmissionTemplate();
+			// 设置APPID与APPKEY
+			template.setAppId(salerAppid);
+			template.setAppkey(salerAppkey);
+			template.setTransmissionType(1);
+			template.setTransmissionContent("");
+			APNPayload payload = new APNPayload();
+		    //在已有数字基础上加1显示，设置为-1时，在已有数字上减1显示，设置为数字时，显示指定数字
+		    payload.setContentAvailable(1);
+		    payload.setSound("default");
+		    //简单模式APNPayload.SimpleMsg 
+		    payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
+			
+			template.setAPNInfo(payload);
+			return template;
+		}
+	}
+	
 	@Override
 	public void pushMsgToSaler(String channelId, String msg) {
+		pushMsgToSaler(channelId, msg, true);
+	}
+	
+	@Override
+	public void pushMsgToSaler(String channelId, String msg, boolean isTransmission) {
 		if(log.isDebugEnabled()) {
 			log.debug("准备推送消息到导购员 ( " + channelId + ") <==== " + msg);
 		}
 		
-		TransmissionTemplate template = new TransmissionTemplate();
-		// 设置APPID与APPKEY
-		template.setAppId(salerAppid);
-		template.setAppkey(salerAppkey);
-		template.setTransmissionType(2);
-		template.setTransmissionContent(msg);
+		AbstractTemplate template = makeTemplate(msg, isTransmission);
 
 		SingleMessage message = new SingleMessage();
 		message.setOffline(true);

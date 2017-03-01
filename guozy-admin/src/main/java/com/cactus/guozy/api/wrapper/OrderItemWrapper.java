@@ -15,14 +15,11 @@ import com.cactus.guozy.core.domain.OrderItem;
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class OrderItemWrapper {
 
-	@XmlElement
 	private Long id;
 
-	@XmlElement
 	private BigDecimal price;
 
-	@XmlElement
-	private int quantity;
+	private BigDecimal quantity;
 	
 	@XmlElement
 	private String name;
@@ -80,11 +77,11 @@ public class OrderItemWrapper {
 		this.price = price;
 	}
 
-	public int getQuantity() {
+	public BigDecimal getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(int quantity) {
+	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
 

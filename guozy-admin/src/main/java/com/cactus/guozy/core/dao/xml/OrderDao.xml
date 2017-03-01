@@ -146,7 +146,7 @@
   	WHERE odr.`uid`=#{userId} AND odr.`status`='COMPLETED'
   </select>
   
-  <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="order">
+  <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="orderWithRels">
     SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
   	FROM `order` odr 
   		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 

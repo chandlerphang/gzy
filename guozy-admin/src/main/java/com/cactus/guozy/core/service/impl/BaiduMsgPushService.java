@@ -111,4 +111,10 @@ public class BaiduMsgPushService implements MsgPushService {
 	@Override
 	public void pushMsgToSaler(String channelId, String msg) {
 	}
+
+	@Override
+	public void pushMsgToSaler(String channelId, String msg, boolean isTransmission) {
+		// TODO Auto-generated method stub
+		
+	}
 }

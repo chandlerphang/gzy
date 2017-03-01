@@ -4,6 +4,8 @@ import static com.cactus.guozy.core.domain.validator.GenericValidator.checkPassw
 import static com.cactus.guozy.core.domain.validator.GenericValidator.checkPhone;
 import static com.cactus.guozy.core.domain.validator.GenericValidator.checkVCode;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +18,7 @@ import com.cactus.guozy.api.wrapper.UserWrapper;
 import com.cactus.guozy.core.domain.validator.GenericValidator;
 import com.cactus.guozy.core.dto.GenericWebResult;
 import com.cactus.guozy.core.service.GenericResponse;
+import com.cactus.guozy.core.service.MsgPushService;
 import com.cactus.guozy.core.service.VerifyCodeService;
 import com.cactus.guozy.profile.domain.User;
 
@@ -24,6 +27,9 @@ public class LoginEndpoint extends BaseEndpoint {
 
 	@Autowired
 	protected VerifyCodeService vcodeService;
+	
+	@Resource(name="getuiPushService")
+	protected MsgPushService pushService;
 
 	@RequestMapping(value = { "/login"}, method = RequestMethod.POST)
 	public GenericWebResult login(

@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cactus.guozy.api.endpoint.AppEndpoint;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.api.wrapper.FruitCSWrapper;
+import com.cactus.guozy.api.wrapper.GoodsWrapper;
 import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
@@ -41,9 +42,7 @@ import com.cactus.guozy.core.domain.Category;
 import com.cactus.guozy.core.domain.Feedback;
 import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.domain.Goods;
-import com.cactus.guozy.core.domain.Offer;
 import com.cactus.guozy.core.domain.Order;
-import com.cactus.guozy.core.domain.OrderStatus;
 import com.cactus.guozy.core.domain.Saler;
 import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.dto.GenericWebResult;
@@ -242,28 +241,59 @@ public class AdminMainController extends AbstractAdminController {
 		setModelAttributes(model, "shangpinguanli");
 		return "goods";
 	}
-
-	@RequestMapping(value = { "/goodlist" }, method = RequestMethod.GET)
-	public String goodlist(HttpServletResponse resp, Model model, @RequestParam("cateId") Long categoryId) {
-		resp.setHeader("x-frame-options", "sameorigin");
-		List<Goods> goods = catalogService.findAllGoods(categoryId);
-		model.addAttribute("goods", goods);
-		for (Goods goodsItem : goods) {
-			goodsItem.setPic("http://101.200.134.112:8080/guozy/cmsasset" + goodsItem.getPic());
+	
+	@RequestMapping(value = {"/goods"}, method = RequestMethod.POST)
+	public void saveGoods(
+			@RequestParam("gpic") MultipartFile file,
+			@Valid GoodsWrapper goods,
+			HttpServletResponse resp) {
+		
+		Map<String, String> properties = new HashMap<>();
+		properties.put("module", "goods");
+		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
+		
+		Asset asset=assetService.createAssetFromFile(file, properties);
+		if(asset == null) {
+			new JsonResponse(resp)
+				.with("error", "服务器内部错误")
+				.done();
 		}
-		setModelAttributes(model, "shangpinguanli");
+		
+		try {
+			ass.storeAssetFile(file, asset);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		goods.setPic(asset.getUrl());
+		catalogService.saveGoods(goods.upwrap());
+		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+	}
+	
+	@RequestMapping(value = {"/goodlist"}, method = RequestMethod.GET)
+	public String goodlist(HttpServletResponse resp,Model model,@RequestParam("cateId") Long categoryId) {
+		List<Goods> goods = catalogService.findAllGoods(categoryId);
+		List<GoodsWrapper> wrappers = new ArrayList<GoodsWrapper>();
+		for (Goods goodsItem : goods) {
+			GoodsWrapper wrapper = new GoodsWrapper();
+			wrapper.wrapDetails(goodsItem);
+			wrappers.add(wrapper);
+		}
+		model.addAttribute("goods", wrappers);
 		return "goodlist";
 	}
-
-	@RequestMapping(value = { "/category" }, method = RequestMethod.POST)
-	public void categorys(@RequestParam("shopId") Long shopId, HttpServletResponse resp) {
+	
+	@RequestMapping(value = {"/category"}, method = RequestMethod.POST)
+	public String categorys(@RequestParam("shopId") Long shopId,
+			Model model) {
 		List<Category> categories = catalogService.findCategories(shopId);
-
-		new JsonResponse(resp).with("status", "200").with("data", categories).done();
+		model.addAttribute("categories", categories);
+		return "category_list";
 	}
-
-	@RequestMapping(value = { "/shops" }, method = RequestMethod.POST)
-	public void shops(HttpServletResponse resp) {
+	
+	@RequestMapping(value = {"/shops"}, method = RequestMethod.POST)
+	public void shops(
+			HttpServletResponse resp) {
 		List<Shop> shops = catalogService.findAllShops();
 		new JsonResponse(resp).with("status", "200").with("data", shops).done();
 	}

@@ -1,121 +1,23 @@
-<script type="text/javascript">
-	$(document)
-			.ready(
-					function() {
-						$
-								.post(
-										"shops",
-										null,
-										function(json) {
-											if (json.status == "200") {
-
-												var shop = json.data;
-												var areaCont = '';
-												for (var i = 0; i < shop.length; i++) {
-													if (i == 0)
-														areaCont += '<li class="active" onClick="selectShop('
-																+ shop[i].id
-																+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-																+ shop[i].name
-																+ '</a></li>';
-													else
-														areaCont += '<li class="active" onClick="selectShop('
-																+ shop[i].id
-																+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-																+ shop[i].name
-																+ '</a></li>';
-
-												}
-												;
-												$("#shops").html(areaCont);
-												selectShop(shop[0].id);
-											} else {
-												alert("error")
-											}
-										});
-					});
-
-	function selectShop(shopId) {
-		areaCont = "";
-		/* 	for (var i=0; i<shops.length; i++) {
-		 }	
-		 */
-
-		$
-				.post(
-						"category?shopId=" + shopId,
-						null,
-						function(json) {
-							if (json.status == "200") {
-								var catelist = json.data;
-								var areaCont = '';
-								for (var i = 0; i < catelist.length; i++) {
-									if (i == 0)
-										areaCont += '<li class="active" onClick="selCate('
-												+ catelist[i].id
-												+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-												+ catelist[i].name
-												+ '</a></li>';
-									else
-										areaCont += '<li class="active" onClick="selCate('
-												+ catelist[i].id
-												+ ');"><a href="javascript:void(0)"><i class="fa fa-circle-o"></i>'
-												+ catelist[i].name
-												+ '</a></li>';
-								}
-								;
-								$("#categories").html(areaCont);
-								document.goodListFrame.location.href = "goodlist?cateId="
-										+ catelist[0].id;
-							} else {
-								alert("error")
-							}
-						});
-
-	}
-
-	function selCate(cateId) {
-		document.goodListFrame.location.href = "goodlist?cateId=" + cateId;
-	}
-
-		$(function() {
-		// 测试 bootstrap 居中
-		$("#Dialog").on(
-				'show.bs.modal',
-				function() {
-					var modal = $(this);
-					var modal_dialog = modal.find('.modal-dialog');
-					// 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
-					modal.css('display', 'block');
-					modal_dialog
-							.css({
-								'margin-top' : Math.max(0, ($(window).height() - modal_dialog
-												.height()) / 2 - 30)
-							});
-				});
-	});
-
-		function showDialog() {
-			// 显示对话框
-			$("#Dialog").modal({
-				backdrop : 'static'
-			});
-		}
-</script>
+<script src="dist/js/goods.js"></script>
 <div class="row">
 	<div class="col-md-3">
 		<a class="btn btn-primary btn-block margin-bottom">选择店铺和类别</a>
-
 		<div class="box box-solid">
 			<div class="box-header with-border">
 				<h3 class="box-title">店铺</h3>
 			</div>
 			<div class="box-body no-padding">
 				<ul class="nav nav-pills nav-stacked" id="shops">
-
+					#foreach( $shop in $shops )
+					<li data-sid="$shop.id">
+						<a href="#">
+							<i class="fa fa-inbox"></i>
+							$shop.Name
+						</a>
+					</li>
+					#end
 				</ul>
 			</div>
-			<!-- /.box-body -->
 		</div>
 		<!-- /. box -->
 		<div class="box box-solid">
@@ -124,40 +26,27 @@
 			</div>
 			<div class="box-body no-padding">
 				<ul class="nav nav-pills nav-stacked" id="categories">
-
+					
 				</ul>
 			</div>
-			<!-- /.box-body -->
 		</div>
 		<!-- /.box -->
 	</div>
 	<!-- /.col -->
-	<div class="col-md-9">
-		<iframe id="goodListFrame" name="goodListFrame" scrolling="auto"
-			class="box" style="height: 600px;position:relative;"
-			src="./goodlist?cateId=1000"></iframe>
+	<div class="col-md-9" id="goods_container">
+		
 	</div>
-	<div>
-
-		<!-- /. box -->
-	</div>
-	<!-- /.col -->
-	
 	<!--------------------------添加/修改信息的弹出层---------------------------->
-	<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
-		aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header bg-primary">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true"></button>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 					<h4 class="modal-title">
-						<i class="icon-pencil"></i> <span id="dialogTitle"
-							style="font-weight: bold">修改信息</span>
+						<i class="icon-pencil"></i> <span style="font-weight: bold">修改信息</span>
 					</h4>
 				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="editform" action="" data-toggle="validator"
+				<form class="form-horizontal form-bordered form-row-strippe" action="" data-toggle="validator"
 					enctype="multipart/form-data">
 					<div class="modal-body">
 						<div class="row">
@@ -165,25 +54,7 @@
 								<div class="form-group">
 									<label class="control-label col-md-2">图片</label>
 									<div class="col-md-10">
-										<input id="imgUpload" name="imgUpload" type="file" multiple
-											class="file">
-										<script>
-											$("#imgUpload")
-													.fileinput(
-															{
-																uploadUrl : "/avatar/fruit", // server upload action
-																uploadAsync : true,
-																maxFileCount : 1,
-																language : 'zh', //设置语言
-																allowedFileExtensions : [
-																		'jpg',
-																		'png',
-																		'gif' ],//接收的文件后缀
-																showUpload : true, //是否显示上传按钮
-																showCaption : true
-															//是否显示标题
-															});
-										</script>
+										<input name="gpic" type="file" class="file-loading">
 									</div>
 
 								</div>
@@ -192,8 +63,7 @@
 								<div class="form-group">
 									<label class="control-label col-md-2">名称</label>
 									<div class="col-md-10">
-										<input id="name" name="name" type="text"
-											class="form-control" placeholder="请输入商品的名称..." />
+										<input name="name" type="text" class="form-control" placeholder="请输入商品的名称..." />
 									</div>
 								</div>
 							</div>
@@ -201,24 +71,29 @@
 								<div class="form-group">
 									<label class="control-label col-md-2">价格</label>
 									<div class="col-md-10">
-										<input id="price" name="price" type="text"
-											class="form-control" placeholder="请输入商品的价格..." />
+										<input name="price" type="text" class="form-control" placeholder="请输入商品的价格..." />
 									</div>
 								</div>
 							</div>
-
+							
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-2">需要导购员</label>
+									<div class="col-md-10">
+										<input name="needSaler" type="checkbox">
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="modal-footer bg-info">
-						<input type="hidden" id="id" name="id" />
-						<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
+						<input type="hidden" name="id" />
+						<button type="button" class="btn btn-primary" data-widget="ok">确定</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					</div>
 					</form>
 			</div>
-
 		</div>
-
 	</div>
 	<!--  弹出框结束 -->
 </div>

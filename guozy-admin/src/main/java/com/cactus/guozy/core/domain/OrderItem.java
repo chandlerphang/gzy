@@ -26,7 +26,7 @@ public class OrderItem extends BaseDomain {
 	
 	private String pic;
 	
-	private Integer quantity;
+	private BigDecimal quantity;
 	
 	@Column
 	private Long goodsId;
@@ -42,7 +42,7 @@ public class OrderItem extends BaseDomain {
 				price = goods.getPrice();
 			}
 		}
-		return price.multiply(BigDecimal.valueOf(quantity));
+		return price.multiply(quantity);
 	}
 	
 	public Order getOrder() {
@@ -61,11 +61,11 @@ public class OrderItem extends BaseDomain {
 		this.price = price;
 	}
 
-	public int getQuantity() {
+	public BigDecimal getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(int quantity) {
+	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
 

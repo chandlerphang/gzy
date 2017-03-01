@@ -6,6 +6,8 @@ public interface MsgPushService {
 
 	void pushMsgToUser(String channelId, String msg);
 	
+	void pushMsgToSaler(String channelId, String msg, boolean isTransmission);
+	
 	void pushMsgToSaler(String channelId, String msg);
 
 }

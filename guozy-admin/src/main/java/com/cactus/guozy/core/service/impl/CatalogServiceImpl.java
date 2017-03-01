@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cactus.guozy.core.dao.CategoryDao;
 import com.cactus.guozy.core.dao.GoodsDao;
@@ -72,6 +73,12 @@ public class CatalogServiceImpl implements CatalogService {
 	@Override
 	public List<Saler> findSalersByShopId(Long sid) {
 		return salerService.getByEntity(Saler.builder().shopId(sid).build());
+	}
+
+	@Override
+	@Transactional
+	public void saveGoods(Goods goods) {
+		goodsDao.updateByPrimaryKey(goods);
 	}
 
 	

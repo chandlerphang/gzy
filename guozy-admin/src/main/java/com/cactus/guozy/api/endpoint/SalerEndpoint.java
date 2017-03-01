@@ -1,8 +1,11 @@
 package com.cactus.guozy.api.endpoint;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,11 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cactus.guozy.api.security.TokenHandler;
+import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.api.wrapper.OrderWrapper;
 import com.cactus.guozy.api.wrapper.SalerWrapper;
 import com.cactus.guozy.api.wrapper.ShopWrapper;
+import com.cactus.guozy.common.cms.Asset;
+import com.cactus.guozy.common.config.RuntimeEnvConfigService;
 import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.core.domain.Order;
 import com.cactus.guozy.core.domain.Saler;
@@ -186,4 +193,49 @@ public class SalerEndpoint extends BaseEndpoint {
 		return GenericWebResult.success("ok");
 	}
 	
+	@RequestMapping(value = "/salers/{userId}/nickname", method = RequestMethod.POST)
+	public GenericWebResult updateNickname(
+			HttpServletRequest request, 
+			@RequestParam("nickname") String newname,
+			@PathVariable("userId") Long userId) {
+		Saler saler = salerService.getById(userId);
+		saler.setNickname(newname);
+
+		try {
+			salerService.save(saler);
+			return GenericWebResult.success("ok");
+		} catch (Throwable t) {
+			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
+		}
+	}
+
+	@RequestMapping(value = "/salers/{userId}/avatar", method = RequestMethod.POST)
+	public GenericWebResult uploadAvatar(
+			HttpServletRequest request, 
+			@RequestParam("file") MultipartFile file,
+			@PathVariable("userId") Long userId) {
+
+		Map<String, String> properties = new HashMap<>();
+		properties.put("module", "profile");
+		properties.put("resourceId", userId.toString());
+
+		Asset asset = assetService.createAssetFromFile(file, properties);
+		if (asset == null) {
+			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
+		}
+		try {
+			ass.storeAssetFile(file, asset);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		Saler saler = salerService.getById(userId);
+		saler.setAvatar(asset.getUrl());
+		try {
+			salerService.save(saler);
+			return GenericWebResult.error("200").withData("/" + RuntimeEnvConfigService.resolveSystemProperty("asset.url.prefix", "") + asset.getUrl());
+		} catch (Throwable t) {
+			return GenericWebResult.error("500").withData(ErrorMsgWrapper.error("unknownError").withMsg("服务器内部错误"));
+		}
+	}
 }
