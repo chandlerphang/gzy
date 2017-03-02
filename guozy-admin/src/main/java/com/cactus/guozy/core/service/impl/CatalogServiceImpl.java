@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.core.dao.CategoryDao;
 import com.cactus.guozy.core.dao.GoodsDao;
 import com.cactus.guozy.core.dao.ShopDao;
@@ -44,8 +45,7 @@ public class CatalogServiceImpl implements CatalogService {
 	@Override
 	public List<Category> findCategories(Shop shop) {
 		Example example = new Example(Category.class);
-		example.createCriteria()
-        .andCondition("sid = ", shop.getId());
+		example.createCriteria().andCondition("sid = ", shop.getId());
 		
 		return categoryDao.selectByExample(example);
 	}
@@ -81,6 +81,22 @@ public class CatalogServiceImpl implements CatalogService {
 		goodsDao.updateByPrimaryKey(goods);
 	}
 
-	
+	@Override
+	public Goods findGoodsById(Long id) {
+		return goodsDao.selectByPrimaryKey(id);
+	}
+
+	@Override
+	@Transactional
+	public void addGoodsToCategory(Goods goods, Category category) {
+		if(goods.getId() == null) {
+			int ret = goodsDao.insert(goods);
+			if(ret < 1) {
+				throw new BizException("500", "");
+			}
+		}
+		
+		categoryDao.addGoodsToCategory(goods, category);
+	}
 
 }

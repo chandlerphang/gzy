@@ -20,8 +20,7 @@
 			<td>$order.orderNumber</td>
 			<td>$order.status.friendlyType</td>
 			<td>$order.user.nickname</td>
-			<td>$dateTool.format('yyyy-MM-dd HH:mm:ss',
-				$order.dateUpdated)</td>
+			<td>$dateTool.format('yyyy-MM-dd HH:mm:ss', $order.dateUpdated)</td>
 			<td>$order.payment.paymentType</td>
 			<td>$order.total</td>
 			<td><a class="btn btn-info" href="order?ordId=$order.id">查看详情</a>

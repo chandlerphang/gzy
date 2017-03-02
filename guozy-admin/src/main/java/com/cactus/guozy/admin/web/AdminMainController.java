@@ -3,7 +3,6 @@ package com.cactus.guozy.admin.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
@@ -28,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cactus.guozy.api.endpoint.AppEndpoint;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.api.wrapper.FruitCSWrapper;
 import com.cactus.guozy.api.wrapper.GoodsWrapper;
@@ -39,7 +35,6 @@ import com.cactus.guozy.common.file.FileService;
 import com.cactus.guozy.common.json.JsonResponse;
 import com.cactus.guozy.common.utils.Strings;
 import com.cactus.guozy.core.domain.Category;
-import com.cactus.guozy.core.domain.Feedback;
 import com.cactus.guozy.core.domain.FruitCommonSense;
 import com.cactus.guozy.core.domain.Goods;
 import com.cactus.guozy.core.domain.Order;
@@ -56,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 public class AdminMainController extends AbstractAdminController {
-	protected static final Logger LOG = LoggerFactory.getLogger(AppEndpoint.class);
 
 	@Resource(name = "fileService")
 	protected FileService fileService;
@@ -211,13 +205,11 @@ public class AdminMainController extends AbstractAdminController {
 	}
 
 	@RequestMapping(value = { "/orderlist" }, method = RequestMethod.GET)
-	public String orderlist(@RequestParam("shopId") Long shopId, @RequestParam("perNum") int perNum,
-			@RequestParam("pageNum") int pageNum, HttpServletResponse resp, Model model) {
-		resp.setHeader("x-frame-options", "sameorigin");
-		if (perNum <= 0 || pageNum <= 0) {
-			perNum = 8;
-			pageNum = 0;
-		}
+	public String orderlist(
+			@RequestParam("shopId") Long shopId, 
+			@RequestParam(name="perNum", defaultValue="8") int perNum,
+			@RequestParam(name="pageNum", defaultValue="1") int pageNum, 
+			HttpServletResponse resp, Model model) {
 		List<Order> orders = orderService.readOrdersForShopNotPROCESS(shopId, perNum, pageNum);
 		model.addAttribute("orders", orders);
 		model.addAttribute("sid", shopId);
@@ -244,31 +236,70 @@ public class AdminMainController extends AbstractAdminController {
 	
 	@RequestMapping(value = {"/goods"}, method = RequestMethod.POST)
 	public void saveGoods(
-			@RequestParam("gpic") MultipartFile file,
+			@RequestParam(name="gpic", required=false) MultipartFile file,
+			@RequestParam(name="cateId", required=false) Long categoryId,
 			@Valid GoodsWrapper goods,
 			HttpServletResponse resp) {
-		
-		Map<String, String> properties = new HashMap<>();
-		properties.put("module", "goods");
-		properties.put("resourceId", RandomStringUtils.randomNumeric(6));
-		
-		Asset asset=assetService.createAssetFromFile(file, properties);
-		if(asset == null) {
-			new JsonResponse(resp)
-				.with("error", "服务器内部错误")
-				.done();
+		Goods oldg = null;
+		if(goods.getId() == null) {
+			// 新增商品，需提供该商品所在分类
+			if(categoryId == null) {
+				// 异常
+				throw new RuntimeException();
+			}
+			oldg = new Goods();
+		} else {
+			oldg = catalogService.findGoodsById(goods.getId());
 		}
 		
-		try {
-			ass.storeAssetFile(file, asset);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(file != null) {
+			Map<String, String> properties = new HashMap<>();
+			properties.put("module", "goods");
+			properties.put("resourceId", RandomStringUtils.randomNumeric(6));
+			
+			Asset asset=assetService.createAssetFromFile(file, properties);
+			if(asset == null) {
+				new JsonResponse(resp)
+					.with("error", "服务器内部错误")
+					.done();
+			}
+			
+			try {
+				ass.storeAssetFile(file, asset);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			oldg.setPic(asset.getUrl());
 		}
 		
-		goods.setPic(asset.getUrl());
-		catalogService.saveGoods(goods.upwrap());
+		oldg.setName(goods.getName());
+		if(goods.getNeedSaler() != null) {
+			oldg.setNeedSaler(goods.getNeedSaler());
+		}
+		oldg.setPrice(goods.getPrice());
+		
+		if(oldg.getId() == null) {
+			Category category = new Category();
+			category.setId(categoryId);
+			catalogService.addGoodsToCategory(oldg, category);
+		} else {
+			catalogService.saveGoods(oldg);
+		}
+		
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
+	
+	@RequestMapping(value = {"/goods/{}"}, method = RequestMethod.DELETE)
+	public void nosale(
+			@RequestParam(name="cateId", required=false) Long categoryId,
+			@Valid GoodsWrapper goods,
+			HttpServletResponse resp) {
+
+		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+	}
+	
+	
 	
 	@RequestMapping(value = {"/goodlist"}, method = RequestMethod.GET)
 	public String goodlist(HttpServletResponse resp,Model model,@RequestParam("cateId") Long categoryId) {

@@ -22,6 +22,8 @@ function refreshCategories(shopId) {
 }
 
 function refreshGoods(cateId) {
+	$("#goods_container").append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+	
 	GZY.get({
 		url : "goodlist?cateId=" + cateId
 	}, function(data) {
@@ -29,38 +31,58 @@ function refreshGoods(cateId) {
 		
 		$("#goods_container button[data-widget='update']").on("click", function(){
 			var $gdiv = $(this).closest("div.info-box");
-			GZYAdmin.showElementAsModal($("#goods_container").next().clone());
+			GZYAdmin.showElementAsModal($(".goods_modal").clone());
 			
 			GZYAdmin.currentModal().find(".modal-title span").html('修改商品');
-			GZYAdmin.currentModal().find("input[name='gpic']").fileinput('refresh', {
-				initialPreview:["<img src='" + $gdiv.data("pic") +"' class='file-preview-image' alt='商品展示图片' title='商品展示图片'>"],
-				maxFileCount:1
-			});
 			GZYAdmin.currentModal().find("input[name='name']").val($gdiv.data("name"));
 			GZYAdmin.currentModal().find("input[name='price']").val($gdiv.data("price"));
 			GZYAdmin.currentModal().find("input[name='id']").val($gdiv.data("gid"));
+			if($gdiv.data("needsaler")) {
+				GZYAdmin.currentModal().find("input[name='needSaler']").attr("checked", 'checked');
+			}
 			
 			GZYAdmin.currentModal().find("button[data-widget='ok']").on("click", function() {
 				var $form = $(this).closest("form");
 				var extraData = GZY.serializeObject($form);
-				GZYAdmin.currentModal().find("input[name='gpic']").fileinput('refresh', {
+				if(extraData['needSaler'] == 'on') {
+					extraData['needSaler'] = true;
+				} else {
+					extraData['needSaler'] = false;
+				}
+				
+				var $gpic = GZYAdmin.currentModal().find("input[name='gpic']");
+				$gpic.on('filebatchuploadsuccess', function(event, data, previewId, index) {
+				    var form = data.form, files = data.files, extra = data.extra,
+			        response = data.response, reader = data.reader;
+				    if(response.status == "200") {
+				    	
+				    }
+				    GZYAdmin.hideCurrentModal();
+				    refreshGoods(cateId);
+				});
+				
+				$gpic.fileinput('refresh', {
 					'uploadExtraData': extraData, 
 					'uploadUrl': 'goods', 
 					'uploadAsync': false,
-					'fileuploaded': function(event, data, previewId, index) {
-						var response = data.response;
-						alert(response);
-					}
 				});
-				GZYAdmin.currentModal().find("input[name='gpic']").fileinput('upload');
-				
+				$gpic.fileinput('upload');
 				return false;
 			});
 			
 		});
 		
 		$("#goods_container button[data-widget='delete']").on("click", function(){
-			GZYAdmin.showMessageAsModal("警告", "确认删除该商品?");
+			var gid = $(this).closest("div.info-box").data("gid");
+			GZYAdmin.confirm("确认下架该商品?", function(ret) {
+				if(ret) {
+					GZY.post({
+						url : "goodlist?cateId=" + cateId
+					}, function() {
+						
+					});
+				}
+			});
 		});
 		
 		
@@ -68,6 +90,14 @@ function refreshGoods(cateId) {
 }
 
 $(document).ready(function() {
+	
+	// ===resize goodslist
+	var availableHeight = $(window).height() - 95 - $(".main-header").height();
+	$("#goods_container").slimScroll({
+		height: availableHeight+"px",
+	}).css("width", "100%");
+	
+	// =====================================
 	var $first = $("#shops li:first");
 	var sid = $first.data("sid");
 	refreshCategories(sid);
@@ -83,4 +113,39 @@ $(document).ready(function() {
 		}
 	});
 });
+
+function addDialog() {
+	var cateId = $("#categories li.active").data("cid");
+	GZYAdmin.showElementAsModal($(".goods_modal").clone());
+	
+	GZYAdmin.currentModal().find(".modal-title span").html('新增商品');
+	GZYAdmin.currentModal().find("button[data-widget='ok']").on("click", function() {
+		var $form = $(this).closest("form");
+		var extraData = GZY.serializeObject($form);
+		if(extraData['needSaler'] == 'on') {
+			extraData['needSaler'] = true;
+		} else {
+			extraData['needSaler'] = false;
+		}
+		extraData["cateId"] = cateId;
+		var $gpic = GZYAdmin.currentModal().find("input[name='gpic']");
+		$gpic.on('filebatchuploadsuccess', function(event, data, previewId, index) {
+		    var form = data.form, files = data.files, extra = data.extra,
+	        response = data.response, reader = data.reader;
+		    if(response.status == "200") {
+		    	
+		    }
+		    GZYAdmin.hideCurrentModal();
+		    refreshGoods(cateId);
+		});
+		
+		$gpic.fileinput('refresh', {
+			'uploadExtraData': extraData, 
+			'uploadUrl': 'goods', 
+			'uploadAsync': false,
+		});
+		$gpic.fileinput('upload');
+		return false;
+	});
+}
 

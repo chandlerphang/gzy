@@ -1,71 +1,22 @@
-<style>
-<!--
-.intrinsic-container {
-  position: relative;
-  height: 100%;
-  
-  overflow: hidden;
-}
- 
-.intrinsic-container-3x1 {
-  padding-bottom: 52%;
-}
-
-/* 16x9 Aspect Ratio */
-.intrinsic-container-16x9 {
-  padding-bottom: 46%;
-}
- 
-/* 4x3 Aspect Ratio */
-.intrinsic-container-4x3 {
-  padding-bottom: 75%;
-}
- 
-.intrinsic-container iframe {
-  position: absolute;
-  border: solid 0px #ccc;
-  top:0;
-  left: 0;
-  width: 100%;
-  height: 90%;
-}
--->
-</style>
-<script type="text/javascript">
-
-$(document)
-.ready(
-		function() {
-			$
-					.post(
-							"shops",
-							null,
-							function(json) {
-								if (json.status == "200") {
-
-									var shop = json.data;
-									var areaCont = '';
-									$("#shops").html(areaCont);
-									changeShop(shop[0].id);
-								} else {
-								}
-							});
-		});
-
-	function changeShop(shopId){
-		document.ordersFrame.location.href = "./orderlist?shopId="
-				+ shopId+"&perNum=8&pageNum="+1;
-	}
-	
-</script>
+<script src="dist/js/order.js"></script>
 <div class="box box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">店铺</h3>
+	</div>
 	<div class="box-body">
-		<select class="form-control" onchange="changeShop(this.value)"> #foreach( $shop in $shops)
-			<option value="$shop.id">$shop.name</option> #end
+		<select class="form-control" id="shops"> 
+			#foreach( $shop in $shops)
+			<option value="$shop.id">$shop.name</option> 
+			#end
 		</select>
 	</div>
 </div>
 
-<div class="intrinsic-container intrinsic-container-16x9" >
-  <iframe name="ordersFrame" src="./orderlist?shopId=1&perNum=20&pageNum=0"></iframe>
+<div class="box box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title">订单</h3>
+	</div>
+	<div class="box-body" id="orders">
+		
+	</div>
 </div>

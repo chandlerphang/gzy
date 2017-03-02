@@ -1,28 +1,23 @@
 #set($layout="layout/emptyLayout.html")
-<div class="box box-solid" >
-	<div class="box-header with-border">
-		<h3 class="box-title">商品</h3>
-		<button onclick="addDialog();" class="btn btn-primary pull-right">添加</button>
+#foreach( $good in $goods)
+<div class="info-box" style="cursor: pointer;" data-pic="$good.pic.substring(1)" data-needSaler="$good.needSaler" data-gid="$good.id" data-name="$good.name" data-price="$good.price">
+	<span ><img class="info-box-icon" src="$good.pic.substring(1)" alt="..." style="height: 90px;"></span>
+	<div class="info-box-content">
+		<span class="pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="update">
+				<i class="fa fa-pencil"></i>
+			</button>
+			<button type="button" class="btn btn-box-tool" data-widget="delete">
+				<i class="fa fa-times"></i>
+			</button>
+		</span> 
+		<span class="info-box-text">$good.name</span> 
+		<span class="info-box-text"
+			style="font-size: 12px; text-transform: none; color: red;">￥ $good.price 元</span>
+		#if($good.needSaler)
+		<span class="info-box-text" style="margin-top:8px;font-size:10px;color: red;">需要导购员</span>
+		#end
 	</div>
-	<!-- /.box-header -->
-	<div class="box-body">
-	#foreach( $good in $goods)
-	<div class="info-box" style="cursor: pointer;" data-pic="$good.pic.substring(1)" data-gid="$good.id" data-name="$good.name" data-price="$good.price">
-		<span ><img class="info-box-icon" src="$good.pic.substring(1)" alt="..." style="height: 90px;"></span>
-		<div class="info-box-content">
-			<span class="pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="update">
-					<i class="fa fa-pencil"></i>
-				</button>
-				<button type="button" class="btn btn-box-tool" data-widget="delete">
-					<i class="fa fa-times"></i>
-				</button>
-			</span> <span class="info-box-text margin">$good.name</span> <span
-				class="info-box-text margin"
-				style="margin-top: 0px; font-size: 12px; text-transform: none; color: red;">￥ $good.price元</span>
-		</div>
-		<!-- /.info-box-content -->
-	</div>
-	#end
-	</div>
+	<!-- /.info-box-content -->
 </div>
+#end

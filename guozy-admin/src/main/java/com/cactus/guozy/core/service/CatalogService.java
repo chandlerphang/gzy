@@ -19,9 +19,13 @@ public interface CatalogService {
 	
 	Category findCategory(Long cid);
 	
+	List<Goods> findAllGoods(Long cid);
+	
+	Goods findGoodsById(Long id);
+	
 	void saveGoods(Goods goods);
 	
-	List<Goods> findAllGoods(Long cid);
+	void addGoodsToCategory(Goods goods, Category category);
 	
 	List<Saler> findSalersByShopId(Long sid);
 	

@@ -33,11 +33,20 @@
 		<!-- /.box -->
 	</div>
 	<!-- /.col -->
-	<div class="col-md-9" id="goods_container">
-		
+	<div class="col-md-9" style="padding-left:0px !important;">
+		<div class="box box-solid" >
+			<div class="box-header with-border">
+				<h3 class="box-title">商品</h3>
+				<button onclick="addDialog();" class="btn btn-sm btn-flat btn-primary pull-right">添加</button>
+			</div>
+			<div class="box-body" id="goods_container">
+			</div>
+		</div>
+		</div>
 	</div>
+	
 	<!--------------------------添加/修改信息的弹出层---------------------------->
-	<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal fade goods_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header bg-primary">
@@ -56,7 +65,7 @@
 									<div class="col-md-10">
 										<input name="gpic" type="file" class="file-loading">
 									</div>
-
+	
 								</div>
 							</div>
 							<div class="col-md-12">
@@ -80,7 +89,7 @@
 								<div class="form-group">
 									<label class="control-label col-md-2">需要导购员</label>
 									<div class="col-md-10">
-										<input name="needSaler" type="checkbox">
+										<input name="needSaler" type="checkbox" style="margin-top:5px;">
 									</div>
 								</div>
 							</div>
@@ -96,5 +105,3 @@
 		</div>
 	</div>
 	<!--  弹出框结束 -->
-</div>
-

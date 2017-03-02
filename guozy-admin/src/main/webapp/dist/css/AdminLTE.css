@@ -4996,6 +4996,10 @@ table.text-center, table.text-center td, table.text-center th {
 	margin-bottom: 0;
 }
 
+.padding-left-none {
+	padding-left: 0;
+}
+
 .margin-r-5 {
 	margin-right: 5px;
 }
