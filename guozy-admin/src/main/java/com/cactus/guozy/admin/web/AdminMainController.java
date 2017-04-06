@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cactus.guozy.api.wrapper.ErrorMsgWrapper;
 import com.cactus.guozy.api.wrapper.FruitCSWrapper;
 import com.cactus.guozy.api.wrapper.GoodsWrapper;
+import com.cactus.guozy.common.PrintOrder;
 import com.cactus.guozy.common.cms.Asset;
 import com.cactus.guozy.common.cms.AssetService;
 import com.cactus.guozy.common.cms.AssetStorageService;
@@ -336,6 +337,14 @@ public class AdminMainController extends AbstractAdminController {
 		setModelAttributes(model, "yonghuguanli");
 		return "user";
 	}
+	@RequestMapping(value = "/printOrder", method = RequestMethod.POST)
+	public void printOrder(HttpServletResponse resp, @RequestParam("id") Long orderId) {
+		Order order=orderService.findOrderById(orderId);
+		PrintOrder printer=new PrintOrder();
+		printer.print("果之源", order);
+	
+		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+	}
 
 	@RequestMapping(value = "/{userId}/update", method = RequestMethod.GET)
 	public GenericWebResult updateUserInfo(HttpServletRequest request, @RequestParam("nickname") String name,
@@ -390,6 +399,8 @@ public class AdminMainController extends AbstractAdminController {
 		return GenericWebResult.error("200");
 	}
 
+	
+	
 	@ExceptionHandler(BindException.class)
 	public String validExceptionHandler(BindException e, WebRequest request, HttpServletResponse response) {
 		List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
