@@ -10,7 +10,7 @@ public interface SalerDao extends BaseDao<Saler> {
 	
 	int insertSalerLock(SalerLock sl);
 	
-	int acquireSalerLock(Saler saler, Long currentTime, Long timeToLive, Long belongTo);
+	int acquireSalerLock(Saler saler, Long currentTime, Long timeToLive);
 	
 	int releaseSalerLock(Saler saler);
 	

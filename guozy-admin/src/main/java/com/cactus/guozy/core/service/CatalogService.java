@@ -27,6 +27,8 @@ public interface CatalogService {
 	
 	void addGoodsToCategory(Goods goods, Category category);
 	
+	void removeGoods(Goods goods);
+	
 	List<Saler> findSalersByShopId(Long sid);
 	
 }

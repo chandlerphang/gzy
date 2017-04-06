@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cactus.guozy.core.dao.SalerConnectionDao">
+  <resultMap id="salerConnection" type="com.cactus.guozy.core.domain.SalerConnection">
+    <id column="id" property="id" />
+    <result column="saler_id" property="salerId" />
+    <result column="user_id" property="userId" />
+    <result column="saler_cid" property="salerCid" />
+    <result column="user_cid" property="userCid" />
+    <result column="start_time" property="startTime" />
+    <result column="end_time" property="endTime" />
+    <result column="status" property="status" />
+    <result column="home_id" property="homeId" />
+  </resultMap>
+  
+  <select id="selectLastConnection" resultMap="salerConnection">
+    SELECT *
+  	FROM `saler_connection`
+    WHERE `saler_id`=#{param1.id} AND `user_id`=#{param2} 
+    ORDER BY `start_time` DESC LIMIT 1
+  </select>
+</mapper>

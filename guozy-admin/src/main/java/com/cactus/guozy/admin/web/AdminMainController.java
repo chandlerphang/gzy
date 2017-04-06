@@ -45,6 +45,7 @@ import com.cactus.guozy.core.service.AppSettingService;
 import com.cactus.guozy.core.service.CatalogService;
 import com.cactus.guozy.core.service.OrderService;
 import com.cactus.guozy.core.service.offer.OfferService;
+import com.cactus.guozy.profile.domain.User;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -207,10 +208,10 @@ public class AdminMainController extends AbstractAdminController {
 	@RequestMapping(value = { "/orderlist" }, method = RequestMethod.GET)
 	public String orderlist(
 			@RequestParam("shopId") Long shopId, 
-			@RequestParam(name="perNum", defaultValue="8") int perNum,
+			@RequestParam(name="perNum", defaultValue="1000") int perNum,
 			@RequestParam(name="pageNum", defaultValue="1") int pageNum, 
 			HttpServletResponse resp, Model model) {
-		List<Order> orders = orderService.readOrdersForShopNotPROCESS(shopId, perNum, pageNum);
+		List<Order> orders = orderService.readOrdersForShopNotPROCESS(shopId, perNum, (pageNum - 1) * perNum);
 		model.addAttribute("orders", orders);
 		model.addAttribute("sid", shopId);
 		model.addAttribute("index", (pageNum - 1) * perNum);
@@ -220,7 +221,7 @@ public class AdminMainController extends AbstractAdminController {
 	@RequestMapping(value = { "/order" }, method = RequestMethod.GET)
 	public String order(@RequestParam("ordId") String orderId, HttpServletResponse resp, Model model) {
 		resp.setHeader("x-frame-options", "sameorigin");
-		Order order = orderService.findOrderById(Long.parseLong(orderId));
+		Order order = orderService.findOrderWithUserById(Long.parseLong(orderId));
 		model.addAttribute("order", order);
 		return "order";
 	}
@@ -290,16 +291,18 @@ public class AdminMainController extends AbstractAdminController {
 		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
 	}
 	
-	@RequestMapping(value = {"/goods/{}"}, method = RequestMethod.DELETE)
+	@RequestMapping(value = {"/goods/{gid}"}, method = RequestMethod.DELETE)
 	public void nosale(
-			@RequestParam(name="cateId", required=false) Long categoryId,
-			@Valid GoodsWrapper goods,
+			@PathVariable("gid") Long goodsId,
 			HttpServletResponse resp) {
-
-		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+		Goods goods = catalogService.findGoodsById(goodsId);
+		if(goods == null) {
+			new JsonResponse(resp).with("status", "500").with("data", "商品不存在").done();
+		} else {
+			catalogService.removeGoods(goods);
+			new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+		}
 	}
-	
-	
 	
 	@RequestMapping(value = {"/goodlist"}, method = RequestMethod.GET)
 	public String goodlist(HttpServletResponse resp,Model model,@RequestParam("cateId") Long categoryId) {
@@ -335,6 +338,20 @@ public class AdminMainController extends AbstractAdminController {
 
 		setModelAttributes(model, "yonghuguanli");
 		return "user";
+	}
+	
+	@RequestMapping(value = {"/user/{userId}/forbidden"}, method = RequestMethod.PATCH)
+	public void forbiddenToConnSaler(
+			@PathVariable("userId") Long userId,
+			@RequestParam("canline") boolean canline,
+			HttpServletResponse resp) {
+		User user = userService.getById(userId);
+		if(user == null) {
+			new JsonResponse(resp).with("status", "500").with("data", "用户不存在").done();
+		} else {
+			userService.forbiddenToLine(user, canline);
+			new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+		}
 	}
 
 	@RequestMapping(value = "/{userId}/update", method = RequestMethod.GET)

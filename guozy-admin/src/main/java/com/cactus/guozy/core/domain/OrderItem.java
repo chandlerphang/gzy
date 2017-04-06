@@ -42,7 +42,7 @@ public class OrderItem extends BaseDomain {
 				price = goods.getPrice();
 			}
 		}
-		return price.multiply(quantity);
+		return price.multiply(quantity).setScale(2);
 	}
 	
 	public Order getOrder() {

@@ -9,8 +9,8 @@
   </resultMap>
   
   <insert id="insertSalerLock" parameterType="com.cactus.guozy.core.domain.SalerLock">
-    INSERT INTO `saler_lock`(`salerid`,`locked`,`last_updated`, `belong_to`)
-    VALUES (#{salerId}, #{locked}, #{lastUpdated}, #{belongTo})
+    INSERT INTO `saler_lock`(`salerid`,`locked`,`last_updated`)
+    VALUES (#{salerId}, #{locked}, #{lastUpdated})
   </insert>
   
   <select id="countSalerLock" parameterType="com.cactus.guozy.core.domain.Saler" resultType="int">
@@ -21,12 +21,9 @@
   
   <update id="acquireSalerLock">
   	UPDATE `saler_lock`
-    SET `locked`=b'1', `last_updated`= #{param2}, `belong_to`=#{param4}
+    SET `locked`=b'1', `last_updated`= #{param2}
     WHERE `salerid` = #{param1.id}
-      AND ( 
-      		(`locked`=b'0' OR `last_updated` &lt; #{param3}) 
-      		OR (`locked`=b'1' AND `belong_to`=#{param4}) 
-      	  )
+      AND (`locked`=b'0' OR `last_updated` &lt; #{param3}) 
   </update>
 	
   <update id="releaseSalerLock" parameterType="com.cactus.guozy.core.domain.Saler">

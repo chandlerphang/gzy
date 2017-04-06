@@ -14,11 +14,13 @@ public interface SalerService extends BaseService<Saler> {
 
 	void setBusy(Long salerId);
 	
-	boolean acquireLock(final Saler saler, Long belongTo);
+	boolean acquireLock(final Saler saler);
 	
 	boolean releaseLock(final Saler saler);
 
-	void tryToConnect(Saler saler, User  user, String usrChannelId);
+	String tryToConnect(Saler saler, User  user, String usrChannelId);
+	
+	String tryToConnect1(Saler saler, User  user, String usrChannelId);
 	
 	void userDisConnect(Saler saler, Long usrId, String homeId);
 	

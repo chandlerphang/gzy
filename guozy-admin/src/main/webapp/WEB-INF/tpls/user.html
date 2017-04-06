@@ -18,8 +18,8 @@
 					<td style="vertical-align: middle !important;">$dateTool.format('yyyy-MM-dd
 						HH:mm:ss', $user.dateCreated)</td>
 					<td><button class="btn btn-primary"
-							onclick="btnOnClick(this);" data-userid="$user.id"
-							data-name="$user.nickname">#if($user.canLineToSaler)屏
+							onclick="btnOnClick(this);" data-phone="$user.phone" data-userid="$user.id"
+							data-name="$user.nickname" data-canline=$user.canLineToSaler>#if($user.canLineToSaler)屏
 							蔽#{else}解除屏蔽#end</button></td>
 				</tr>
 				#end
@@ -27,62 +27,36 @@
 		</table>
 
 		<script type="text/javascript">
-			
-			function btnOnClick(event) {
+			function btnOnClick(obj) {
+				var $obj = $(obj);
+				var canline = $obj.data("canline");
+				var tip = "";
+				if(canline) {
+					tip = "确定屏蔽用户 [ <span style='color:red'>" 
+						+ $obj.data("phone") + "，" + $obj.data("name")
+						+ "</span> ] 吗?"
+						+ "<br><br>屏蔽后，该用户将无法与导购员视频通话！"
+				} else {
+					tip = "确定解除用户 [ <span style='color:red'>" 
+					+ $obj.data("phone") + "，" + $obj.data("name")
+					+ "</span> ] 的屏蔽状态吗?"
+				}
 				
-				GZYAdmin.confirm("确定屏蔽该用户? 屏蔽后该用户将无法与导购员视频通话", function(ret) {
-					alert(ret);
+				GZYAdmin.confirm(tip, function(ret) {
+					if(ret) {
+						GZY.post({
+							url: "user/" + $(obj).data("userid") +"/forbidden",
+							data: {"_method":"PATCH", "canline": !canline}
+						}, function(data) {
+							if(data.status != '200') {
+								alert(data.data);						
+							} 
+							
+							window.location.href="user";
+						});
+					}
 				});
-				
-// 				var userId=event.getAttribute("data-userid");
-// 				var name=event.getAttribute("data-name");
-				
-// 				document.getElementById("id").value=userId;
-				
-// 				var areaCont ='确定要屏蔽用户'+name+'吗？<br>屏蔽后该用户将不能与导购员连线哟！';
-// 				$("#tips").html(areaCont);
-// 				showDialog();
-			}
-			
-			function save(){
-				var userId=document.getElementById("id").value;
 			}
 		</script>
 	</div>
-
-
-	<!--------------------------添加/修改信息的弹出层---------------------------->
-	<div id="Dialog" class="modal fade" tabindex="-1" role="dialog"
-		aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header bg-primary">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true"></button>
-					<h4 class="modal-title">
-						<i class="icon-pencil"></i> <span id="dialogTitle"
-							style="font-weight: bold">警告</span>
-					</h4>
-				</div>
-				<form class="form-horizontal form-bordered form-row-strippe"
-					id="editform" action="#" data-toggle="validator"
-					enctype="multipart/form-data">
-					<div class="modal-body">
-						<div class="row">
-							<label id="tips"
-								style="vertical-align: middle; margin-left: 30px;">确定要屏蔽该用户？<br>屏蔽后该用户将不能与导购员连线哟！
-							</label>
-						</div>
-					</div>
-					<div class="modal-footer bg-info">
-						<input type="hidden" id="id" name="id" />
-						<button onclick="return save()" id="btnOk" class="btn btn-primary">确定</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-	<!--  弹出框结束 -->
-
 </div>

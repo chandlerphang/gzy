@@ -14,6 +14,8 @@ public interface OrderDao {
 	
 	Order readOrderById(final Long orderId);
 	
+	Order readOrderWithUserById(final Long orderId);
+	
 	int save(final Order order);
 	
 	List<Order> readOrdersForUser(final User user, final OrderStatus orderStatus);
@@ -37,6 +39,8 @@ public interface OrderDao {
 	int deleteOrderAdjustment(Long orderId, Long userOfferId);
 	
 	int deleteAllOrderAdjustments(Long orderId);
+	
+	List<Order> readOrdersPayed(); 
 	
 	List<Order> readOrdersUnpay(Long userId);
 	

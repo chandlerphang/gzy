@@ -88,7 +88,7 @@ public class GetuiMsgPushService implements MsgPushService {
 			APNPayload payload = new APNPayload();
 		    //在已有数字基础上加1显示，设置为-1时，在已有数字上减1显示，设置为数字时，显示指定数字
 		    payload.setContentAvailable(1);
-		    payload.setSound("default");
+		    payload.setSound("default.caf");
 		    //简单模式APNPayload.SimpleMsg 
 		    payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
 			
@@ -113,10 +113,9 @@ public class GetuiMsgPushService implements MsgPushService {
 		SingleMessage message = new SingleMessage();
 		message.setOffline(true);
 		// 离线有效时间，单位为毫秒，可选
-		message.setOfflineExpireTime(24 * 3600 * 1000);
+		message.setOfflineExpireTime(30 * 1000);
 		message.setData(template);
-		// 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
-		message.setPushNetWorkType(0);
+		message.setPushNetWorkType(0); // 可选，1为wifi，0为不限制网络环境
 		
 		Target target = new Target();
 		target.setAppId(salerAppid);
@@ -158,10 +157,9 @@ public class GetuiMsgPushService implements MsgPushService {
 		SingleMessage message = new SingleMessage();
 		message.setOffline(true);
 		// 离线有效时间，单位为毫秒，可选
-		message.setOfflineExpireTime(24 * 3600 * 1000);
+		message.setOfflineExpireTime(8*1000);
 		message.setData(template);
-		// 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
-		message.setPushNetWorkType(0);
+		message.setPushNetWorkType(0); // 可选，1为wifi，0为不限制网络环境
 		
 		Target target = new Target();
 		target.setAppId(appid);

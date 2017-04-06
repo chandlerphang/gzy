@@ -135,7 +135,7 @@ public class OrderEndpoint extends BaseEndpoint {
 			lockMgr.releaseLock(lock);
 		}
 	}
-
+	
 	@RequestMapping(value = { "/topay" }, method = RequestMethod.GET)
 	public List<OrderWrapper> findOrdersUnpay(HttpServletRequest request) {
 		List<Order> orders = orderService.findOrdersUnpay(getCurrentUserId());
@@ -151,6 +151,18 @@ public class OrderEndpoint extends BaseEndpoint {
 	@RequestMapping(value = { "/history" }, method = RequestMethod.GET)
 	public List<OrderWrapper> findOrdersHistory(HttpServletRequest request) {
 		List<Order> orders = orderService.findOrdersCompleted(getCurrentUserId());
+		List<OrderWrapper> wrappers = new ArrayList<>();
+		for (Order order : orders) {
+			OrderWrapper wrapper = new OrderWrapper();
+			wrapper.wrapDetails(order);
+			wrappers.add(wrapper);
+		}
+		return wrappers;
+	}
+	
+	@RequestMapping(value = { "/payed" }, method = RequestMethod.GET)
+	public List<OrderWrapper> payedOrdersLast7Days(HttpServletRequest request) {
+		List<Order> orders = orderService.findOrdersPayed();
 		List<OrderWrapper> wrappers = new ArrayList<>();
 		for (Order order : orders) {
 			OrderWrapper wrapper = new OrderWrapper();

@@ -21,6 +21,4 @@ public class SalerLock {
 	
 	private Long lastUpdated;
 	
-	private Long belongTo;
-
 }

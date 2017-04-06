@@ -14,13 +14,15 @@ import com.cactus.guozy.common.BaseDao;
 import com.cactus.guozy.common.exception.BizException;
 import com.cactus.guozy.common.json.Jsons;
 import com.cactus.guozy.common.service.BaseServiceImpl;
+import com.cactus.guozy.core.dao.SalerConnectionDao;
 import com.cactus.guozy.core.dao.SalerDao;
 import com.cactus.guozy.core.domain.Saler;
+import com.cactus.guozy.core.domain.SalerConnection;
 import com.cactus.guozy.core.domain.SalerLock;
 import com.cactus.guozy.core.domain.SalerStatus;
 import com.cactus.guozy.core.dto.PushMsg;
-import com.cactus.guozy.core.service.LockManager;
 import com.cactus.guozy.core.service.MsgPushService;
+import com.cactus.guozy.core.service.SalerLockManager;
 import com.cactus.guozy.core.service.SalerService;
 import com.cactus.guozy.core.service.exception.MessagePushException;
 import com.cactus.guozy.core.util.StreamCapableTransactionalOperationAdapter;
@@ -35,6 +37,9 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 	@Autowired
 	private SalerDao salerDao;
 	
+	@Autowired
+	private SalerConnectionDao salerConnectionDao;
+	
 	@Resource(name="getuiPushService")
 	protected MsgPushService pushService;
 	
@@ -45,7 +50,7 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
     protected StreamingTransactionCapableUtil transUtil;
 	
 	@Autowired
-	LockManager lockManager;
+	SalerLockManager lockManager;
 
 	@Override
 	public BaseDao<Saler> getBaseDao() {
@@ -173,56 +178,225 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 	}
 	
 	@Override
-	public void tryToConnect(Saler saler, User user, String usrChannelId) {
+	public String tryToConnect(Saler saler, User user, String usrChannelId) {
+		if(log.isDebugEnabled()) {
+			log.debug("用户 [" + user.getId() + ", " + user.getNickname() + "] 请求与导购员 [" + saler.getId() + ", " + saler.getNickname() + "] 建立通话");
+		}
+		
+		// 判断用户是否有授权
 		if(user.getCanLineToSaler() == false) {
+			if(log.isDebugEnabled()) {
+				log.debug("用户未授权");
+			}
 			throw new BizException("403", "用户禁止通话");
+		}
+		// 判断导购员在线状态
+		if(saler.getStatus() != SalerStatus.ON_LINE.getCode()) {
+			if(log.isDebugEnabled()) {
+				log.debug("导购员非在线");
+			}
+			throw new BizException("500", "导购员非在线");
 		}
 		
 		Long usrId = user.getId();
-		Object lock = lockManager.acquireLockIfAvailable(saler, user.getId());
+		Object lock = lockManager.acquireLock(saler);
 		if(lock == null) {
 			throw new BizException("500", "获取锁失败");
 		}
 		
-		// reload Saler
-		saler = getById(saler.getId());
-		if(saler.getStatus() != SalerStatus.ON_LINE.getCode()) {
+		// 加锁过程中导购员的状态可能已经发生变化，这里重载后进行二次判断
+		final Saler newsaler = getById(saler.getId());
+		if(newsaler.getStatus() != SalerStatus.ON_LINE.getCode()) {
 			lockManager.releaseLock(lock);
 			throw new BizException("500", "导购员非在线");
 		}
-		
-		if(log.isDebugEnabled()) {
-			log.debug("用户: " + usrId + "请求与导购员: " +  saler.getId() + " 建立通话");
-		}
-		// 成功获得锁 尝试向导购员推送消息
+		// 导购员在线，建立通话链路状态跟踪
+		final SalerConnection sc = SalerConnection.builder()
+    			.salerId(newsaler.getId())
+    			.salerCid(newsaler.getChannelId())
+    			.userId(user.getId())
+    			.userCid(usrChannelId)
+    			.startTime(new Date())
+    			.status("REQ_SEND")
+    			.build();
+		final boolean[] response = {false};
+        try {
+            transUtil.runTransactionalOperation(new StreamCapableTransactionalOperationAdapter() {
+                @Override
+                public void execute() throws Throwable {
+                	// 更新导购员为忙碌状态
+                	newsaler.setStatus(SalerStatus.BUSY.getCode());
+            		// 更新最近一次活动时间
+                	newsaler.setLastActiveTime(new Date());
+            		salerDao.updateByPrimaryKey(newsaler);
+            		
+            		// 插入Saler Connection对象
+            		int rowsAffected = salerConnectionDao.insert(sc);
+            		
+                    response[0] = rowsAffected == 1;
+                }
+
+                @Override
+                public boolean shouldRetryOnTransactionLockAcquisitionFailure() {
+                    return false;
+                }
+            }, RuntimeException.class);
+        } catch (RuntimeException e) {
+        	response[0] = false;
+        }
+        // 释放锁
+        lockManager.releaseLock(lock);
+        
+		// 尝试向导购员推送消息
 		PushMsg msg = PushMsg.builder().msgType(1)
 				.subjectId(usrId)
 				.extra(usrChannelId)
 				.build();
 		try {
 			if(log.isDebugEnabled()) {
-				log.debug("向导购员: " + saler.getId() + " 推送请求通话消息");
+				log.debug("向导购员 [" + saler.getId() + ", " + saler.getNickname() + " 推送请求通话消息");
 			}
 			pushService.pushMsgToSaler(saler.getChannelId(), Jsons.DEFAULT.toJson(msg));
 			pushService.pushMsgToSaler(saler.getChannelId(), "用户请求导购", false);
 		} catch (MessagePushException e) {
 			log.error("消息推送失败: " + e.getMessage());
-			lockManager.releaseLock(lock);
 			throw new BizException("500", "消息推送失败", e);
 		}
+		
+		return null;
+	}
+	
+	
+	@Override
+	public String tryToConnect1(Saler saler, User user, String usrChannelId) {
+		if(log.isDebugEnabled()) {
+			log.debug("用户 [" + user.getId() + ", " + user.getNickname() + "] 请求与导购员 [" + saler.getId() + ", " + saler.getNickname() + "] 建立通话");
+		}
+		
+		// 判断用户是否有授权
+		if(user.getCanLineToSaler() == false) {
+			if(log.isDebugEnabled()) {
+				log.debug("用户未授权");
+			}
+			throw new BizException("403", "用户禁止通话");
+		}
+		// 判断导购员在线状态
+		if(saler.getStatus() != SalerStatus.ON_LINE.getCode()) {
+			if(log.isDebugEnabled()) {
+				log.debug("导购员非在线");
+			}
+			throw new BizException("500", "导购员非在线");
+		}
+		
+		Long usrId = user.getId();
+		Object lock = lockManager.acquireLock(saler);
+		if(lock == null) {
+			throw new BizException("500", "获取锁失败");
+		}
+		
+		// reload Saler
+		final Saler newsaler = getById(saler.getId());
+		if(newsaler.getStatus() != SalerStatus.ON_LINE.getCode()) {
+			lockManager.releaseLock(lock);
+			throw new BizException("500", "导购员非在线");
+		}
+		
+		final SalerConnection sc = SalerConnection.builder()
+    			.salerId(newsaler.getId())
+    			.salerCid(newsaler.getChannelId())
+    			.userId(user.getId())
+    			.userCid(usrChannelId)
+    			.startTime(new Date())
+    			.status("REQ_SEND")
+    			.build();
+		final boolean[] response = {false};
+        try {
+            transUtil.runTransactionalOperation(new StreamCapableTransactionalOperationAdapter() {
+                @Override
+                public void execute() throws Throwable {
+                	// 更新导购员为忙碌状态
+                	newsaler.setStatus(SalerStatus.BUSY.getCode());
+            		// 更新最近一次活动时间
+                	newsaler.setLastActiveTime(new Date());
+            		salerDao.updateByPrimaryKey(newsaler);
+            		
+            		// 插入Saler Connection对象
+            		int rowsAffected = salerConnectionDao.insert(sc);
+                    response[0] = rowsAffected == 1;
+                }
+
+                @Override
+                public boolean shouldRetryOnTransactionLockAcquisitionFailure() {
+                    return false;
+                }
+            }, RuntimeException.class);
+        } catch (RuntimeException e) {
+        	response[0] = false;
+        }
+		
+		// 尝试向导购员推送消息
+		PushMsg msg = PushMsg.builder().msgType(1)
+				.subjectId(usrId)
+				.extra(usrChannelId)
+				.build();
+		try {
+			if(log.isDebugEnabled()) {
+				log.debug("向导购员 [" + saler.getId() + ", " + saler.getNickname() + " 推送请求通话消息");
+			}
+			pushService.pushMsgToSaler(saler.getChannelId(), Jsons.DEFAULT.toJson(msg));
+			pushService.pushMsgToSaler(saler.getChannelId(), "用户请求导购", false);
+		} catch (MessagePushException e) {
+			lockManager.releaseLock(lock);
+			log.error("消息推送失败: " + e.getMessage());
+			throw new BizException("500", "消息推送失败", e);
+		}
+		
+		Long connId = sc.getId();
+		boolean lockAcquired = false;
+		int count = 0;		
+		while (!lockAcquired) {
+			SalerConnection newsc = salerConnectionDao.selectByPrimaryKey(connId);
+			lockAcquired = !"REQ_SEND".equals(newsc.getStatus());
+			if (!lockAcquired) {
+				count++;
+				if (count >= 30) {
+					break;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					break;
+				}
+			} else {
+				if("SALER_ACK".equals(newsc.getStatus())) {
+					return newsc.getHomeId();
+				} else {
+					// 更新导购员为在线状态
+					saler.setStatus(SalerStatus.ON_LINE.getCode());
+					// 更新最近一次活动时间
+					saler.setLastActiveTime(new Date());
+					salerDao.updateByPrimaryKey(saler);
+					break;
+				}
+			}
+		}
+		
+		lockManager.releaseLock(lock);
+		return null;
 	}
 	
 	@Override
 	@Transactional
 	public void salerConfirmConnect(Saler saler, Long usrId, String usrChannelId, String homeId) {
-		Object lock = lockManager.acquireLockIfAvailable(saler, usrId);
-		if(lock == null) {
-			throw new BizException("500", "获取锁失败");
-		}
-		
 		if(log.isDebugEnabled()) {
 			log.debug("导购员: " +  saler.getId() + "确认与用户: " + usrId + " 建立通话");
 		}
+		
+		SalerConnection connection = salerConnectionDao.selectLastConnection(saler, usrId);
+		connection.setHomeId(homeId);
+		connection.setStatus("SALER_ACK");
+		
+		salerConnectionDao.updateByPrimaryKey(connection);
 		
 		PushMsg msg = PushMsg.builder().msgType(2)
 				.subjectId(saler.getId())
@@ -235,15 +409,8 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			pushService.pushMsgToUser(usrChannelId, Jsons.DEFAULT.toJson(msg));
 		} catch (MessagePushException e) {
 			log.error("消息推送失败: " + e.getMessage());
-			lockManager.releaseLock(lock);
 			throw new BizException("500", "消息推送失败", e);
 		}
-		
-		// 更新导购员为忙碌状态
-		saler.setStatus(SalerStatus.BUSY.getCode());
-		// 更新最近一次活动时间
-		saler.setLastActiveTime(new Date());
-		salerDao.updateByPrimaryKey(saler);
 		
 //		// 广播导购员状态变化
 //		msg = PushMsg.builder().msgType(0)
@@ -260,14 +427,17 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 	
 	@Override
 	public void salerRejectConnect(Saler saler, Long usrId, String usrChannelId) {
-		Object lock = lockManager.acquireLockIfAvailable(saler, usrId);
-		if(lock == null) {
-			throw new BizException("500", "获取锁失败");
-		}
-		
 		if(log.isDebugEnabled()) {
 			log.debug("导购员: " +  saler.getId() + "拒绝与用户: " + usrId + " 建立通话");
 		}
+		
+		SalerConnection connection = salerConnectionDao.selectLastConnection(saler, usrId);
+		connection.setUserCid(usrChannelId);
+		connection.setStatus("SALER_REJ");
+		
+		salerConnectionDao.updateByPrimaryKey(connection);
+		
+		
 		PushMsg msg = PushMsg.builder().msgType(3)
 				.subjectId(saler.getId())
 				.build();
@@ -278,14 +448,12 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 			pushService.pushMsgToUser(usrChannelId, Jsons.DEFAULT.toJson(msg));
 		} catch (MessagePushException e) {
 			log.error("消息推送失败: " + e.getMessage());
-		} finally {
-			lockManager.releaseLock(lock);
 		}
 	}
 	
 	@Override
 	public void userConfirmConnect(Saler saler, Long usrId) {
-		Object lock = lockManager.acquireLockIfAvailable(saler, usrId);
+		Object lock = lockManager.acquireLock(saler);
 		if(log.isDebugEnabled()) {
 			log.debug("用户: " + usrId + " , 导购员: " +  saler.getId() + " 成功建立通话");
 		}
@@ -294,7 +462,7 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
 
 	@Override
 	@Transactional
-	public boolean acquireLock(Saler saler, Long belongTo) {
+	public boolean acquireLock(Saler saler) {
 		int count = salerDao.countSalerLock(saler);
         if (count == 0) {
         	// 对于同一个Saler，可能会有多个线程进入该段逻辑。SalerLock的主键是SalerId，
@@ -304,7 +472,6 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
                 		.salerId(saler.getId())
                 		.locked(true)
                 		.lastUpdated(System.currentTimeMillis())
-                		.belongTo(belongTo)
                 		.build();
                 salerDao.insertSalerLock(sl);
                 return true;
@@ -313,8 +480,8 @@ public class SalerServiceImpl extends BaseServiceImpl<Saler> implements SalerSer
             }
         }
 
-        Long timeToLive = System.currentTimeMillis();
-        int rowsAffected = salerDao.acquireSalerLock(saler, System.currentTimeMillis(), timeToLive, belongTo);
+        Long timeToLive = System.currentTimeMillis() - 10000;
+        int rowsAffected = salerDao.acquireSalerLock(saler, System.currentTimeMillis(), timeToLive);
         return rowsAffected == 1;
 	}
 

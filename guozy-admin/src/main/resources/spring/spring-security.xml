@@ -56,9 +56,6 @@
     <bean id="apiAuthenticationEntryPoint" class="com.cactus.guozy.api.security.RestAuthenticationEntryPoint"/>
     
     
-    
-    
-    
 	<sec:http auto-config="false" disable-url-rewriting="true"
 		authentication-manager-ref="adminAuthenticationManager"
 		entry-point-ref="adminAuthenticationEntryPoint">

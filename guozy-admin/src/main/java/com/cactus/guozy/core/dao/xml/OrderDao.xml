@@ -47,6 +47,19 @@
   	</collection>
   </resultMap>
   
+  <resultMap id="user" type="com.cactus.guozy.profile.domain.User">
+  	<id column="usr_id" property="id"/>
+    <result column="usr_phone" property="phone" />
+    <result column="usr_nickname" property="nickname" />
+    <result column="usr_line_to_saler" property="canLineToSaler" />
+    <result column="usr_avatar" property="avatar"/>
+    <result column="usr_create_time" property="dateCreated"/>
+  </resultMap>
+  
+  <resultMap id="orderWithRelsAndUser" extends="orderWithRels" type="com.cactus.guozy.core.domain.Order">
+  	<association property="user" resultMap="user"/>
+  </resultMap>
+  
   <resultMap type="com.cactus.guozy.core.domain.OrderAdjustment" id="orderAdjustment">
   	<id column="adj_id" property="id" />
     <result column="adj_reason" property="reason" />
@@ -146,6 +159,14 @@
   	WHERE odr.`uid`=#{userId} AND odr.`status`='COMPLETED'
   </select>
   
+  <select id="readOrdersPayed" parameterType="java.lang.Long" resultMap="orderWithRels">
+    SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id  
+  	WHERE odr.`status`='COMPLETED' ORDER BY `date_updated` DESC
+  </select>
+  
   <select id="readOrdersForSaler" parameterType="java.lang.Long" resultMap="orderWithRels">
     SELECT odr.*, addr.* , i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic
   	FROM `order` odr 
@@ -154,8 +175,16 @@
   	WHERE `created_by`=#{salerId} AND `is_saler_odr`=b'1' AND (odr.`status`='SUBMITTED' OR odr.`status`='COMPLETED')
   </select>
   
-  <select id="readOrdersForShopNotPROCESS" parameterType="com.cactus.guozy.core.domain.Page" resultMap="order">
-      SELECT * FROM `order` WHERE `sid`=#{id} AND `status`!='IN_PROCESS' ORDER BY `date_updated` DESC LIMIT #{pageNum},#{perNum}
+  <select id="readOrdersForShopNotPROCESS" parameterType="com.cactus.guozy.core.domain.Page" resultMap="orderWithRelsAndUser">
+      SELECT odr.*, addr.*, 
+	      i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic,
+	  	  usr.id as usr_id, usr.phone as usr_phone, usr.nickname as usr_nickname, usr.line_to_saler as usr_line_to_saler,
+	  	  usr.avatar as usr_avatar, usr.create_time as usr_create_time
+  	  FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id  
+  		LEFT JOIN `user` usr ON usr.id=odr.uid 
+      WHERE odr.`sid`=#{id} AND odr.`status`='COMPLETED' ORDER BY `date_updated` DESC LIMIT #{pageNum}, #{perNum}
   </select>
   
   <update id="updateTotal" parameterType="com.cactus.guozy.core.domain.Order" >
@@ -175,6 +204,19 @@
   	FROM `order` odr 
   		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
   		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id 
+  		LEFT JOIN `user` usr ON usr.id=odr.uid
+  	WHERE odr.`odr_id`=#{orderId}
+  </select>
+  
+  <select id="readOrderWithUserById" parameterType="java.lang.Long" resultMap="orderWithRelsAndUser">
+  	SELECT odr.*, addr.* , 
+  	i.id as odri_id, i.price as odri_price, i.quantity as odri_quantity, i.name as odri_name, i.pic as odri_pic,
+  	usr.id as usr_id, usr.phone as usr_phone, usr.nickname as usr_nickname, usr.line_to_saler as usr_line_to_saler,
+  	  usr.avatar as usr_avatar, usr.create_time as usr_create_time
+  	FROM `order` odr 
+  		LEFT JOIN `order_addr` addr ON odr.odr_id=addr.odr_id 
+  		LEFT JOIN `order_item` i ON odr.odr_id=i.odr_id 
+  		LEFT JOIN `user` usr ON usr.id=odr.uid 
   	WHERE odr.`odr_id`=#{orderId}
   </select>
 	

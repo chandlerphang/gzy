@@ -5,7 +5,6 @@ import java.util.Date;
 
 /**
  * TimeUtils
- * 
  */
 public class TimeUtils {
 	private final static long minute = 60 * 1000;// 1分钟

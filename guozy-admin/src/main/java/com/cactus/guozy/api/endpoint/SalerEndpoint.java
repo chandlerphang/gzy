@@ -96,13 +96,40 @@ public class SalerEndpoint extends BaseEndpoint {
 			@RequestParam("usrChannelId") String usrChannelId) {
 		Saler saler = salerService.getById(salerId);
 		if(saler == null) {
-			throw new BizException("500", "导购员存在");
+			throw new BizException("500", "导购员不存在");
 		}
 		
 		User user = userService.getById(usrId);
 		salerService.tryToConnect(saler, user, usrChannelId);
-		return GenericWebResult.success("ok");
-	}
+		return GenericWebResult.error("200");
+	}	
+	
+	/**
+	 * 新版通话接口
+	 * 
+	 * @param salerId
+	 * @param usrId
+	 * @param usrChannelId
+	 * @since 2017-04-06
+	 */
+	@RequestMapping(value = { "/conn_to_saler1"}, method = RequestMethod.POST)
+	public GenericWebResult connToSaler1(
+			@RequestParam("salerId") Long salerId,
+			@RequestParam("usrId") Long usrId,
+			@RequestParam("usrChannelId") String usrChannelId) {
+		Saler saler = salerService.getById(salerId);
+		if(saler == null) {
+			throw new BizException("500", "导购员不存在");
+		}
+		
+		User user = userService.getById(usrId);
+		String homeId = salerService.tryToConnect1(saler, user, usrChannelId);
+		if(homeId == null) {
+			return GenericWebResult.error("500");
+		} else {
+			return GenericWebResult.success(homeId);
+		}
+	}	
 	
 	@RequestMapping(value = { "/saler_confirm_conn"}, method = RequestMethod.POST)
 	public GenericWebResult salerConfirmConn(

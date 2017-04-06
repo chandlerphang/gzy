@@ -61,5 +61,9 @@ public interface OrderService {
     boolean acquireLock(Order order);
 
     boolean releaseLock(Order order);
+
+	Order findOrderWithUserById(Long orderId);
+
+	List<Order> findOrdersPayed();
     
 }

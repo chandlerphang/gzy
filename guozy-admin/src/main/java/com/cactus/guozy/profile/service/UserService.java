@@ -2,14 +2,14 @@ package com.cactus.guozy.profile.service;
 
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import com.cactus.guozy.common.service.BaseService;
 import com.cactus.guozy.profile.domain.Address;
 import com.cactus.guozy.profile.domain.User;
 import com.cactus.guozy.profile.domain.UserAddress;
 
 public interface UserService extends BaseService<User> {
+	
+	void forbiddenToLine(User user, boolean canline);
 	
 	/**
 	 * 普通用户登录

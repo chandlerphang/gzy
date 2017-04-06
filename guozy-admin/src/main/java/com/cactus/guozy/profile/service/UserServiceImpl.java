@@ -43,6 +43,13 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	@Resource(name="userServiceExtensionManager")
 	protected UserServiceExtensionManager extMgr;
 	
+	@Override
+	@Transactional
+	public void forbiddenToLine(User user, boolean canline) {
+		user.setCanLineToSaler(canline);
+		userDao.updateByPrimaryKey(user);
+	}
+	
 	@Override 
 	public User tryLogin(String phone, String passwd){
 		User user = new User();

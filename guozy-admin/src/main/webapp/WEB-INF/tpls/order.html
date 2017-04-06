@@ -50,9 +50,9 @@ function preview(oper)
 							<tr>
 								<th>订单号</th>
 								<th>订单状态</th>
-								<th>下单账号</th>
+								<th>用户昵称</th>
+								<th>手机号</th>
 								<th>下单时间</th>
-								<th>支付方式</th>
 								<th>总金额</th>
 							</tr>
 						</thead>
@@ -61,9 +61,9 @@ function preview(oper)
 								<td>$order.orderNumber</td>
 								<td>$order.status.friendlyType</td>
 								<td>$order.user.nickname</td>
+								<td>$order.user.phone</td>
 								<td>$dateTool.format('yyyy-MM-dd HH:mm:ss',
 									$order.dateUpdated)</td>
-								<td>$order.payment.paymentType</td>
 								<td>$order.total</td>
 							</tr>
 
@@ -136,8 +136,7 @@ function preview(oper)
 
 					<p>#foreach( $orderItem in $order.orderItems)
 					<div class="info-box" style="cursor: pointer;">
-						<span> <img class="info-box-icon" src="$good.pic" alt="..."
-							style="height: 90px;">
+						<span> <img class="info-box-icon" style="height: 90px;">
 						</span>
 						<div class="info-box-content">
 
@@ -150,9 +149,6 @@ function preview(oper)
 					</div>
 					#end
 					</p>
-
-
-
 					<hr>
 
 				</div>

@@ -74,12 +74,16 @@ function refreshGoods(cateId) {
 		
 		$("#goods_container button[data-widget='delete']").on("click", function(){
 			var gid = $(this).closest("div.info-box").data("gid");
-			GZYAdmin.confirm("确认下架该商品?", function(ret) {
+			GZYAdmin.confirm("确定下架该商品吗?", function(ret) {
 				if(ret) {
 					GZY.post({
-						url : "goodlist?cateId=" + cateId
-					}, function() {
-						
+						url : "goods/" + gid,
+						data:{"_method":"DELETE"}
+					}, function(data) {
+						if(data.status != '200') {
+							alert(data.data);						
+						} 
+						refreshGoods($("#categories li.active").data("cid"));
 					});
 				}
 			});

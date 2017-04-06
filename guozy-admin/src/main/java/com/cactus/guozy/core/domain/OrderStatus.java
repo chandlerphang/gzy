@@ -5,7 +5,8 @@ public enum OrderStatus {
 	SALER_IN_PROCESS("SALER_IN_PROCESS", "导购员处理中"),
 	IN_PROCESS("IN_PROCESS", "处理中"),
 	SUBMITTED("SUBMITTED", "已提交"),
-	COMPLETED("COMPLETED", "已完成"),
+	COMPLETED("COMPLETED", "已支付"),
+	FINISHED("FINISHED", "已发货"),
     CANCELLED("CANCELLED", "已取消");
 	
 	private String type;

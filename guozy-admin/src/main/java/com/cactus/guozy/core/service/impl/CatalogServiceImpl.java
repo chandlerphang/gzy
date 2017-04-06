@@ -99,4 +99,10 @@ public class CatalogServiceImpl implements CatalogService {
 		categoryDao.addGoodsToCategory(goods, category);
 	}
 
+	@Override
+	@Transactional
+	public void removeGoods(Goods goods) {
+		goodsDao.delete(goods);
+	}
+
 }

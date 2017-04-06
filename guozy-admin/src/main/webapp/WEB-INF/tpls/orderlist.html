@@ -5,9 +5,9 @@
 			<th>序号</th>
 			<th>订单号</th>
 			<th>订单状态</th>
-			<th>下单账号</th>
+			<th>用户昵称</th>
+			<th>手机号</th>
 			<th>下单时间</th>
-			<th>支付方式</th>
 			<th>总金额</th>
 			<th>动作</th>
 		</tr>
@@ -20,12 +20,10 @@
 			<td>$order.orderNumber</td>
 			<td>$order.status.friendlyType</td>
 			<td>$order.user.nickname</td>
+			<td>$order.user.phone</td>
 			<td>$dateTool.format('yyyy-MM-dd HH:mm:ss', $order.dateUpdated)</td>
-			<td>$order.payment.paymentType</td>
 			<td>$order.total</td>
 			<td><a class="btn btn-info" href="order?ordId=$order.id">查看详情</a>
-				<button class="btn btn-primary" onclick="btnOnClick(this);"
-					data-ordId="$order.id">发货</button></td>
 		</tr>
 		#end
 	</tbody>

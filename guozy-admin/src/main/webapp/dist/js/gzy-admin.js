@@ -381,6 +381,7 @@ var GZYAdmin = (function($) {
 					language : 'zh', //设置语言
 					allowedFileExtensions : [
 							'jpg',
+							'jpeg',
 							'png',
 							'gif' ],//接收的文件后缀
 					showUpload : true, //是否显示上传按钮

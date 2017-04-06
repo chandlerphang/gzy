@@ -32,7 +32,7 @@ import com.cactus.guozy.core.domain.Shop;
 import com.cactus.guozy.core.domain.UserOffer;
 import com.cactus.guozy.core.dto.OrderItemRequestDTO;
 import com.cactus.guozy.core.dto.PushMsg;
-import com.cactus.guozy.core.service.LockManager;
+import com.cactus.guozy.core.service.SalerLockManager;
 import com.cactus.guozy.core.service.MsgPushService;
 import com.cactus.guozy.core.service.OrderService;
 import com.cactus.guozy.core.service.PricingException;
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     protected StreamingTransactionCapableUtil transUtil;
 	
 	@Autowired
-	LockManager lockManager;
+	SalerLockManager lockManager;
 	
 	@Override
 	@Transactional
@@ -286,6 +286,12 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Override
+	public List<Order> findOrdersPayed() {
+		List<Order> orders = orderDao.readOrdersPayed();
+		return orders;
+	}
+	
+	@Override
 	public List<Order> findOrdersCompleted(Long userId) {
 		List<Order> orders = orderDao.readOrdersCompleted(userId);
 		return orders;
@@ -298,13 +304,10 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public List<Order> readOrdersForShopNotPROCESS(Long shopId,int perNum,int pageNum) {
-		List<Order> orders = orderDao.readOrdersForShopNotPROCESS(new Page(shopId,perNum,pageNum));
-		for(Order order : orders) {
-			order.setOrderItems(orderDao.readItemsForOrder(order.getId()));
-		}
-		return orders;
+	public List<Order> readOrdersForShopNotPROCESS(Long shopId, int perNum, int pageNum) {
+		return orderDao.readOrdersForShopNotPROCESS(new Page(shopId,perNum,pageNum));
 	}
+	
 	@Override
 	@Transactional
 	public void updateAddress(Long orderId, Long addrId) {
@@ -350,6 +353,12 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Order findOrderById(Long orderId) {
 		Order order = orderDao.readOrderById(orderId);
+		return order;
+	}
+	
+	@Override
+	public Order findOrderWithUserById(Long orderId) {
+		Order order = orderDao.readOrderWithUserById(orderId);
 		return order;
 	}
 	
