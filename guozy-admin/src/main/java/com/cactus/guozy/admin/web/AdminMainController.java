@@ -182,11 +182,18 @@ public class AdminMainController extends AbstractAdminController {
 		model.addAttribute("shops", shops);
 		List<Saler> salers = catalogService.findSalersByShopId(1l);
 		model.addAttribute("salers", salers);
-
 		setModelAttributes(model, "dianyuanguanli");
 		return "saler";
 	}
 
+	@RequestMapping(value = {"/printOrder"}, method = RequestMethod.POST)
+	public void printOrder(@RequestParam("id") Long id,HttpServletResponse resp) {
+		Order order=orderService.findOrderById(id);
+		PrintOrder printer = new PrintOrder();
+		printer.print("果之源", order);
+		new JsonResponse(resp).with("status", "200").with("data", "ok").done();
+	}
+	
 	@RequestMapping(value = { "/ordershop" }, method = RequestMethod.GET)
 	public String ordershop(Model model) {
 		List<Shop> shops = catalogService.findAllShops();

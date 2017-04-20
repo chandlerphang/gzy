@@ -88,18 +88,17 @@ public class PrintOrder implements Printable {
 				DateFormat df = DateFormat.getDateTimeInstance();
 				g2_1.setFont(font); // 设置字体
 				g2_1.drawString(title + "（商家留）", (float) x + 20, (float) y + 1 * heigth1);
+
+				g2_1.drawLine((int) x, (int) (y + 2 * heigth1), (int) x + 144, (int) (y + 2 * heigth1));
 				g2_1.setFont(font2);
-				g2_1.drawString("订单号："+mOrder.getOrderNumber(), (float) x, (float) y + 2 * heigth1+5);
-				g2_1.drawLine((int) x, (int) (y + 3 * heigth1), (int) x + 144, (int) (y + 3 * heigth1));
-				g2_1.setFont(font2);
-				g2_1.drawString("名称", (float) x, (float) y + 4 * heigth1);
+				g2_1.drawString("名称", (float) x, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawString("数量", (float) x + space_1, (float) y + 4 * heigth1);
+				g2_1.drawString("数量", (float) x + space_1, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawString("金额", (float) x + space_2, (float) y + 4 * heigth1);
+				g2_1.drawString("金额", (float) x + space_2, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawLine((int) x - 2, (int) (y + 6 * heigth- 7), (int) x + 144, (int) (y + 6 * heigth- 7));
+				g2_1.drawLine((int) x - 2, (int) (y + 5 * (heigth - 2)), (int) x + 142, (int) (y + 5 * (heigth - 2)));
 
 				int y1 = 0;
 				g2_1.setFont(font2);
@@ -107,62 +106,62 @@ public class PrintOrder implements Printable {
 				for (OrderItem orderItem : mOrder.getOrderItems()) {
 					if (orderItem.getName().length() > lineGoodsNameCount) {
 						g2_1.drawString(orderItem.getName().substring(0, lineGoodsNameCount), (float) x,
-								(float) y + ((float) 6.5 + y1) * heigth);
+								(float) y + ((float) 5.5 + y1) * heigth);
 					} else {
 						g2_1.drawString(orderItem.getName().substring(0, orderItem.getName().length()), (float) x,
-								(float) y + ((float) 6.5 + y1) * heigth);
+								(float) y + ((float) 5.5 + y1) * heigth);
 					}
 
 					g2_1.drawString("*" + orderItem.getQuantity(), (float) x + space_1,
-							(float) y + ((float) 6.5 + y1) * heigth);
+							(float) y + ((float) 5.5 + y1) * heigth);
 					g2_1.drawString((orderItem.getPrice().floatValue()*orderItem.getQuantity().floatValue())+ "", (float) x + space_2,
-							(float) y + ((float) 6.5 + y1) * heigth);
+							(float) y + ((float) 5.5 + y1) * heigth);
 
 					y1++;
 					if (orderItem.getName().length() / lineGoodsNameCount > 0) {
 						if (orderItem.getName().length() < (lineGoodsNameCount * 2)) {
 							g2_1.drawString(
 									orderItem.getName().substring(lineGoodsNameCount, orderItem.getName().length()),
-									(float) x, (float) y + ((float) 6.5 + y1) * heigth);
+									(float) x, (float) y + ((float) 5.5 + y1) * heigth);
 						} else {
 							g2_1.drawString(
 									orderItem.getName().substring(lineGoodsNameCount, lineGoodsNameCount * 2 - 2) + "...",
-									(float) x, (float) y + ((float) 6.5 + y1) * heigth);
+									(float) x, (float) y + ((float) 5.5 + y1) * heigth);
 						}
 						y1++;
 					}
 				}
 				// 配送费
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth), (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 144,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;
-				g2_1.drawString("配送费：", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
-				g2_1.drawString(mOrder.getShipPrice()+"", (float) x + space_2, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("配送费：", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
+				g2_1.drawString(mOrder.getShipPrice()+"", (float) x + space_2, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth-7), (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth-7));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 144,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;
-				g2_1.drawString("总金额：" + mOrder.getTotal()+"元", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("总金额：" + mOrder.getTotal()+"元", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawString("收货人：" + mOrder.getShipAddr().getName(), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("收货人：" + mOrder.getShipAddr().getName(), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
 				if(shipAddress.length()<lineAddressNum){
-					g2_1.drawString("收货地址：" +shipAddress, (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString("收货地址：" +shipAddress, (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				}else{
-					g2_1.drawString("收货地址：" +shipAddress.substring(0, lineAddressNum-1), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString("收货地址：" +shipAddress.substring(0, lineAddressNum-1), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 					y1++;
-					g2_1.drawString(shipAddress.substring(lineAddressNum, shipAddress.length()), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString(shipAddress.substring(lineAddressNum, shipAddress.length()), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				}
 				y1++;
-				g2_1.drawString("联系电话：" + mOrder.getShipAddr().getPhone(), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("联系电话：" + mOrder.getShipAddr().getPhone(), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
 				
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth), (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 183,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;
-				g2_1.drawString("谢谢惠顾，欢迎再次光临！", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("谢谢惠顾，欢迎再次光临！", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawString("日期：" + df.format(date), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("日期：" + df.format(date), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 
 			// 【給顾客小票】
 			{
@@ -170,79 +169,78 @@ public class PrintOrder implements Printable {
 				y += baseHeight;
 				g2_1.setFont(font); // 设置字体
 				g2_1.drawString(title + "（顾客留）", (float) x + 20, (float) y + 1 * heigth1);
+
+				g2_1.drawLine((int) x, (int) (y + 2 * heigth1), (int) x + 144, (int) (y + 2 * heigth1));
 				g2_1.setFont(font2);
-				g2_1.drawString("订单号："+mOrder.getOrderNumber(), (float) x, (float) y + 2 * heigth1+5);
-				g2_1.drawLine((int) x, (int) (y + 3 * heigth1), (int) x + 144, (int) (y + 3 * heigth1));
-				g2_1.setFont(font2);
-				g2_1.drawString("名称", (float) x, (float) y + 4 * heigth1);
+				g2_1.drawString("名称", (float) x, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawString("数量", (float) x + space_1, (float) y + 4 * heigth1);
+				g2_1.drawString("数量", (float) x + space_1, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawString("金额", (float) x + space_2, (float) y + 4 * heigth1);
+				g2_1.drawString("金额", (float) x + space_2, (float) y + 3 * heigth1);
 				g2_1.setFont(font2); // 设置字体
-				g2_1.drawLine((int) x - 2, (int) (y + 6 * (heigth )- 7), (int) x + 144, (int) (y + 6 * (heigth)- 7));
+				g2_1.drawLine((int) x - 2, (int) (y + 5 * (heigth - 2)), (int) x + 142, (int) (y + 5 * (heigth - 2)));
 
 				y1 = 0;
 				g2_1.setFont(font2);
 				for (OrderItem orderItem : mOrder.getOrderItems()) {
 					if (orderItem.getName().length() > lineGoodsNameCount) {
 						g2_1.drawString(orderItem.getName().substring(0, lineGoodsNameCount), (float) x,
-								(float) y + ((float) 6.5 + y1) * heigth);
+								(float) y + ((float) 5.5 + y1) * heigth);
 					} else {
 						g2_1.drawString(orderItem.getName().substring(0, orderItem.getName().length()), (float) x,
-								(float) y + ((float) 6.5 + y1) * heigth);
+								(float) y + ((float) 5.5 + y1) * heigth);
 					}
 
 					g2_1.drawString("*" + orderItem.getQuantity(), (float) x + space_1,
-							(float) y + ((float) 6.5 + y1) * heigth);
+							(float) y + ((float) 5.5 + y1) * heigth);
 					g2_1.drawString((orderItem.getPrice().floatValue()*orderItem.getQuantity().floatValue())+ "", (float) x + space_2,
-							(float) y + ((float) 6.5 + y1) * heigth);
+							(float) y + ((float) 5.5 + y1) * heigth);
 
 					y1++;
 					if (orderItem.getName().length() / lineGoodsNameCount > 0) {
 						if (orderItem.getName().length() < (lineGoodsNameCount * 2)) {
 							g2_1.drawString(
 									orderItem.getName().substring(lineGoodsNameCount, orderItem.getName().length()),
-									(float) x, (float) y + ((float) 6.5 + y1) * heigth);
+									(float) x, (float) y + ((float) 5.5 + y1) * heigth);
 						} else {
 							g2_1.drawString(
 									orderItem.getName().substring(lineGoodsNameCount, lineGoodsNameCount * 2 - 2) + "...",
-									(float) x, (float) y + ((float) 6.5 + y1) * heigth);
+									(float) x, (float) y + ((float) 5.5 + y1) * heigth);
 						}
 						y1++;
 					}
 				}
 				// 配送费
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth), (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 144,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;
-				g2_1.drawString("配送费：", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
-				g2_1.drawString(mOrder.getShipPrice()+"", (float) x + space_2, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("配送费：", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
+				g2_1.drawString(mOrder.getShipPrice()+"", (float) x + space_2, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth)-7, (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth-7));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 144,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;				
-				g2_1.drawString("总金额：" + mOrder.getTotal()+"元", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("总金额：" + mOrder.getTotal()+"元", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawString("收货人：" + mOrder.getShipAddr().getName(), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("收货人：" + mOrder.getShipAddr().getName(), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
 				if(shipAddress.length()<lineAddressNum){
-					g2_1.drawString("收货地址：" +shipAddress, (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString("收货地址：" +shipAddress, (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				}else{
-					g2_1.drawString("收货地址：" +shipAddress.substring(0, lineAddressNum-1), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString("收货地址：" +shipAddress.substring(0, lineAddressNum-1), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 					y1++;
-					g2_1.drawString(shipAddress.substring(lineAddressNum, shipAddress.length()), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+					g2_1.drawString(shipAddress.substring(lineAddressNum, shipAddress.length()), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				}
 				y1++;
-				g2_1.drawString("联系电话：" + mOrder.getShipAddr().getPhone(), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("联系电话：" + mOrder.getShipAddr().getPhone(), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawLine((int) x - 2, (int) (y + ((float) 6.5 + y1) * heigth), (int) x + 144,
-						(int) (y + ((float) 6.5 + y1) * heigth));
+				g2_1.drawLine((int) x - 2, (int) (y + ((float) 5.5 + y1) * heigth), (int) x + 183,
+						(int) (y + ((float) 5.5 + y1) * heigth));
 				y1++;
-				g2_1.drawString("谢谢惠顾，欢迎再次光临！", (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("谢谢惠顾，欢迎再次光临！", (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 				y1++;
-				g2_1.drawString("日期：" + df.format(date), (float) x, (float) y + ((float) 6.5 + y1) * heigth);
+				g2_1.drawString("日期：" + df.format(date), (float) x, (float) y + ((float) 5.5 + y1) * heigth);
 
 			}
 				return PAGE_EXISTS;
@@ -311,7 +309,7 @@ public class PrintOrder implements Printable {
 				lines++;
 			}
 		}
-		return (220 + k * lines) * 2;
+		return (190 + k * lines) * 2;
 	}
 
 	public String getTitle() {
